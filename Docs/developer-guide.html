@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>WorkBench Developer's Guide</title>
+<link rev="made" href="mailto:dev@pysvn.tigris.org">
+<style>
+H1, H2, H3, H4 {color: #000099;	background-color: lightskyblue; padding: 4px;}
+pre {color: #dd0000; background-color: #d0d0d0; position: relative; left: 40px; margin-right: 80px;
+	border-style: solid; border-color: black; border-width: thin; padding: 3px;}
+code {color: #dd0000; background-color: #d0d0d0}
+table {background-color: black; border-collapse: collapse;}
+th {background-color: white; border: 1px solid; padding: 2px; text-align: left; vertical-align: top;}
+td {background-color: white; border: 1px solid; padding: 2px; vertical-align: top;}
+td.nowrap {white-space: nowrap;}
+</style>
+</head>
+<body>
+<h1>WorkBench Developer's Guide</h1>
+
+<p>This is the source of information for developers working on WorkBench.</p>
+<p>The contents will be enhanced and extended based in feed back
+sent to <a href="mailto:dev@pysvn.tigris.org">dev@pysvn.tigris.org</a>.</p>
+
+<h2>Architecture</h2>
+
+
+<h3>Threading</h3>
+
+<p>Workbench uses two threads.</p>
+
+<p>The foreground thread operates the GUI and only fast
+operations should be performed in event handlers otherwise the responsiveness
+of the UI will suffer.</p>
+
+<p>Slow operations are performed on a background thread.
+The background thread processes work that is added to a work queue.</p>
+
+<p>No GUI operations are allowed to be performed on the background thread.
+This is because on some platforms the GUI will crash.</p>
+
+<p>An event handler typcially needs to do some work on the foreground thread and some on the background thread.</p>
+<p>Arranging to move between threads can involve a lot of code in the event handlers. However Workbench
+has greatly simplified the coding of event handlers by using using python generators.</p>
+
+<p>The threading and event helper code is in wb_app.py and wb_background_thread.py.
+To understand the code you will need to be familier with the <code>__call__()</code> special
+method, how to call a function with arbitary args and keywords and python generators
+and the yield keyword.</p>
+
+<p>Any event handler that needs access to the background thread is wrapped via the eventWrapper() function.
+An example from wb_frame.py:</p>
+
+<pre>
+wx.EVT_MENU( self, wb_ids.id_SP_History, self.app.eventWrapper( self.OnSpHistory ) )
+</pre>
+
+<p>The <code>eventWrapper</code> function wraps the <code>self.OnSpHistory</code> function
+ inside an <code>EventScheduling</code> object.</p>
+
+<p>Inside the event handler move to the background by:</p>
+<pre>
+yield self.app.backgroundProcess
+</pre>
+<p>And move to the foreground by:</p>
+<pre>
+yield self.app.foregroundProcess
+</pre>
+<p>The project_info object has two pysvn client objects, <code>client_fg</code>
+for use on the foreground thread and <code>client_bg</code> for use on the background thread.
+You must use the client object that matches the thread the code is running on
+otherwise pysvn will raise an exception that the it is already in use.
+</p>
+
+<p>In this example from <code>wb_subversion_list_handler_common.py</code> you can see
+that the function yields to the background before calling annotate using the <code>client_bg</code> object.
+Then after annotate has completed the function yields to the foreground to do GUI operations,
+creating the <code>AnnotateFrame</code>.</p>
+<p>Notice the use of the <code>ok</code> variable that carries status until the
+function is back in the foreground where it can react by calling appropiate GUI operations.
+</p>
+<pre>
+def Cmd_File_Annotate( self, all_rows ):
+    for filename in [self.getFilename( row ) for row in all_rows]:
+        self.app.setProgress( 'Annotating %(count)d', 0 )
+
+        self.app.setAction( 'Annotate %s...' % filename )
+
+        yield self.app.backgroundProcess
+
+        ok = False
+        try:
+            annotation = self.project_info.client_bg.annotate( filename )
+            ok = True
+        except pysvn.ClientError, e:
+            self.app.log_client_error( e )
+
+        yield self.app.foregroundProcess
+
+        if not ok:
+            break
+
+        h_frame = wb_subversion_annotate.AnnotateFrame( self.app, self.project_info, filename, annotation )
+        h_frame.Show( True )
+
+    self.app.clearProgress()
+    self.app.setAction( 'Ready' )
+</pre>
+
+<h2>Development</h2>
+
+<h3>Code style</h3>
+
+<p>If you wish to contribute code to WorkBench please keep the style inline with the existing code.</p>
+<table>
+<tr><th>Element</th>
+    <th>Style</th>
+    <th>Example</th></tr>
+<tr><td>module name</td>
+    <td>Lower case with underscore (_) to seperate words.</td>
+    <td class="nowrap"><code>wb_app.py</code></td></tr>
+<tr><td>class</td>
+    <td>Camel case with initial uppercase letter.</td>
+    <td class="nowrap"><code>class WbApp</code></td></tr>
+<tr><td>def</td>
+    <td>Camel case with initial lowercase letter.</td>
+    <td class="nowrap"><code>def setAction():</code></td></tr>
+<tr><td>variables</td>
+    <td>Lower case with underscore (_) to seperate words.</td>
+    <td class="nowrap"><code>current_file = 'a.txt'</code></td></tr>
+<tr><td>plural variable names</td>
+    <td>Use the <code>all_</code> prefix for plural variables, do not 
+        append <code>s</code>, its to easy to confuse singluar with plural.</td>
+    <td class="nowrap"><code>all_files = []<code></td></tr>
+<tr><td>Compare to <code>None</code></td>
+    <td>Always use <code>is</code> or <code>is not</code> to test a
+        for <code>None</code>. Use of <code>==</code> can trigger
+        unexpected calls to <code>__eq__</code> and <code>__cmp__</code> class methods.</td>
+    <td class="nowrap"><code>if status.entry is None:</code></td></tr>
+</table>
+
+<h3>Running WorkBench from SVN trunk</h3>
+
+<p>In the <code>Sources</code> folder run one of the make files to create
+the generated source files (wb_version.py and wb_images.py).</p>
+
+<p>Unless you are trying to create binary images of WorkBench use:</p>
+
+<p><code>make -f wb_common.mak wb_version.py wb_images.py</code></p>
+
+<p>Now you can run WorkBench using one of the helper scripts.</p>
+<table>
+<tr><th>Platform</th><th>Command</th></tr>
+<tr><td>Windows</td><td><code>run_wb.cmd</code></td</tr>
+<tr><td>Unix</td><td><code>wb.sh</code></td</tr>
+<tr><td>Mac OS X</td><td><code>run_wb.sh</code></td</tr>
+</table>
+</body>
+</html>
+
+<h3>Debugging WorkBench</h3>
+
+<p>WorkBench has a number of features to aid debugging:</p>
+<ul>
+<li>Any unhandled exception in an event handler is logged if the event function is wrapped with a try_wrapper. See wb_frame for examples of usage.
+<li>Run workbench with the command line option --debug will enable debug log messages.
+<li>Run workbench with the command line option --trace will enable trace log messages. (No that useful at the moment as the idle processing never stops).
+<li>Run workbench with the command line option --noredirect will print all messgage on stdout as well as in the log file and in the log panel.
+</ul>
+

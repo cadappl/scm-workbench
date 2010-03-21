@@ -1,0 +1,2169 @@
+# translation of pysvn_workbench_de.current.po to
+# translation of pysvn_workbench_de.current.po to Deutsch
+# translation of de.po to
+# This file is distributed under the same license as the pysvn/WorkBench package.
+# Copyright (C) 2009.
+# Dirk Bächle <tshortik@gmx.de>, 2009.
+# Dirk Baechle <tshortik@gmx.de>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: pysvn_workbench_de.current\n"
+"Report-Msgid-Bugs-To: barryscott@tigris.org\n"
+"POT-Creation-Date: 2009-09-30 19:53+0200\n"
+"PO-Revision-Date: 2009-09-30 22:26+0200\n"
+"Last-Translator: Dirk Bächle <tshortik@gmx.de>\n"
+"Language-Team:  <de@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.10\n"
+"Plural-Forms:  nplurals=2; plural=(n != 1);\n"
+
+#: wb_app.py:111 wb_frame.py:43
+msgid "PySVN WorkBench"
+msgstr "PySVN WorkBench"
+
+#: wb_app.py:185
+msgid "Work Bench starting"
+msgstr "WorkBench wird gestartet"
+
+#: wb_bookmarks_dialogs.py:58 wb_frame.py:158
+msgid "Manage Bookmarks"
+msgstr "Lesezeichen verwalten"
+
+#: wb_bookmarks_dialogs.py:73 wb_bookmarks_dialogs.py:74
+#: wb_bookmarks_dialogs.py:75 wb_bookmarks_dialogs.py:76
+msgid "Menu"
+msgstr "Menü"
+
+#: wb_bookmarks_dialogs.py:77
+msgid "WC Path"
+msgstr "WC Pfad"
+
+#: wb_bookmarks_dialogs.py:93 wb_preferences_dialog.py:374
+msgid " Delete "
+msgstr " Löschen "
+
+#: wb_bookmarks_dialogs.py:96
+msgid " Properties "
+msgstr "Eigenschaften"
+
+#: wb_bookmarks_dialogs.py:99 wb_bookmarks_dialogs.py:306 wb_dialogs.py:59
+#: wb_dialogs.py:187 wb_dialogs.py:244 wb_dialogs.py:314 wb_dialogs.py:388
+#: wb_dialogs.py:444 wb_dialogs.py:511 wb_dialogs.py:610 wb_dialogs.py:736
+#: wb_preferences_dialog.py:59 wb_project_dialogs.py:103
+#: wb_subversion_history.py:228 wb_subversion_info_dialog.py:35
+#: wb_subversion_properties_dialog.py:175
+msgid " OK "
+msgstr " OK "
+
+#: wb_bookmarks_dialogs.py:100 wb_bookmarks_dialogs.py:307 wb_dialogs.py:60
+#: wb_dialogs.py:189 wb_dialogs.py:246 wb_dialogs.py:316 wb_dialogs.py:390
+#: wb_dialogs.py:446 wb_dialogs.py:513 wb_dialogs.py:612 wb_dialogs.py:739
+#: wb_preferences_dialog.py:61 wb_project_dialogs.py:105
+#: wb_subversion_checkin.py:137 wb_subversion_history.py:230
+#: wb_subversion_properties_dialog.py:177 wb_subversion_report_updates.py:287
+msgid " Cancel "
+msgstr " Abbrechen "
+
+#: wb_bookmarks_dialogs.py:244
+msgid "Bookmark Properties"
+msgstr "Eigenschaften"
+
+#: wb_bookmarks_dialogs.py:286
+msgid "WC Path: "
+msgstr "WC Pfad: "
+
+#: wb_bookmarks_dialogs.py:290
+msgid "Menu1: "
+msgstr "Menü1: "
+
+#: wb_bookmarks_dialogs.py:294
+msgid "Menu2: "
+msgstr "Menü2: "
+
+#: wb_bookmarks_dialogs.py:298
+msgid "Menu3: "
+msgstr "Menü3: "
+
+#: wb_bookmarks_dialogs.py:302
+msgid "Menu Name: "
+msgstr "Menü Name: "
+
+#: wb_dialogs.py:40
+msgid "Status"
+msgstr "Status"
+
+#: wb_dialogs.py:42
+msgid "Filename"
+msgstr "Dateiname"
+
+#: wb_dialogs.py:56
+msgid "Force"
+msgstr "Erzwingen"
+
+#: wb_dialogs.py:134 wb_subversion_checkin.py:140
+msgid "Insert Last Message"
+msgstr "Letzte Lognachricht"
+
+#: wb_dialogs.py:164
+msgid "Credentials"
+msgstr "Zugangsdaten"
+
+#: wb_dialogs.py:168
+msgid "Username:"
+msgstr "User:"
+
+#: wb_dialogs.py:176
+msgid "Password:"
+msgstr "Passwort:"
+
+#: wb_dialogs.py:182
+msgid "Always uses these credentials"
+msgstr "Immer diese Logindaten benutzen"
+
+#: wb_dialogs.py:227
+#, python-format
+msgid "Trust server %s"
+msgstr "Server %s vertrauen"
+
+#: wb_dialogs.py:232
+msgid "Server Certificate"
+msgstr "Serverzertifikat"
+
+#: wb_dialogs.py:239
+msgid "Always trust this server"
+msgstr "Diesem Server immer vertrauen"
+
+#: wb_dialogs.py:290 wb_frame.py:114 wb_frame.py:157
+#: wb_subversion_list_handler.py:73
+msgid "Add"
+msgstr "Hinzufügen"
+
+#: wb_dialogs.py:294 wb_dialogs.py:366
+msgid "From:"
+msgstr "Von:"
+
+#: wb_dialogs.py:300
+msgid "Force Add"
+msgstr "Hinzufügen erzwingen"
+
+#: wb_dialogs.py:306
+msgid "Recursive Add"
+msgstr "Rekursiv hinzufügen"
+
+#: wb_dialogs.py:362 wb_frame.py:115 wb_subversion_list_handler.py:150
+#: wb_subversion_list_handler.py:379 wb_subversion_list_handler.py:386
+#: wb_subversion_tree_handler.py:794
+msgid "Rename"
+msgstr "Umbenennen"
+
+#: wb_dialogs.py:372
+msgid "To:"
+msgstr "Nach:"
+
+#: wb_dialogs.py:383
+msgid "Force rename"
+msgstr "Umbenennen erzwingen"
+
+#: wb_dialogs.py:436 wb_subversion_info_dialog.py:56
+#: wb_subversion_tree_handler.py:513
+msgid "Name:"
+msgstr "Name:"
+
+#: wb_dialogs.py:437
+msgid "New Folder"
+msgstr "Neues Verzeichnis"
+
+#: wb_dialogs.py:480 wb_dialogs.py:485
+msgid "New File"
+msgstr "Neue Datei"
+
+#: wb_dialogs.py:489
+msgid "New Filename:"
+msgstr "Neuer Dateiname:"
+
+#: wb_dialogs.py:504
+msgid "Template:"
+msgstr "Template:"
+
+#: wb_dialogs.py:554
+msgid "Empty directory"
+msgstr "Leeres Verzeichnis"
+
+#: wb_dialogs.py:556
+msgid "Children files only"
+msgstr "Nur Kind-Dateien"
+
+#: wb_dialogs.py:557
+msgid "Immediate children"
+msgstr "Direkte Kinder"
+
+#: wb_dialogs.py:558
+msgid "Only already checked out descendants"
+msgstr "Nur bereits ausgecheckte Einträge"
+
+#: wb_dialogs.py:559
+msgid "All descendants (Full recursion)"
+msgstr "Alles (rekursiv)"
+
+#: wb_dialogs.py:570
+msgid "HEAD revision"
+msgstr "HEAD Revision"
+
+#: wb_dialogs.py:578 wb_subversion_info_dialog.py:64
+#: wb_subversion_info_dialog.py:108
+msgid "Revision:"
+msgstr "Revision:"
+
+#: wb_dialogs.py:590
+msgid "Apply on"
+msgstr "Anwenden auf"
+
+#: wb_dialogs.py:593
+msgid "Recursive (all)"
+msgstr "Rekursiv (Alle)"
+
+#: wb_dialogs.py:599
+msgid "Depth:"
+msgstr "Tiefe:"
+
+#: wb_dialogs.py:648
+msgid "Please enter a revision number > 0!"
+msgstr "Bitte geben Sie eine Revisionsnummer > 0 ein!"
+
+#: wb_dialogs.py:653
+msgid "Please enter digits only!"
+msgstr "Bitte geben Sie nur Ziffern ein!"
+
+#: wb_dialogs.py:705
+msgid "Copy From:"
+msgstr "Kopieren von:"
+
+#: wb_dialogs.py:708
+msgid "Copy To:"
+msgstr "Kopieren nach:"
+
+#: wb_dialogs.py:733 wb_subversion_checkin.py:133
+msgid "Log message"
+msgstr "Lognachricht"
+
+#: wb_dialogs.py:791 wb_frame.py:122
+msgid "Create Tag"
+msgstr "Tag erzeugen"
+
+#: wb_dialogs.py:795 wb_frame.py:123
+msgid "Create Branch"
+msgstr "Branch erzeugen"
+
+#: wb_diff_frame.py:49 wb_show_diff_frame.py:32
+#, python-format
+msgid "Diff %(title1)s and %(title2)s"
+msgstr "Diff von %(title1)s gegen %(title2)s"
+
+#: wb_diff_frame.py:59
+msgid "Expand folds"
+msgstr "Entfalten"
+
+#: wb_diff_frame.py:59
+msgid "Expand all folds"
+msgstr "Alle entfalten"
+
+#: wb_diff_frame.py:60
+msgid "Collapse folds"
+msgstr "Zusammenfalten"
+
+#: wb_diff_frame.py:60
+msgid "Collapse all folds"
+msgstr "Alle zusammenfalten"
+
+#: wb_diff_frame.py:62
+msgid "Toggle whitespace"
+msgstr "Leerzeichen umschalten"
+
+#: wb_diff_frame.py:62
+msgid "Show/hide whitespace"
+msgstr "Zeige/Verstecke Leerzeichen"
+
+#: wb_diff_frame.py:64
+msgid "Previous difference"
+msgstr "Vorheriger Unterschied"
+
+#: wb_diff_frame.py:64
+msgid "Positions the cursor at the previous difference between the files"
+msgstr "Positioniert den Cursor auf den vorherigen Unterschied"
+
+#: wb_diff_frame.py:65
+msgid "Next difference"
+msgstr "Nächster Unterschied"
+
+#: wb_diff_frame.py:65
+msgid "Positions the cursor at the next difference between the files"
+msgstr "Positioniert den Cursor auf den nächsten Unterschied"
+
+#: wb_diff_frame.py:85
+msgid "Key: "
+msgstr "Marke: "
+
+#: wb_diff_frame.py:86
+msgid "Inserted text "
+msgstr "Eingefügter Text "
+
+#: wb_diff_frame.py:87
+msgid "Deleted text "
+msgstr "Gelöschter Text "
+
+#: wb_diff_frame.py:88
+msgid "Changed text"
+msgstr "Geänderter Text"
+
+#: wb_diff_frame.py:176
+#, python-format
+msgid "Diff %(change1)d of %(change2)d"
+msgstr "Diff von %(change1)d gegen %(change2)d"
+
+#: wb_frame.py:62
+msgid "&Copy"
+msgstr "Kopieren (&C)"
+
+#: wb_frame.py:62
+msgid "Copy Files"
+msgstr "Dateien kopieren"
+
+#: wb_frame.py:63
+msgid "&Cut"
+msgstr "Ausschneiden (&X)"
+
+#: wb_frame.py:63
+msgid "Cut Files"
+msgstr "Dateien ausschneiden"
+
+#: wb_frame.py:64
+msgid "&Paste"
+msgstr "Einfügen (&P)"
+
+#: wb_frame.py:64
+msgid "Paste Files"
+msgstr "Dateien einfügen"
+
+#: wb_frame.py:66
+msgid "&Clear log"
+msgstr "Logdatei löschen (&L)"
+
+#: wb_frame.py:66
+msgid "Clear the log window"
+msgstr "Logfenster löschen"
+
+#: wb_frame.py:73
+msgid "&Preferences..."
+msgstr "Einstellungen (&P)"
+
+#: wb_frame.py:73 wb_preferences_dialog.py:24
+msgid "Preferences"
+msgstr "Einstellungen"
+
+#: wb_frame.py:74
+msgid "E&xit"
+msgstr "Ende (&X)"
+
+#: wb_frame.py:74
+msgid "Exit the application"
+msgstr "Anwendung beenden"
+
+#: wb_frame.py:77 wb_subversion_tree_handler.py:174
+msgid "&Command Shell"
+msgstr "Shell (&C)"
+
+#: wb_frame.py:77 wb_toolbars.py:91
+msgid "Command Shell"
+msgstr "Shell"
+
+#: wb_frame.py:78 wb_subversion_tree_handler.py:175
+msgid "&File Browser"
+msgstr "Dateibrowser (&F)"
+
+#: wb_frame.py:78 wb_toolbars.py:95
+msgid "File Browser"
+msgstr "Dateibrowser"
+
+#: wb_frame.py:80 wb_subversion_checkin.py:38 wb_subversion_checkin.py:335
+#: wb_subversion_list_handler.py:42 wb_subversion_report_updates.py:216
+msgid "Edit"
+msgstr "Editieren"
+
+#: wb_frame.py:81 wb_subversion_checkin.py:40 wb_subversion_checkin.py:339
+#: wb_subversion_list_handler.py:45 wb_subversion_report_updates.py:219
+msgid "Open"
+msgstr "Öffnen"
+
+#: wb_frame.py:83 wb_subversion_checkin.py:42 wb_subversion_checkin.py:343
+#: wb_subversion_list_handler.py:48 wb_subversion_tree_handler.py:177
+msgid "Diff WC vs. BASE..."
+msgstr "Diff WC vs. BASE..."
+
+#: wb_frame.py:84 wb_subversion_checkin.py:43 wb_subversion_checkin.py:344
+#: wb_subversion_list_handler.py:49 wb_subversion_report_branch_changes.py:30
+#: wb_subversion_report_branch_changes.py:158 wb_subversion_report_lock.py:38
+#: wb_subversion_report_lock.py:194 wb_subversion_report_updates.py:38
+#: wb_subversion_report_updates.py:222 wb_subversion_tree_handler.py:178
+msgid "Diff WC vs. HEAD..."
+msgstr "Diff WC vs. HEAD..."
+
+#: wb_frame.py:85 wb_subversion_checkin.py:44 wb_subversion_checkin.py:345
+#: wb_subversion_list_handler.py:50 wb_subversion_report_branch_changes.py:31
+#: wb_subversion_report_branch_changes.py:159 wb_subversion_report_lock.py:39
+#: wb_subversion_report_lock.py:195 wb_subversion_report_updates.py:39
+#: wb_subversion_report_updates.py:223
+msgid "Diff WC vs. branch origin BASE..."
+msgstr "Diff WC vs. Originalbranch BASE..."
+
+#: wb_frame.py:86 wb_subversion_checkin.py:45 wb_subversion_checkin.py:346
+#: wb_subversion_list_handler.py:51 wb_subversion_report_branch_changes.py:32
+#: wb_subversion_report_branch_changes.py:160 wb_subversion_report_lock.py:40
+#: wb_subversion_report_lock.py:196 wb_subversion_report_updates.py:40
+#: wb_subversion_report_updates.py:224
+msgid "Diff WC vs. branch origin HEAD..."
+msgstr "Diff WC vs. Originalbranch HEAD..."
+
+#: wb_frame.py:89 wb_subversion_list_handler.py:52
+msgid "Conflict"
+msgstr "Konflikt"
+
+#: wb_frame.py:90 wb_subversion_list_handler.py:53
+msgid "Diff Conflict Old vs. Mine..."
+msgstr "Diff Konflikt Old vs. Mine..."
+
+#: wb_frame.py:91 wb_subversion_list_handler.py:54
+msgid "Diff Conflict Mine vs. New..."
+msgstr "Diff Konflikt Mine vs. New..."
+
+#: wb_frame.py:92 wb_subversion_list_handler.py:55
+msgid "Diff Conflict Old vs. New..."
+msgstr "Diff Konflikt Old vs. New..."
+
+#: wb_frame.py:94 wb_subversion_list_handler.py:57
+msgid "Resolved Conflict"
+msgstr "Konflikt gelöst"
+
+#: wb_frame.py:97 wb_subversion_checkin.py:48 wb_subversion_checkin.py:348
+#: wb_subversion_list_handler.py:60 wb_subversion_report_branch_changes.py:35
+#: wb_subversion_report_branch_changes.py:162 wb_subversion_report_lock.py:43
+#: wb_subversion_report_lock.py:198
+#: wb_subversion_report_revision_changes.py:50
+#: wb_subversion_report_revision_changes.py:279
+#: wb_subversion_report_updates.py:43 wb_subversion_report_updates.py:226
+msgid "Annotate..."
+msgstr "Zeilenhistorie..."
+
+#: wb_frame.py:98 wb_subversion_checkin.py:49 wb_subversion_checkin.py:349
+#: wb_subversion_list_handler.py:61 wb_subversion_report_branch_changes.py:36
+#: wb_subversion_report_branch_changes.py:163 wb_subversion_report_lock.py:44
+#: wb_subversion_report_lock.py:199
+#: wb_subversion_report_revision_changes.py:51
+#: wb_subversion_report_revision_changes.py:280
+#: wb_subversion_report_updates.py:44 wb_subversion_report_updates.py:227
+#: wb_subversion_tree_handler.py:180
+msgid "Log history..."
+msgstr "Logeinträge..."
+
+#: wb_frame.py:99 wb_subversion_checkin.py:50 wb_subversion_checkin.py:350
+#: wb_subversion_list_handler.py:62 wb_subversion_report_branch_changes.py:37
+#: wb_subversion_report_branch_changes.py:164 wb_subversion_report_lock.py:45
+#: wb_subversion_report_lock.py:200
+#: wb_subversion_report_revision_changes.py:52
+#: wb_subversion_report_revision_changes.py:281
+#: wb_subversion_tree_handler.py:181
+msgid "Information..."
+msgstr "Information..."
+
+#: wb_frame.py:100 wb_subversion_checkin.py:51 wb_subversion_checkin.py:351
+#: wb_subversion_list_handler.py:63 wb_subversion_tree_handler.py:182
+msgid "Properties..."
+msgstr "Eigenschaften..."
+
+#: wb_frame.py:102 wb_subversion_list_handler.py:68
+#: wb_subversion_tree_handler.py:188
+msgid "Update"
+msgstr "Update"
+
+#: wb_frame.py:103
+msgid "Update to..."
+msgstr "Update auf..."
+
+#: wb_frame.py:104 wb_subversion_list_handler.py:39
+#: wb_subversion_tree_handler.py:185
+msgid "Checkout"
+msgstr "Checkout"
+
+#: wb_frame.py:105 wb_subversion_tree_handler.py:186
+msgid "Checkout to..."
+msgstr "Checkout auf..."
+
+#: wb_frame.py:107 wb_subversion_list_handler.py:71
+#: wb_subversion_tree_handler.py:191
+msgid "Checkin..."
+msgstr "Checkin..."
+
+#: wb_frame.py:109 wb_subversion_list_handler.py:65
+#: wb_subversion_report_lock.py:202
+msgid "Lock..."
+msgstr "Lock..."
+
+#: wb_frame.py:110 wb_subversion_list_handler.py:66
+#: wb_subversion_report_lock.py:203
+msgid "Unlock..."
+msgstr "Unlock..."
+
+#: wb_frame.py:112 wb_subversion_tree_handler.py:193
+msgid "New File..."
+msgstr "Neue Datei..."
+
+#: wb_frame.py:113 wb_subversion_tree_handler.py:194
+msgid "Make directory..."
+msgstr "Verzeichnis erstellen..."
+
+#: wb_frame.py:115 wb_subversion_list_handler.py:74
+#: wb_subversion_tree_handler.py:196
+msgid "Rename..."
+msgstr "Umbenennen..."
+
+#: wb_frame.py:117 wb_frame.py:167 wb_subversion_list_handler.py:76
+#: wb_subversion_tree_handler.py:198
+msgid "Delete..."
+msgstr "Löschen..."
+
+#: wb_frame.py:117
+msgid "Delete"
+msgstr "Löschen"
+
+#: wb_frame.py:118 wb_subversion_checkin.py:352
+#: wb_subversion_list_handler.py:77 wb_subversion_tree_handler.py:199
+msgid "Revert..."
+msgstr "Revert..."
+
+#: wb_frame.py:118 wb_subversion_checkin.py:93 wb_subversion_checkin.py:378
+#: wb_subversion_list_handler.py:399 wb_subversion_tree_handler.py:819
+msgid "Revert"
+msgstr "Revert"
+
+#: wb_frame.py:120 wb_subversion_list_handler.py:79
+#: wb_subversion_tree_handler.py:201
+msgid "Clean up"
+msgstr "Cleanup"
+
+#: wb_frame.py:120
+msgid "Clean up working copy"
+msgstr "Cleanup der Arbeitskopie"
+
+#: wb_frame.py:122
+msgid "Create Tag..."
+msgstr "Tag erzeugen..."
+
+#: wb_frame.py:123
+msgid "Create Branch..."
+msgstr "Branch erzeugen..."
+
+#: wb_frame.py:126
+msgid "Working copy Locks..."
+msgstr "Locks der Arbeitskopie..."
+
+#: wb_frame.py:126
+msgid "Locks held in Working Copy"
+msgstr "Gehaltene Locks in der Arbeitskopie"
+
+#: wb_frame.py:127
+msgid "Repository Locks..."
+msgstr "Locks im Repository..."
+
+#: wb_frame.py:127
+msgid "Locks held in Repository"
+msgstr "Gehaltene Locks im Repository"
+
+#: wb_frame.py:129
+msgid "Changes..."
+msgstr "Änderungen..."
+
+#: wb_frame.py:129
+msgid "Changes available for checkin"
+msgstr "Änderungen für den nächsten Checkin"
+
+#: wb_frame.py:130
+msgid "Updates..."
+msgstr "Updates..."
+
+#: wb_frame.py:130
+msgid "Updates available in the Repository"
+msgstr "Updates die im Repository bereitstehen"
+
+#: wb_frame.py:131
+msgid "Branch changes..."
+msgstr "Branchänderungen..."
+
+#: wb_frame.py:131
+msgid "Files changed in this branch"
+msgstr "Dateien die in diesem Branch geändert wurden"
+
+#: wb_frame.py:134
+msgid "Show &Controlled files"
+msgstr "Zeige überwachte Dateien (&C)"
+
+#: wb_frame.py:134
+msgid "Show Controlled files"
+msgstr "Zeige überwachte Dateien"
+
+#: wb_frame.py:135
+msgid "Show &Uncontrolled files"
+msgstr "Zeige nicht überwachte Dateien (&U)"
+
+#: wb_frame.py:135
+msgid "Show Uncontrolled files"
+msgstr "Zeige nicht überwachte Dateien"
+
+#: wb_frame.py:136
+msgid "Show &Ignored files"
+msgstr "Zeige &ignorierte Dateien"
+
+#: wb_frame.py:136
+msgid "Show ignored files"
+msgstr "Zeige ignorierte Dateien"
+
+#: wb_frame.py:137
+msgid "Show &Only changed files"
+msgstr "Zeige nur geänderte Dateien (&O)"
+
+#: wb_frame.py:137
+msgid "Filter out unchanged files"
+msgstr "Zeige nur geänderte Dateien"
+
+#: wb_frame.py:139
+msgid "Show &Recursive files"
+msgstr "Zeige Dateien &Rekursiv"
+
+#: wb_frame.py:139
+msgid "Show recursive files"
+msgstr "Zeige Dateien rekursiv"
+
+#: wb_frame.py:141
+msgid "Use WorkBench Diff"
+msgstr "WorkBench Diff"
+
+#: wb_frame.py:142
+msgid "Use External GUI Diff"
+msgstr "Externes Diff (GUI)"
+
+#: wb_frame.py:143
+msgid "Use External Text Diff"
+msgstr "Externes Diff (Text)"
+
+#: wb_frame.py:144
+msgid "Use SVN Diff"
+msgstr "SVN Diff"
+
+#: wb_frame.py:146
+msgid "&Refresh\tF5"
+msgstr "Aktualisieren (&R)\tF5"
+
+#: wb_frame.py:146
+msgid "Refresh display"
+msgstr "Ansicht aktualisieren"
+
+#: wb_frame.py:147
+msgid "&Automatic Refresh"
+msgstr "&Automatisch aktualisieren"
+
+#: wb_frame.py:147
+msgid "Automatic refresh"
+msgstr "Automatisch aktualisieren"
+
+#: wb_frame.py:157
+msgid "Add Bookmark"
+msgstr "Lesezeichen hinzufügen"
+
+#: wb_frame.py:158
+msgid "Manage..."
+msgstr "Verwalten..."
+
+#: wb_frame.py:164 wb_subversion_tree_handler.py:195
+msgid "Add..."
+msgstr "Hinzufügen..."
+
+#: wb_frame.py:164
+msgid "Project Add"
+msgstr "Projekt hinzufügen"
+
+#: wb_frame.py:165
+msgid "Settings..."
+msgstr "Eigenschaften..."
+
+#: wb_frame.py:165 wb_project_dialogs.py:303 wb_tree_panel.py:574
+msgid "Project Settings"
+msgstr "Projekteigenschaften"
+
+#: wb_frame.py:167 wb_tree_panel.py:575 wb_tree_panel.py:616
+msgid "Delete Project"
+msgstr "Projekt löschen"
+
+#: wb_frame.py:170
+msgid "&About..."
+msgstr "Über... (&A)"
+
+#: wb_frame.py:170
+msgid "About the application"
+msgstr "Über WorkBench"
+
+#: wb_frame.py:174
+msgid "&File"
+msgstr "Datei (&F)"
+
+#: wb_frame.py:175
+msgid "&Edit"
+msgstr "&Editieren"
+
+#: wb_frame.py:176
+msgid "&View"
+msgstr "Ansicht (&V)"
+
+#: wb_frame.py:177 wb_subversion_checkin.py:60
+#: wb_subversion_report_branch_changes.py:40 wb_subversion_report_lock.py:48
+#: wb_subversion_report_revision_changes.py:55
+#: wb_subversion_report_updates.py:51
+msgid "&Actions"
+msgstr "&Aktionen"
+
+#: wb_frame.py:178
+msgid "&Reports"
+msgstr "Berichte (&R)"
+
+#: wb_frame.py:179
+msgid "&Bookmarks"
+msgstr "Lesezeichen (&B)"
+
+#: wb_frame.py:180
+msgid "&Project"
+msgstr "&Projekt"
+
+#: wb_frame.py:181
+msgid "&Help"
+msgstr "&Hilfe"
+
+#: wb_frame.py:198
+msgid "Work Bench"
+msgstr "Work Bench"
+
+#: wb_frame.py:200 wb_frame.py:483 wb_subversion_checkin.py:257
+#: wb_subversion_list_handler_common.py:704
+#: wb_subversion_list_handler_common.py:737
+#: wb_subversion_list_handler_common.py:773
+#: wb_subversion_list_handler_common.py:821
+#: wb_subversion_list_handler_common.py:868
+#: wb_subversion_list_handler_common.py:906
+#: wb_subversion_list_handler_common.py:951
+#: wb_subversion_list_handler_common.py:1017 wb_subversion_list_handler.py:467
+#: wb_subversion_list_handler.py:520
+#: wb_subversion_report_revision_changes.py:143
+#: wb_subversion_report_revision_changes.py:180
+#: wb_subversion_report_revision_changes.py:219
+#: wb_subversion_report_updates.py:159 wb_subversion_tree_handler.py:244
+#: wb_subversion_tree_handler.py:282 wb_subversion_tree_handler.py:296
+#: wb_subversion_tree_handler.py:325 wb_subversion_tree_handler.py:348
+#: wb_subversion_tree_handler.py:416 wb_subversion_tree_handler.py:451
+#: wb_subversion_tree_handler.py:490 wb_subversion_tree_handler.py:629
+#: wb_subversion_tree_handler.py:672 wb_subversion_tree_handler.py:779
+#: wb_subversion_tree_handler.py:894
+msgid "Ready"
+msgstr "Fertig"
+
+#: wb_frame.py:465
+#, python-format
+msgid "Work Bench version: %s"
+msgstr "Work Bench version: %s"
+
+#: wb_frame.py:469
+msgid ""
+"\n"
+"Copyright Barry Scott (c) 2003-2009. All rights reserved"
+msgstr ""
+"\n"
+"Copyright Barry Scott (c) 2003-2009. All rights reserved"
+
+#: wb_frame.py:673
+#, python-format
+msgid "Adding bookmark to %s"
+msgstr "Lesezeichen zu %s hinzufügen"
+
+#: wb_list_panel_common.py:108 wb_list_panel_common.py:511
+#: wb_subversion_list_handler_common.py:31
+#: wb_subversion_list_handler_common.py:110
+#: wb_subversion_list_handler_common.py:243
+#: wb_subversion_report_branch_changes.py:147 wb_subversion_report_lock.py:183
+#: wb_subversion_report_revision_changes.py:266
+#: wb_subversion_report_updates.py:205
+msgid "Name"
+msgstr "Name"
+
+#: wb_list_panel_common.py:511 wb_subversion_annotate.py:59
+#: wb_subversion_history.py:71 wb_subversion_history.py:377
+#: wb_subversion_history.py:503 wb_subversion_list_handler_common.py:35
+#: wb_subversion_list_handler_common.py:114
+#: wb_subversion_list_handler_common.py:246
+msgid "Author"
+msgstr "Autor"
+
+#: wb_preferences_dialog.py:32
+msgid "PreferencesDialog"
+msgstr "Einstellungen"
+
+#: wb_preferences_dialog.py:106
+msgid "Editor"
+msgstr "Editor"
+
+#: wb_preferences_dialog.py:111
+msgid "Editor: "
+msgstr "Editor:"
+
+#: wb_preferences_dialog.py:114
+msgid "Edit Arguments: "
+msgstr "Argumente: "
+
+#: wb_preferences_dialog.py:117 wb_preferences_dialog.py:210
+#: wb_project_dialogs.py:58 wb_project_dialogs.py:87 wb_project_dialogs.py:477
+#: wb_project_dialogs.py:636
+msgid " Browse... "
+msgstr " Suchen... "
+
+#: wb_preferences_dialog.py:143 wb_preferences_dialog.py:267
+msgid "Executable files (*.exe)|*.exe"
+msgstr "Ausführbare Dateien (*.exe)|*.exe"
+
+#: wb_preferences_dialog.py:145 wb_preferences_dialog.py:269
+msgid "Applications|*.app|Executable files|*"
+msgstr "Anwendungen|*.app|Ausführbare Dateien|*"
+
+#: wb_preferences_dialog.py:147 wb_preferences_dialog.py:271
+msgid "Executable files|*"
+msgstr "Ausführbare Dateien|*"
+
+#: wb_preferences_dialog.py:152 wb_preferences_dialog.py:276
+msgid "Choose an Executable file"
+msgstr "Wählen Sie bitte eine ausführbare Datei"
+
+#: wb_preferences_dialog.py:182
+msgid "You must enter a valid editor executable"
+msgstr "Bitte geben Sie einen ausführbaren Editor an"
+
+#: wb_preferences_dialog.py:183 wb_preferences_dialog.py:573
+#: wb_preferences_dialog.py:584 wb_preferences_dialog.py:631
+#: wb_preferences_dialog.py:644 wb_preferences_dialog.py:695
+#: wb_preferences_dialog.py:761 wb_preferences_dialog.py:773
+#: wb_preferences_dialog.py:968 wb_subversion_checkin.py:314
+#: wb_subversion_list_handler.py:224 wb_subversion_list_handler.py:464
+#: wb_subversion_list_handler.py:517 wb_subversion_properties_dialog.py:93
+#: wb_subversion_properties_dialog.py:114 wb_subversion_tree_handler.py:355
+#: wb_subversion_tree_handler.py:637 wb_subversion_tree_handler.py:640
+#: wb_subversion_tree_handler.py:669 wb_subversion_tree_handler.py:815
+#: wb_subversion_tree_handler.py:891
+msgid "Warning"
+msgstr "Warnung"
+
+#: wb_preferences_dialog.py:193
+msgid "Diff Tool"
+msgstr "Diff"
+
+#: wb_preferences_dialog.py:201
+msgid "Work Bench Diff"
+msgstr "Work Bench Diff"
+
+#: wb_preferences_dialog.py:201
+msgid "External GUI Diff Command"
+msgstr "Externes Diff (GUI)"
+
+#: wb_preferences_dialog.py:201
+msgid "External Text Diff"
+msgstr "Externes Diff (Text)"
+
+#: wb_preferences_dialog.py:201
+msgid "SVN diff"
+msgstr "SVN Diff"
+
+#: wb_preferences_dialog.py:215
+msgid "Mode: "
+msgstr "Modus: "
+
+#: wb_preferences_dialog.py:219
+msgid "Diff Tool: "
+msgstr "Diff Tool: "
+
+#: wb_preferences_dialog.py:223
+msgid "Tool Arguments: "
+msgstr "Argumente: "
+
+#: wb_preferences_dialog.py:227
+msgid "Use"
+msgstr "Verwenden Sie"
+
+#: wb_preferences_dialog.py:228
+msgid ""
+"%nl for left file name, %nr for right file name,\n"
+"%tl for left title, %tr for right title"
+msgstr ""
+"%nl für die linke Datei, %nr für die rechte Datei,\n"
+"%tl für die linke Überschrift, %tr für die rechte Überschrift"
+
+#: wb_preferences_dialog.py:293
+msgid "Shell"
+msgstr "Shell"
+
+#: wb_preferences_dialog.py:298
+msgid "Terminal Init Command: "
+msgstr "Terminal-Initkommando: "
+
+#: wb_preferences_dialog.py:306
+msgid "Terminal Program: "
+msgstr "Terminal-Programm: "
+
+#: wb_preferences_dialog.py:323
+msgid "File Browser Program: "
+msgstr "Dateibrowser: "
+
+#: wb_preferences_dialog.py:358
+msgid "View"
+msgstr "Ansicht"
+
+#: wb_preferences_dialog.py:366
+msgid "Exclude filename"
+msgstr "Dateinamen ausschließen"
+
+#: wb_preferences_dialog.py:372
+msgid " Add "
+msgstr " Hinzufügen "
+
+#: wb_preferences_dialog.py:484
+msgid "Columns"
+msgstr "Spalten"
+
+#: wb_preferences_dialog.py:492 wb_preferences_dialog.py:499
+msgid "Column"
+msgstr "Spalte"
+
+#: wb_preferences_dialog.py:494 wb_preferences_dialog.py:501
+msgid "Width"
+msgstr "Breite"
+
+#: wb_preferences_dialog.py:519 wb_preferences_dialog.py:818
+msgid " Include --> "
+msgstr " Hinzufügen --> "
+
+#: wb_preferences_dialog.py:521 wb_preferences_dialog.py:820
+msgid " <-- Exclude "
+msgstr " <-- Ausschließen "
+
+#: wb_preferences_dialog.py:524 wb_preferences_dialog.py:823
+msgid " Move Up "
+msgstr " Hoch "
+
+#: wb_preferences_dialog.py:526 wb_preferences_dialog.py:825
+msgid " Move Down "
+msgstr " Runter "
+
+#: wb_preferences_dialog.py:571 wb_preferences_dialog.py:629
+#, python-format
+msgid "Width for %(name)s must be an number between %(min)d and %(max)d"
+msgstr "Die Breite für %(name)s muss zwischen %(min)d und %(max)d liegen"
+
+#: wb_preferences_dialog.py:582 wb_preferences_dialog.py:642
+#, python-format
+msgid "Width for %(name)s must be between %(min)d and %(max)d"
+msgstr "Die Breite für %(name)s muss zwischen %(min)d und %(max)d liegen"
+
+#: wb_preferences_dialog.py:694
+msgid "You must include the Name column"
+msgstr "Die Namen-Spalte darf nicht gelöscht werden"
+
+#: wb_preferences_dialog.py:705 wb_subversion_history.py:183
+msgid "Log History"
+msgstr "Logeinträge"
+
+#: wb_preferences_dialog.py:711 wb_subversion_history.py:194
+msgid "Show all entries"
+msgstr "Alle Einträge zeigen"
+
+#: wb_preferences_dialog.py:711
+msgid "Show only"
+msgstr "Zeige die letzten"
+
+#: wb_preferences_dialog.py:711
+msgid "Show since"
+msgstr "Zeige Einträge seit"
+
+#: wb_preferences_dialog.py:712
+msgid "Default mode: "
+msgstr "Modus: "
+
+#: wb_preferences_dialog.py:716
+msgid "Default limit: "
+msgstr "Anzahl: "
+
+#: wb_preferences_dialog.py:719
+msgid "Default since interval (days): "
+msgstr "Zeitintervall (Tage): "
+
+#: wb_preferences_dialog.py:722
+msgid "Default Include tags: "
+msgstr "Tags anzeigen: "
+
+#: wb_preferences_dialog.py:723 wb_subversion_history.py:222
+msgid "Include tags in log history"
+msgstr "Tags in Loghistorie anzeigen"
+
+#: wb_preferences_dialog.py:760
+msgid "Limit must be greater then 0"
+msgstr "Die Anzahl muss größer als 0 sein"
+
+#: wb_preferences_dialog.py:772
+msgid "Since days must be greater then 0"
+msgstr "Die Anzahl der Tage muss größer als 0 sein"
+
+#: wb_preferences_dialog.py:791
+msgid "Toolbar"
+msgstr "Toolbar"
+
+#: wb_preferences_dialog.py:800 wb_preferences_dialog.py:805
+msgid "Toolbar Group"
+msgstr "Toolbar-Gruppe"
+
+#: wb_preferences_dialog.py:829
+msgid "Display toolbar: "
+msgstr "Toolbar anzeigen: "
+
+#: wb_preferences_dialog.py:830
+msgid "Enabled"
+msgstr "Aktiviert"
+
+#: wb_preferences_dialog.py:832
+msgid "Orientation: "
+msgstr "Richtung: "
+
+#: wb_preferences_dialog.py:833
+msgid "Horizontal"
+msgstr "Horizontal"
+
+#: wb_preferences_dialog.py:833
+msgid "Vertical"
+msgstr "Vertikal"
+
+#: wb_preferences_dialog.py:839
+msgid "Small"
+msgstr "Klein"
+
+#: wb_preferences_dialog.py:839
+msgid "Large"
+msgstr "Groß"
+
+#: wb_preferences_dialog.py:839
+msgid "Huge"
+msgstr "Riesig"
+
+#: wb_preferences_dialog.py:841
+msgid "Icon size: "
+msgstr "Icongröße: "
+
+#: wb_preferences_dialog.py:967
+msgid "You must include at least one Toolbar group"
+msgstr "Sie müssen mindestens eine Toolbar-Gruppe hinzufügen"
+
+#: wb_preferences_dialog.py:978
+msgid "Advanced"
+msgstr "Erweitert"
+
+#: wb_preferences_dialog.py:985
+msgid "Allow arbitrary paths for tag/branch"
+msgstr "Beliebige Pfade für Tag/Branch zulassen"
+
+#: wb_preferences.py:117
+#, python-format
+msgid "Wrote preferences to %s"
+msgstr "Einstellungen in %s gespeichert"
+
+#: wb_preferences.py:127 wb_preferences.py:130
+#, python-format
+msgid "Reading preferences from %s"
+msgstr "Lese Einstellungen aus %s"
+
+#: wb_project_dialogs.py:48
+msgid "Project"
+msgstr "Projekt"
+
+#: wb_project_dialogs.py:52
+msgid "Project Name:"
+msgstr "Projektname:"
+
+#: wb_project_dialogs.py:60 wb_project_dialogs.py:475
+#: wb_project_dialogs.py:634 wb_project_dialogs.py:744
+msgid "Working copy Path:"
+msgstr "Pfad der Arbeitskopie:"
+
+#: wb_project_dialogs.py:67
+msgid "Subversion Trunk URL:"
+msgstr "Subversion Trunk URL:"
+
+#: wb_project_dialogs.py:73
+msgid "Subversion Tags URL:"
+msgstr "Subversion Tags URL:"
+
+#: wb_project_dialogs.py:79
+msgid "Subversion Branches URL:"
+msgstr "Subversion Branches URL:"
+
+#: wb_project_dialogs.py:85
+msgid "New File Template Folder: "
+msgstr "Ordner für Templates \"Neue Datei\""
+
+#: wb_project_dialogs.py:93
+msgid "Background Colour: "
+msgstr "Hintergrundfarbe: "
+
+#: wb_project_dialogs.py:94
+msgid "Use custom background colour"
+msgstr "Benutzerdefinierte Farbe verwenden"
+
+#: wb_project_dialogs.py:95
+msgid "Example"
+msgstr "Beispiel"
+
+#: wb_project_dialogs.py:96
+msgid " Pick Colour... "
+msgstr "Farbe wählen... "
+
+#: wb_project_dialogs.py:185
+msgid "Enter a project name"
+msgstr "Geben Sie einen Projektnamen ein"
+
+#: wb_project_dialogs.py:189
+#, python-format
+msgid "Project %s already exist. Choose another name"
+msgstr "Das Projekt %s existiert bereits. Geben Sie bitte einen anderen Namen ein"
+
+#: wb_project_dialogs.py:195
+msgid "Enter a Subversion trunk URL"
+msgstr "Geben Sie eine Subversion Trunk URL ein"
+
+#: wb_project_dialogs.py:199
+#, python-format
+msgid "%s is not a valid Subversion trunk URL"
+msgstr "Der Pfad %s ist keine gültige Subversion Trunk URL"
+
+#: wb_project_dialogs.py:205 wb_project_dialogs.py:211
+#, python-format
+msgid "%s is not a valid Subversion tags URL"
+msgstr "Der Pfad %s ist keine gültige Subversion Tags URL"
+
+#: wb_project_dialogs.py:216
+msgid "Enter a Working copy path"
+msgstr "Geben Sie den Pfad der Arbeitskopie ein"
+
+#: wb_project_dialogs.py:228 wb_project_dialogs.py:538
+#: wb_project_dialogs.py:714
+msgid "Select Working Copy directory"
+msgstr "Wählen Sie das Verzeichnis der Arbeitskopie"
+
+#: wb_project_dialogs.py:247
+msgid "Select New File Template directory"
+msgstr "Wählen Sie das \"Neue Datei\" Templateverzeichnis"
+
+#: wb_project_dialogs.py:347
+msgid "Add Project"
+msgstr "Projekt hinzufügen"
+
+#: wb_project_dialogs.py:444
+msgid "Working Copy"
+msgstr "Arbeitskopie"
+
+#: wb_project_dialogs.py:445
+msgid " Use new working copy directory "
+msgstr "Erstelle neues Verzeichnis für die Arbeitskopie"
+
+#: wb_project_dialogs.py:446
+msgid " Use existing Working copy directory "
+msgstr "Verweise auf eine bereits bestehende Arbeitskopie"
+
+#: wb_project_dialogs.py:470
+msgid "Select Working Copy"
+msgstr "Wähle die Arbeitskopie"
+
+#: wb_project_dialogs.py:487 wb_project_dialogs.py:583
+#: wb_project_dialogs.py:646 wb_project_dialogs.py:751
+msgid "Subversion URL:"
+msgstr "Subversion URL:"
+
+#: wb_project_dialogs.py:512
+#, python-format
+msgid ""
+"Path %s\n"
+"Does not exist\n"
+"Choose an existing subversion working copy directory"
+msgstr ""
+"Der Pfad %s existiert nicht!\n"
+"Wählen Sie bitte ein anderes Verzeichnis für die Arbeitskopie."
+
+#: wb_project_dialogs.py:519
+#, python-format
+msgid ""
+"Path %s\n"
+"Is not a directory\n"
+"Choose an existing subversion working copy directory"
+msgstr ""
+"Der Pfad %s ist kein Verzeichnis!\n"
+"Wählen Sie bitte ein anderes Verzeichnis für die Arbeitskopie."
+
+#: wb_project_dialogs.py:526
+#, python-format
+msgid ""
+"Path %s\n"
+"Is not a subversion working copy\n"
+"Choose an existing subversion working copy directory"
+msgstr ""
+"Der Pfad %s ist keine Subversion Arbeitskopie!\n"
+"Wählen Sie bitte ein anderes Verzeichnis für die Arbeitskopie."
+
+#: wb_project_dialogs.py:577
+msgid "Select Subversion URL"
+msgstr "Wähle Subversion URL"
+
+#: wb_project_dialogs.py:603
+msgid "Enter a Subversion URL"
+msgstr "Geben Sie eine Subversion URL ein"
+
+#: wb_project_dialogs.py:607
+#, python-format
+msgid "%s is not a valid Subversion URL"
+msgstr "Der Pfad %s ist keine gültige Subversion URL"
+
+#: wb_project_dialogs.py:615
+#, python-format
+msgid ""
+"%(url)s is not a accessable Subversion URL\n"
+"%(error)s"
+msgstr ""
+"Auf die Subversion URL %(url)s besteht kein Zugriff!\n"
+"%(error)s"
+
+#: wb_project_dialogs.py:628
+msgid "Create new Working Copy"
+msgstr "Erzeuge neue Arbeitskopie"
+
+#: wb_project_dialogs.py:664
+msgid "Choose a directory that is empty and not in used by subversion"
+msgstr "Wählen Sie ein leeres Verzeichnis das nicht bereits unter der Kontrolle von Subversion steht."
+
+#: wb_project_dialogs.py:670
+#, python-format
+msgid ""
+"Path %s\n"
+"Is not a directory\n"
+"Choose a directory that is empty and not in use by subversion"
+msgstr ""
+"Der Pfad %s ist kein Verzeichnis!\n"
+"Wählen Sie ein leeres Verzeichnis das nicht bereits unter der Kontrolle von Subversion steht."
+
+#: wb_project_dialogs.py:678
+#, python-format
+msgid ""
+"Path %s\n"
+"Is a subversion working copy\n"
+"Choose a directory that is empty and not in use by subversion"
+msgstr ""
+"Der Pfad %s ist eine Subversion Arbeitskopie!\n"
+"Wählen Sie ein leeres Verzeichnis das nicht bereits unter der Kontrolle von Subversion steht."
+
+#: wb_project_dialogs.py:691
+#, python-format
+msgid ""
+"Path %s\n"
+"Is not an empty directory\n"
+"Choose a directory that is empty and not in use by subversion"
+msgstr ""
+"Das Verzeichnis %s ist nicht leer!\n"
+"Wählen Sie ein leeres Verzeichnis das nicht bereits unter der Kontrolle von Subversion steht."
+
+#: wb_project_dialogs.py:700
+#, python-format
+msgid ""
+"Path %(path)s\n"
+"%(error)s\n"
+"Choose a directory that is empty and not in use by subversion"
+msgstr ""
+"Pfad %(path)s\n"
+"%(error)s\n"
+"Wählen Sie ein leeres Verzeichnis das nicht bereits unter der Kontrolle von Subversion steht."
+
+#: wb_project_dialogs.py:727
+msgid "Project Name"
+msgstr "Projektname"
+
+#: wb_project_dialogs.py:733
+msgid "Project name:"
+msgstr "Projektname:"
+
+#: wb_project_dialogs.py:768
+msgid ""
+"Project name is blank.\n"
+"Enter a project name"
+msgstr ""
+"Der Projektname ist leer!\n"
+"Geben Sie bitte einen Projektnamen ein."
+
+#: wb_project_dialogs.py:774
+#, python-format
+msgid ""
+"Project %s already exist.\n"
+"Choose another name"
+msgstr ""
+"Das Projekt %s existiert bereits!\n"
+"Geben Sie bitte einen anderen Namen ein."
+
+#: wb_shell_macosx_commands.py:58 wb_shell_unix_commands.py:51
+#: wb_shell_win32_commands.py:53
+#, python-format
+msgid "Open %s"
+msgstr "Öffne %s"
+
+#: wb_shell_win32_commands.py:61
+#, python-format
+msgid ""
+"Unable to shell open %s\n"
+"Is an application associated with this file type?"
+msgstr ""
+"Kann %s nicht in der Shell öffnen!\n"
+"Ist eine Anwendung mit diesem Dateityp verknüpft?"
+
+#: wb_shell_win32_commands.py:64
+#, python-format
+msgid "Unable to shell open %(filename)s - %(error)s"
+msgstr "Kann %(filename)s nicht in der Shell öffnen! - %(error)s"
+
+#: wb_shell_win32_commands.py:122
+#, python-format
+msgid ""
+"Create process failed for command - %(command)s\n"
+"Reason %(reason)s"
+msgstr ""
+"Konnte den Prozess nicht starten für das Kommando - %(command)s\n"
+"Ursache %(reason)s"
+
+#: wb_shell_win32_commands.py:131
+#, python-format
+msgid "Created directory %s"
+msgstr "Verzeichnis %s erstellt"
+
+#: wb_shell_win32_commands.py:134
+#, python-format
+msgid "Create directory %(dir)s - %(error)s"
+msgstr "Erstelle Verzeichnis %(dir)s - %(error)s"
+
+#: wb_shell_win32_commands.py:140
+#, python-format
+msgid "%s is not a directory"
+msgstr "%s ist kein Verzeichnis"
+
+#: wb_subversion_annotate.py:23
+#, python-format
+msgid "Annotation of %s"
+msgstr "Zeilenhistorie von %s"
+
+#: wb_subversion_annotate.py:57
+msgid "Line"
+msgstr "Zeile"
+
+#: wb_subversion_annotate.py:58 wb_subversion_history.py:502
+msgid "Revision"
+msgstr "Revision"
+
+#: wb_subversion_annotate.py:60 wb_subversion_history.py:504
+#: wb_subversion_list_handler_common.py:33
+#: wb_subversion_list_handler_common.py:112
+msgid "Date"
+msgstr "Datum"
+
+#: wb_subversion_annotate.py:61
+msgid "Text"
+msgstr "Text"
+
+#: wb_subversion_checkin.py:33
+#, python-format
+msgid "Check in for %s"
+msgstr "Checkin für %s"
+
+#: wb_subversion_checkin.py:54
+msgid "Select All"
+msgstr "Alle selektieren"
+
+#: wb_subversion_checkin.py:54
+#, fuzzy
+msgid "Select ALl"
+msgstr "Alle selektieren"
+
+#: wb_subversion_checkin.py:56 wb_subversion_report_updates.py:47
+msgid "Exclude..."
+msgstr "Ausschließen..."
+
+#: wb_subversion_checkin.py:56 wb_subversion_checkin.py:97
+#: wb_subversion_report_updates.py:70
+msgid "Exclude from check in"
+msgstr "Von Checkin ausschließen"
+
+#: wb_subversion_checkin.py:57 wb_subversion_report_updates.py:48
+msgid "Include..."
+msgstr "Hinzufügen..."
+
+#: wb_subversion_checkin.py:57
+msgid "Include from check in"
+msgstr "Dem Checkin hinzufügen"
+
+#: wb_subversion_checkin.py:72 wb_toolbars.py:98
+msgid "Edit File"
+msgstr "Datei editieren"
+
+#: wb_subversion_checkin.py:76 wb_toolbars.py:101
+msgid "Open File"
+msgstr "Datei öffnen"
+
+#: wb_subversion_checkin.py:80 wb_toolbars.py:104
+msgid "Diff changes against base"
+msgstr "Diff der lokalen Änderungen"
+
+#: wb_subversion_checkin.py:83 wb_subversion_report_branch_changes.py:55
+#: wb_subversion_report_lock.py:63 wb_subversion_report_revision_changes.py:70
+#: wb_subversion_report_updates.py:66 wb_toolbars.py:107
+msgid "Show History log"
+msgstr "Zeige Loghistorie"
+
+#: wb_subversion_checkin.py:86 wb_subversion_report_branch_changes.py:58
+#: wb_subversion_report_lock.py:66 wb_subversion_report_revision_changes.py:73
+#: wb_toolbars.py:110
+msgid "File Information"
+msgstr "Dateiinformation"
+
+#: wb_subversion_checkin.py:89 wb_toolbars.py:113
+msgid "File Properties"
+msgstr "Dateieigenschaften"
+
+#: wb_subversion_checkin.py:93 wb_toolbars.py:122
+msgid "Revert selected Files and Folders"
+msgstr "Revert für selektierte Dateien/Verzeichnisse"
+
+#: wb_subversion_checkin.py:100 wb_subversion_report_updates.py:73
+msgid "Include in check in"
+msgstr "Dem Checkin hinzufügen"
+
+#: wb_subversion_checkin.py:136
+msgid " Check In "
+msgstr "Checkin"
+
+#: wb_subversion_checkin.py:242
+#, python-format
+msgid "Check in %s..."
+msgstr "Checkin für %s..."
+
+#: wb_subversion_checkin.py:243
+#, python-format
+msgid "Sent %(count)d of %(total)d"
+msgstr "%(count)d von %(total)d übertragen"
+
+#: wb_subversion_checkin.py:265
+#, python-format
+msgid "Checkin created revision %d"
+msgstr "Checkin zu neuer Revision %d"
+
+#: wb_subversion_checkin.py:267
+msgid "No changes to checkin "
+msgstr "Keine Änderungen für einen Checkin vorhanden"
+
+#: wb_subversion_checkin.py:272
+msgid "Post commit error"
+msgstr "Post-Commit Fehler"
+
+#: wb_subversion_checkin.py:313 wb_subversion_list_handler.py:223
+#: wb_subversion_tree_handler.py:354
+msgid "There are no changes to check in"
+msgstr "Es sind keine Änderungen für einen Checkin vorhanden"
+
+#: wb_subversion_history.py:73 wb_subversion_history.py:377
+#: wb_subversion_history.py:467 wb_subversion_history.py:534
+msgid "Comment"
+msgstr "Kommentar"
+
+#: wb_subversion_history.py:75 wb_subversion_history.py:377
+#: wb_subversion_history.py:522
+msgid "Path"
+msgstr "Pfad"
+
+#: wb_subversion_history.py:200
+msgid "Show only:"
+msgstr "Zeige die letzten"
+
+#: wb_subversion_history.py:211
+msgid "Show since:"
+msgstr "Zeige Einträge seit"
+
+#: wb_subversion_history.py:221
+msgid "Include tags: "
+msgstr "Tags anzeigen: "
+
+#: wb_subversion_history.py:312 wb_subversion_history.py:331
+#, python-format
+msgid "History of %s"
+msgstr "Loghistorie von %s"
+
+#: wb_subversion_history.py:505
+msgid "Label"
+msgstr "Label"
+
+#: wb_subversion_history.py:506
+msgid "Message"
+msgstr "Nachricht"
+
+#: wb_subversion_history.py:521
+msgid "Action"
+msgstr "Aktion"
+
+#: wb_subversion_history.py:523
+msgid "Copied Revision"
+msgstr "Kopierte Revision"
+
+#: wb_subversion_history.py:524
+msgid "Copied from"
+msgstr "Kopiert aus"
+
+#: wb_subversion_history.py:536
+msgid "Changed Paths"
+msgstr "Geänderte Pfade"
+
+#: wb_subversion_history.py:623
+msgid "Diff"
+msgstr "Diff"
+
+#: wb_subversion_history.py:625
+msgid "Annotate"
+msgstr "Zeilenhistorie"
+
+#: wb_subversion_history.py:627
+msgid "Revision Changes"
+msgstr "Änderungen der Revision"
+
+#: wb_subversion_history.py:724
+msgid "Log history View not implemented"
+msgstr "Ansicht der Loghistorie nicht implementiert"
+
+#: wb_subversion_history.py:906
+#, python-format
+msgid "Revision changes for r%(rev1)d ignored. Its URL \"%(url1)s\" does not match r%(rev2)d URL \"%(url2)s\"."
+msgstr "Änderungen der Revision r%(rev1)d werden ignoriert. Die URL \"%(url1)s\" stimmt nicht mit der URL von r%(rev2)d \"%(url2)s\" überein."
+
+#: wb_subversion_info_dialog.py:25
+msgid "Entry"
+msgstr "Eintrag"
+
+#: wb_subversion_info_dialog.py:26
+msgid "Path:"
+msgstr "Pfad:"
+
+#: wb_subversion_info_dialog.py:58 wb_subversion_info_dialog.py:102
+msgid "URL:"
+msgstr "URL:"
+
+#: wb_subversion_info_dialog.py:60
+msgid "Repository:"
+msgstr "Repository:"
+
+#: wb_subversion_info_dialog.py:62 wb_subversion_info_dialog.py:106
+msgid "Repository UUID:"
+msgstr "Repository UUID:"
+
+#: wb_subversion_info_dialog.py:66 wb_subversion_info_dialog.py:68
+#: wb_subversion_info_dialog.py:70 wb_subversion_info_dialog.py:72
+#: wb_subversion_info_dialog.py:110 wb_subversion_info_dialog.py:112
+#: wb_subversion_info_dialog.py:114 wb_subversion_info_dialog.py:116
+msgid "Node kind:"
+msgstr "Typ:"
+
+#: wb_subversion_info_dialog.py:66 wb_subversion_info_dialog.py:110
+msgid "file"
+msgstr "Datei"
+
+#: wb_subversion_info_dialog.py:68 wb_subversion_info_dialog.py:112
+msgid "directory"
+msgstr "Verzeichnis"
+
+#: wb_subversion_info_dialog.py:70 wb_subversion_info_dialog.py:114
+msgid "none"
+msgstr "Kein"
+
+#: wb_subversion_info_dialog.py:72 wb_subversion_info_dialog.py:116
+msgid "unknown"
+msgstr "Unbekannt"
+
+#: wb_subversion_info_dialog.py:75 wb_subversion_info_dialog.py:77
+#: wb_subversion_info_dialog.py:79 wb_subversion_info_dialog.py:81
+#: wb_subversion_info_dialog.py:143 wb_subversion_info_dialog.py:145
+#: wb_subversion_info_dialog.py:147 wb_subversion_info_dialog.py:149
+#: wb_subversion_info_dialog.py:151
+msgid "Schedule:"
+msgstr "Markiert für:"
+
+#: wb_subversion_info_dialog.py:75 wb_subversion_info_dialog.py:143
+msgid "normal"
+msgstr "Normal"
+
+#: wb_subversion_info_dialog.py:77 wb_subversion_info_dialog.py:145
+msgid "add"
+msgstr "Hinzufügen"
+
+#: wb_subversion_info_dialog.py:79 wb_subversion_info_dialog.py:147
+msgid "delete"
+msgstr "Löschen"
+
+#: wb_subversion_info_dialog.py:81 wb_subversion_info_dialog.py:149
+msgid "replace"
+msgstr "Ersetzen"
+
+#: wb_subversion_info_dialog.py:84 wb_subversion_info_dialog.py:153
+msgid "Copied From URL:"
+msgstr "Kopiert von URL:"
+
+#: wb_subversion_info_dialog.py:86 wb_subversion_info_dialog.py:155
+msgid "Copied From Revision:"
+msgstr "Kopiert von Revision:"
+
+#: wb_subversion_info_dialog.py:88 wb_subversion_info_dialog.py:119
+msgid "Last Changed Author:"
+msgstr "Autor der letzten Änderung:"
+
+#: wb_subversion_info_dialog.py:90 wb_subversion_info_dialog.py:121
+msgid "Last Changed Revision:"
+msgstr "Revision der letzten Änderung:"
+
+#: wb_subversion_info_dialog.py:92 wb_subversion_info_dialog.py:123
+msgid "Last Changed Date:"
+msgstr "Datum der letzten Änderung:"
+
+#: wb_subversion_info_dialog.py:94 wb_subversion_info_dialog.py:157
+msgid "Text Last Updated:"
+msgstr "Letztes Update Text:"
+
+#: wb_subversion_info_dialog.py:96 wb_subversion_info_dialog.py:159
+msgid "Properties Last Updated:"
+msgstr "Letztes Update Eigenschaften:"
+
+#: wb_subversion_info_dialog.py:98 wb_subversion_info_dialog.py:161
+msgid "Checksum:"
+msgstr "Checksumme:"
+
+#: wb_subversion_info_dialog.py:104
+msgid "Repository root URL:"
+msgstr "Repository Root URL:"
+
+#: wb_subversion_info_dialog.py:125 wb_subversion_list_handler_common.py:927
+msgid "Lock"
+msgstr "Lock"
+
+#: wb_subversion_info_dialog.py:128
+msgid "Lock Owner:"
+msgstr "Lock durch:"
+
+#: wb_subversion_info_dialog.py:129
+msgid "Lock Creation Date:"
+msgstr "Lock erzeugt um:"
+
+#: wb_subversion_info_dialog.py:131
+msgid "Lock Expiration Date:"
+msgstr "Lock läuft ab um:"
+
+#: wb_subversion_info_dialog.py:132 wb_subversion_info_dialog.py:135
+msgid "Lock Token:"
+msgstr "Lock Token:"
+
+#: wb_subversion_info_dialog.py:133
+msgid "Lock Comment:"
+msgstr "Lock Kommentar:"
+
+#: wb_subversion_info_dialog.py:141
+msgid "Working copy"
+msgstr "Arbeitskopie"
+
+#: wb_subversion_list_handler_common.py:32
+#: wb_subversion_list_handler_common.py:111
+#: wb_subversion_report_branch_changes.py:147 wb_subversion_report_lock.py:183
+#: wb_subversion_report_revision_changes.py:266
+#: wb_subversion_report_updates.py:205
+msgid "State"
+msgstr "Status"
+
+#: wb_subversion_list_handler_common.py:34
+#: wb_subversion_list_handler_common.py:113
+msgid "Rev"
+msgstr "Rev"
+
+#: wb_subversion_list_handler_common.py:37
+#: wb_subversion_list_handler_common.py:117
+msgid "Mimetype"
+msgstr "Mimetyp"
+
+#: wb_subversion_list_handler_common.py:38
+#: wb_subversion_list_handler_common.py:118
+msgid "EOL"
+msgstr "EOL"
+
+#: wb_subversion_list_handler_common.py:39
+#: wb_subversion_list_handler_common.py:115
+msgid "Type"
+msgstr "Typ"
+
+#: wb_subversion_list_handler_common.py:40
+#: wb_subversion_list_handler_common.py:119 wb_subversion_report_lock.py:183
+msgid "Lock Owner"
+msgstr "Lock durch"
+
+#: wb_subversion_list_handler_common.py:41
+#: wb_subversion_list_handler_common.py:120 wb_subversion_report_lock.py:183
+msgid "Lock Comment"
+msgstr "Lock Kommentar"
+
+#: wb_subversion_list_handler_common.py:116
+msgid "Size"
+msgstr "Größe"
+
+#: wb_subversion_list_handler_common.py:348
+msgid "Use the Checkout command to fetch files"
+msgstr "Benutzen Sie das Kommando Checkout, um Dateien zu übertragen"
+
+#: wb_subversion_list_handler_common.py:350
+msgid "Use the Update command to fetch files"
+msgstr "Benutzen Sie das Kommando Update, um Dateien zu übertragen"
+
+#: wb_subversion_list_handler_common.py:682
+#: wb_subversion_report_revision_changes.py:121
+#, python-format
+msgid "Annotating %(count)d"
+msgstr "%(count)d Zeilenhistorien erstellt"
+
+#: wb_subversion_list_handler_common.py:684
+#: wb_subversion_report_revision_changes.py:123
+#, python-format
+msgid "Annotate %s..."
+msgstr "Zeilenhistorie für %s..."
+
+#: wb_subversion_list_handler_common.py:708 wb_subversion_tree_handler.py:385
+#, python-format
+msgid "Diff BASE %s..."
+msgstr "Diff BASE für %s..."
+
+#: wb_subversion_list_handler_common.py:743 wb_subversion_tree_handler.py:421
+#, python-format
+msgid "Diff HEAD %s..."
+msgstr "Diff HEAD für %s..."
+
+#: wb_subversion_list_handler_common.py:776
+#: wb_subversion_list_handler_common.py:824
+msgid "Retrieving branch info..."
+msgstr "Ermittle Branch Informationen..."
+
+#: wb_subversion_list_handler_common.py:783
+#: wb_subversion_list_handler_common.py:830 wb_subversion_tree_handler.py:772
+#, python-format
+msgid "\"%s\" is not a branch."
+msgstr "\"%s\" ist kein Branch."
+
+#: wb_subversion_list_handler_common.py:783
+#: wb_subversion_list_handler_common.py:830 wb_subversion_tree_handler.py:772
+#: wb_subversion_tree_handler.py:774
+msgid "Error"
+msgstr "Fehler"
+
+#: wb_subversion_list_handler_common.py:791
+#, python-format
+msgid "Diff branch origin BASE %s..."
+msgstr "Diff Originalbranch BASE für %s..."
+
+#: wb_subversion_list_handler_common.py:838
+#, python-format
+msgid "Diff branch origin HEAD %s..."
+msgstr "Diff Originalbranch HEAD für %s..."
+
+#: wb_subversion_list_handler_common.py:877 wb_subversion_tree_handler.py:462
+#, python-format
+msgid "Log history %s..."
+msgstr "Loghistorie für %s..."
+
+#: wb_subversion_list_handler_common.py:932
+#, python-format
+msgid "Locking %(count)d"
+msgstr "%(count)d Locks erstellt"
+
+#: wb_subversion_list_handler_common.py:934
+#, python-format
+msgid "Locking %s..."
+msgstr "Erstelle Lock für %s..."
+
+#: wb_subversion_list_handler_common.py:990
+msgid "Unlock"
+msgstr "Unlock"
+
+#: wb_subversion_list_handler_common.py:995
+#, python-format
+msgid "Unlocking %(count)d"
+msgstr "Unlock für %(count)d Einträge durchgeführt"
+
+#: wb_subversion_list_handler_common.py:997
+#, python-format
+msgid "Unlocking %s..."
+msgstr "Führe Unlock von %s aus..."
+
+#: wb_subversion_list_handler.py:69 wb_subversion_tree_handler.py:189
+msgid "Update to.."
+msgstr "Update auf..."
+
+#: wb_subversion_list_handler.py:102
+#, python-format
+msgid "Copied %d files to the Clipboard"
+msgstr "%d Dateien wurden in die Zwischenablage kopiert"
+
+#: wb_subversion_list_handler.py:107
+#, python-format
+msgid "Cut %d files to the Clipboard"
+msgstr "%d Dateien wurden ausgeschnitten und in die Zwischenablage kopiert"
+
+#: wb_subversion_list_handler.py:130
+msgid "Paste Copy"
+msgstr "Kopierte Einträge einfügen"
+
+#: wb_subversion_list_handler.py:132
+msgid "Paste Move"
+msgstr "Ausgeschnittene Einträge einfügen"
+
+#: wb_subversion_list_handler.py:148
+msgid "Save As"
+msgstr "Speichern als"
+
+#: wb_subversion_list_handler.py:158
+#, python-format
+msgid "%(title)s: From %(filename)s"
+msgstr "%(title)s: Von %(filename)s"
+
+#: wb_subversion_list_handler.py:161
+#, python-format
+msgid "%(title)s:   To %(filename)s"
+msgstr "%(title)s:   Nach %(filename)s"
+
+#: wb_subversion_list_handler.py:242
+msgid "Delete File"
+msgstr "Lösche Datei"
+
+#: wb_subversion_list_handler.py:323 wb_subversion_list_handler.py:353
+#: wb_subversion_list_handler.py:361
+#, python-format
+msgid "Rename %(from)s %(to)s"
+msgstr "Umbenennen von %(from)s zu %(to)s"
+
+#: wb_subversion_list_handler.py:347
+msgid "Failed to create tmp file for rename"
+msgstr "Konnte keine temporäre Datei für das Umbenennen erstellen"
+
+#: wb_subversion_list_handler.py:410
+msgid "Resolved"
+msgstr "Gelöst"
+
+#: wb_subversion_list_handler.py:424 wb_subversion_list_handler.py:477
+#: wb_subversion_report_updates.py:132 wb_subversion_tree_handler.py:828
+#: wb_subversion_tree_handler.py:844
+#, python-format
+msgid "Updated %(count)d"
+msgstr "Update von %(count)d Einträgen"
+
+#: wb_subversion_list_handler.py:429 wb_subversion_list_handler.py:482
+#: wb_subversion_report_updates.py:131 wb_subversion_tree_handler.py:827
+#: wb_subversion_tree_handler.py:843
+#, python-format
+msgid "Update %s..."
+msgstr "Update für %s..."
+
+#: wb_subversion_list_handler.py:451 wb_subversion_list_handler.py:504
+#: wb_subversion_report_updates.py:143 wb_subversion_tree_handler.py:876
+#, python-format
+msgid "Updated %(filename)s to revision %(rev)d, no new updates"
+msgstr "Update von %(filename)s auf Revision %(rev)d, keine Änderungen"
+
+#: wb_subversion_list_handler.py:455 wb_subversion_list_handler.py:508
+#: wb_subversion_report_updates.py:147 wb_subversion_tree_handler.py:880
+#, python-format
+msgid "Updated %(filename)s to revision %(rev)d, %(count)d new update"
+msgid_plural "Updated %(filename)s to revision %(rev)d, %(count)d new updates"
+msgstr[0] "Update von %(filename)s auf Revision %(rev)d, %(count)d Eintrag geändert"
+msgstr[1] "Update von %(filename)s auf Revision %(rev)d, %(count)d Einträge geändert"
+
+#: wb_subversion_list_handler.py:462 wb_subversion_list_handler.py:515
+#: wb_subversion_tree_handler.py:889
+#, python-format
+msgid "%d file is in conflict"
+msgid_plural "%d files are in conflict"
+msgstr[0] "%d Datei weist einen Konflikt auf"
+msgstr[1] "%d Dateien weisen einen Konflikt auf"
+
+#: wb_subversion_list_handler.py:471 wb_subversion_tree_handler.py:837
+msgid "Update to revision"
+msgstr "Update auf"
+
+#: wb_subversion_project_info.py:244
+msgid "Hostname"
+msgstr "Hostname"
+
+#: wb_subversion_project_info.py:245
+msgid "Valid From"
+msgstr "Gültig ab"
+
+#: wb_subversion_project_info.py:246
+msgid "Valid Until"
+msgstr "Gültig bis"
+
+#: wb_subversion_project_info.py:247
+msgid "Issuer Name"
+msgstr "Aussteller"
+
+#: wb_subversion_project_info.py:248
+msgid "Finger Print"
+msgstr "Fingerabdruck"
+
+#: wb_subversion_properties_dialog.py:92
+#: wb_subversion_properties_dialog.py:113
+#, python-format
+msgid "Enter a value for %s"
+msgstr "Geben Sie einen Wert für %s ein"
+
+#: wb_subversion_report_branch_changes.py:25
+msgid "Branch changes report"
+msgstr "Übersicht der Branchänderungen"
+
+#: wb_subversion_report_branch_changes.py:52 wb_subversion_report_lock.py:60
+#: wb_subversion_report_updates.py:63
+msgid "Diff changes against HEAD"
+msgstr "Diff der lokalen Änderungen"
+
+#: wb_subversion_report_lock.py:30
+msgid "Repository Lock Report"
+msgstr "Übersicht der Repository-Locks"
+
+#: wb_subversion_report_lock.py:32
+msgid "Working Copy Lock Report"
+msgstr "Übersicht der Arbeitskopie-Locks"
+
+#: wb_subversion_report_lock.py:70 wb_toolbars.py:125
+msgid "Lock File"
+msgstr "Lock der Datei"
+
+#: wb_subversion_report_lock.py:73 wb_toolbars.py:128
+msgid "Unlock File"
+msgstr "Unlock der Datei"
+
+#: wb_subversion_report_revision_changes.py:36
+#, python-format
+msgid "Revision changes - r%(rev1)d vs. r%(rev2)d"
+msgstr "Änderungen der Revision - r%(rev1)d vs. r%(rev2)d"
+
+#: wb_subversion_report_revision_changes.py:44
+#, python-format
+msgid "Diff r%(rev1)d vs. r%(rev1)d..."
+msgstr "Diff r%(rev1)d vs. r%(rev1)d..."
+
+#: wb_subversion_report_revision_changes.py:159
+#, python-format
+msgid "Diff -r%(rev1)d:%(rev2)d %(url)s..."
+msgstr "Diff -r%(rev1)d:%(rev2)d %(url)s..."
+
+#: wb_subversion_report_updates.py:33
+msgid "Updates Report"
+msgstr "Updateübersicht"
+
+#: wb_subversion_report_updates.py:47
+msgid "Exclude from update"
+msgstr "Vom Update ausschließen"
+
+#: wb_subversion_report_updates.py:48
+msgid "Include in update"
+msgstr "Dem Update hinzufügen"
+
+#: wb_subversion_report_updates.py:286
+msgid " Update "
+msgstr " Update "
+
+#: wb_subversion_tree_handler.py:208
+#, python-format
+msgid "Creating branch %s"
+msgstr "Branch %s erzeugen"
+
+#: wb_subversion_tree_handler.py:212
+#, python-format
+msgid "Creating tag %s"
+msgstr "Tag %s erzeugen"
+
+#: wb_subversion_tree_handler.py:249
+#, python-format
+msgid "Copied folder %s to the Clipboard"
+msgstr "Ordner %s wurde in die Zwischenablage kopiert"
+
+#: wb_subversion_tree_handler.py:254
+#, python-format
+msgid "Cut folder %s to the Clipboard"
+msgstr "Ordner %s wurde ausgeschnitten und in die Zwischenablage kopiert"
+
+#: wb_subversion_tree_handler.py:262
+msgid "Add Folder"
+msgstr "Verzeichnis hinzufügen"
+
+#: wb_subversion_tree_handler.py:275 wb_subversion_tree_handler.py:289
+#, python-format
+msgid "Checkout %s..."
+msgstr "Checkout für %s..."
+
+#: wb_subversion_tree_handler.py:286
+msgid "Checkout to revision"
+msgstr "Checkout auf"
+
+#: wb_subversion_tree_handler.py:315
+#, python-format
+msgid "Clean up %s..."
+msgstr "Cleanup für %s..."
+
+#: wb_subversion_tree_handler.py:331
+#, python-format
+msgid "Look for changes to check in %s..."
+msgstr "Ermittle Änderungen für Checkin von %s..."
+
+#: wb_subversion_tree_handler.py:374
+msgid "Delete Folder"
+msgstr "Verzeichnis löschen"
+
+#: wb_subversion_tree_handler.py:513
+msgid "Make directory"
+msgstr "Verzeichnis erstellen"
+
+#: wb_subversion_tree_handler.py:547
+#, python-format
+msgid "Cannot read template %(filename)s - %(error)s"
+msgstr "Kann das Template %(filename)s nicht lesen - %(error)s"
+
+#: wb_subversion_tree_handler.py:559
+#, python-format
+msgid "Cannot create new file %(filename)s - %(error)s"
+msgstr "Kann die Datei %(filename)s nicht erzeugen - %(error)s"
+
+#: wb_subversion_tree_handler.py:610
+#, python-format
+msgid "Looking for repository locks in %s..."
+msgstr "Ermittle Locks im Repository für %s..."
+
+#: wb_subversion_tree_handler.py:612
+#, python-format
+msgid "Looking for working copy locks in %s..."
+msgstr "Ermittle Locks der Arbeitskopie für %s..."
+
+#: wb_subversion_tree_handler.py:636
+msgid "There are no locked files in the repository"
+msgstr "Im Repository sind keine Locks vorhanden"
+
+#: wb_subversion_tree_handler.py:639
+msgid "There are no locked files in the working copy"
+msgstr "In der Arbeitskopie sind keine Locks vorhanden"
+
+#: wb_subversion_tree_handler.py:649
+#, python-format
+msgid "Updates %s..."
+msgstr "Update für %s..."
+
+#: wb_subversion_tree_handler.py:668
+msgid "All files are up todate"
+msgstr "Alle Dateien sind auf dem aktuellen Stand"
+
+#: wb_subversion_tree_handler.py:684
+#, python-format
+msgid "Branch changes %s..."
+msgstr "Branchänderungen für %s..."
+
+#: wb_subversion_tree_handler.py:774
+#, python-format
+msgid "No files changed yet in branch \"%s\"."
+msgstr "Im Branch \"%s\" wurden bisher keine Dateien geändert."
+
+#: wb_subversion_tree_handler.py:786
+msgid "Rename Directory"
+msgstr "Verzeichnis umbenennen"
+
+#: wb_subversion_tree_handler.py:814
+msgid "There are no changes to revert"
+msgstr "Es sind keine Änderungen für einen Revert vorhanden"
+
+#: wb_subversion_tree_handler.py:886
+msgid "Already up to date"
+msgstr "Auf dem aktuellen Stand"
+
+#: wb_subversion_tree_handler.py:901
+#, python-format
+msgid "Copied %(from)s to %(to)s"
+msgstr "%(from)s nach %(to)s kopiert"
+
+#: wb_subversion_tree_handler.py:913
+#, python-format
+msgid "Moved %(from)s to %(to)s"
+msgstr "%(from)s nach %(to)s verschoben"
+
+#: wb_toolbars.py:82
+msgid "Cut Files and Folders"
+msgstr "Dateien/Verzeichnisse ausschneiden"
+
+#: wb_toolbars.py:85
+msgid "Copy Files and Folders"
+msgstr "Dateien/Verzeichnisse kopieren"
+
+#: wb_toolbars.py:88
+msgid "Paste Files and Folders"
+msgstr "Dateien/Verzeichnisse einfügen"
+
+#: wb_toolbars.py:92
+msgid "Start new command shell"
+msgstr "Neue Shell starten"
+
+#: wb_toolbars.py:116
+msgid "Add Files and Folders"
+msgstr "Dateien/Verzeichnisse hinzufügen"
+
+#: wb_toolbars.py:119
+msgid "Delete selected Files and Folders"
+msgstr "Löschen der selektierten Dateien/Verzeichnisse"
+
+#: wb_toolbars.py:131
+msgid "Checkin changes"
+msgstr "Checkin der Änderungen"
+
+#: wb_toolbars.py:134
+msgid "Update working copy"
+msgstr "Update der Arbeitskopie"
+
+#: wb_toolbars.py:137
+msgid "Use recursive (flat) view"
+msgstr "Baum/Listen Ansicht"
+
+#: wb_toolbars.py:141
+msgid "Show only changed files"
+msgstr "Nur geänderte Dateien zeigen"
+
+#: wb_tree_panel.py:244
+msgid "Projects:"
+msgstr "Projekte:"
+
+#: wb_tree_panel.py:406 wb_tree_panel.py:471
+msgid "Refreshing view..."
+msgstr "Ansicht aktualisieren..."
+
+#: wb_tree_panel.py:997
+msgid "&Add Project"
+msgstr "Projekt hinzufügen (&A)"
+

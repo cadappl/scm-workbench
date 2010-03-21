@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Installing pysvn Workbench</title>
+<style type="text/css">
+pre 
+    {
+    max-width: 40em;
+    margin-left: 4em;
+    padding: .25em;
+    background-color: #cccccc;
+    border: 1px black solid;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>Installing pysvn Workbench</h1>
+
+<h2>Prerequisites</h2>
+
+<ul>
+<li>Python 2.4 or later</li>
+
+<li>Install the pysvn Extension 1.5.0 or later.</li>
+
+<li>Install wxPython verison 2.6.1.0 or better.</li>
+</ul>
+
+<h2>Preparing to run WorkBench</h2>
+
+<p>Note: These steps are only necessary if you checked out the sources from the pysvn subversion repository.
+The Source kits have already had these steps run.</p>
+
+<p>In the <code>Source</code> folder:</p>
+
+<pre>python make_wb_version.py
+python make_wb_images.py</pre>
+
+<h2>Running WorkBench</h2>
+
+<p>In the <code>Source</code> folder:</p>
+<pre>python wb_main.py</pre>
+
+</body>
+</html>

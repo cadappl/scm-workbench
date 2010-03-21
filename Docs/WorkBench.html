@@ -1,0 +1,882 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>WorkBench for Subversion</title>
+<link rev="made" href="mailto:barry@barrys-emacs.org" />
+<style>
+h1, h2
+    {color: #000099;	background-color: lightskyblue}
+
+p
+    { width: 40em; }
+li
+    { width: 35em; }
+pre
+    {color: #0000cc; background-color: #eeeeee; position: relative; left: 40px; margin-right: 80px;
+	border-style: solid; border-color: black; border-width: thin;}
+tt
+    {color: #dd0000;}
+td.menu_active
+    {background-color: #4444ff; color: white;}
+td a:link
+    {background-color: white; color: black; width: 100%; display: block; text-decoration: none;}
+td a:unvisited
+    {background-color: white; color: black; width: 100%; display: block; text-decoration: none;}
+td a:visited
+    {background-color: white; color: black; width: 100%; display: block; text-decoration: none;}
+td a:hover
+    {background-color: #4444ff; color: white; width: 100%; display: block; text-decoration: none;}
+div.menu_dropdown
+    {border-style: solid; border-color: black; border-width: thin; white-space: nowrap;}
+
+</style>
+</head>
+<body>
+<h1>WorkBench for Subversion</h1>
+
+<p>This documentation is for Work Bench V1.4.0.
+</p>
+
+<h2>Contents</h2>
+
+<ul>
+<li><a href="#getting_started">Getting started</a></li>
+<li><a href="#main_window">WorkBench Window</a></li>
+<li><a href="#how_to">How to...</a></li>
+<li><a href="#menus">Workbench Menus</a></li>
+</ul>
+
+<h2><a name="getting_started">Getting started</a></h2>
+
+<h3>Setup a Project</h3>
+<p>WorkBench requires you to create a <em>Project</em> for each of the subversion working copy that you wish to work on.
+</p>
+<p>From the <tt>Project</tt> menu select <tt>Add...</tt> to start the <a href="#project_add">Add Project Wizard</a>.
+</p>
+
+<h3>Checkout the source files</h3>
+<p>After the Add project wizard has setup a new project for you checkout the sources.
+</p>
+<p>Select the project on the tree control and then select the menu <tt>Actions</tt> <tt>Checkout</tt>.
+</p>
+
+<h3>Working with files</h3>
+<p>The <tt>Action</tt> menu will list all the commands that apply to the selected item in the tree control
+or the list control. You can also Right-Click (Ctrl-Click on the Mac) to get a pop-up menu.
+</p>
+
+<h1><a name="main_window">WorkBench Window</a></h1>
+
+<p>
+<img src="WorkBench_files/wb_main_window.png" />
+</p>
+
+<p>The WorkBench windows is split into three main areas. The top area is like
+a file and folder explorer.
+</p>
+
+<p>Use the left hand tree control to change between projects and folders and
+use the right hand list control to work with files. You can change the information
+shown using the <a href="#menu_view">View</a> menu. The number of columns and order of columns in the list
+can be changed in the <a href="#file_preferences">Preferences</a>.
+</p>
+
+<p>The bottom panel is used to show messages. In the example below the result of
+an Update.
+</p>
+
+<p>Use the toolbar to access frequently used commands.</p>
+
+<p>The status bar will show the progress of long running operations like
+checkin and update commands.</p>
+
+<p>
+<img src="WorkBench_files/wb_main_window_filter.png" />
+</p>
+
+<p>The filename filter is used to focus in on a few files. Choose Name to filter on
+filenames and choose Author to filter on author's name. Type a part of the name
+into the text box to show only files that contain what you type in the name.
+</p>
+
+<p>Click the X button to clear the filter string and show all files.
+</p>
+
+<h1><a name="how_to">How to...</a></h1>
+
+<h2>Adding TAGs to the History command</h2>
+<p>WorkBench can optionally add the names of TAGs to the history command output.
+</p>
+<p>Note: WorkBench uses the revision of the TAG to work out where in the history list the TAG should be shown.
+This works very well if TAGs are created from the HEAD of trunk.
+</p>
+
+<h3>Setup a project to list TAGs</h3>
+<ol>
+<li>Select the project name</li>
+<li>Right-Click (Ctrl-Click on the Mac) on the project and choose the <tt>Update Project</tt> menu item.</li>
+<li>If the subversion repositories has TAGs check the <tt>Enable</tt> next to <tt>Subversion Tags URL</tt>.
+WorkBench will fill in the typical TAGs URL. Edit the URL if the repository uses different conventions.</li>
+<li>Click OK</li>
+</ol>
+
+<h1><a name="menus">Workbench Menus</a></h1>
+
+<p>All of the menu items in WorkBench are described below. Click on the menu item to scroll to its description.
+</p>
+
+<table>
+<tr><td class="menu_active">File</td>
+    <td class="menu_active">Edit</td>
+    <td class="menu_active">View</td>
+    <td class="menu_active">Actions</td>
+    <td class="menu_active">Reports</td>
+    <td class="menu_active">Bookmarks</td>
+    <td class="menu_active">Project</td>
+    <td class="menu_active">Help</td></tr>
+<tr>
+<td valign="top">
+    <div class="menu_dropdown">
+    <table><!-- File -->
+    <tr><td><a href="#file_preferences">Preferences...</a></td></tr>
+    <tr><td><a href="#file_exit">Exit</td></a></tr>
+    </table></div></td>
+<td valign="top">
+    <div class="menu_dropdown">
+    <table><!-- Edit -->
+    <tr><td><a href="#edit_copy">Copy</a></td></tr>
+    <tr><td><a href="#edit_cut">Cut</a></td></tr>
+    <tr><td><a href="#edit_paste">Paste</a></td></tr>
+    <tr><td><hr /></td></tr>
+    <tr><td><a href="#edit_clear_log">Clear log</a></td></tr>
+    </table></div></td>
+<td valign="top">
+    <div class="menu_dropdown">
+    <table><!-- View -->
+    <tr><td><a href="#view_show_control">Show Controlled files</a></td></tr>
+    <tr><td><a href="#view_show_uncontrol">Show Uncontrolled files</a></td></tr>
+    <tr><td><a href="#view_show_ignored">Show Ignored files</a></td></tr>
+    <tr><td><hr /></td></tr>
+    <tr><td><a href="#view_recursive">Show Recursive files</a></td></tr>
+    <tr><td><hr /></td></tr>
+    <tr><td><a href="#view_refresh">Refresh</a></td></tr>
+    <tr><td><a href="#view_auto_refresh">Automatic Refresh</a></td></tr>
+    </table></div></td>
+<td valign="top">
+    <div class="menu_dropdown">
+    <table><!-- Actions -->
+    <tr><td><a href="#action_command_shell">Command Shell</a></td></tr>
+    <tr><td><a href="#action_file_browser">File Browser</a></td></tr>
+    <tr><td><hr /></td></tr>
+    <tr><td><a href="#action_edit">Edit</a></td></tr>
+    <tr><td><a href="#action_open">Open</a></td></tr>
+    <tr><td><hr /></td></tr>
+    <tr><td><a href="#action_diff_base">Diff WC vs. BASE...</a></td></tr>
+    <tr><td><a href="#action_diff_head">Diff WC vs. HEAD...</a></td></tr>
+    <tr><td><a href="#action_diff_branch_base">Diff WC vs. branch origin BASE...</a></td></tr>
+    <tr><td><a href="#action_diff_branch_head">Diff WC vs. branch origin HEAD...</a></td></tr>
+    <tr><td><a href="#action_conflict">Conflict</a></td></tr>
+    <tr><td><hr /></td></tr>
+    <tr><td><a href="#action_annotate">Annotate...</a></td></tr>
+    <tr><td><a href="#action_log_history">Log history...</a></td></tr>
+    <tr><td><a href="#action_information">Information...</a></td></tr>
+    <tr><td><a href="#action_properties">Properties...</a></td></tr>
+    <tr><td><hr /></td></tr>
+    <tr><td><a href="#action_update">Update</a></td></tr>
+    <tr><td><a href="#action_checkout">Checkout</a></td></tr>
+    <tr><td><hr /></td></tr>
+    <tr><td><a href="#action_checkin">Checkin...</a></td></tr>
+    <tr><td><hr /></td></tr>
+    <tr><td><a href="#action_lock">Lock...</a></td></tr>
+    <tr><td><a href="#action_unlock">Unlock...</a></td></tr>
+    <tr><td><hr /></td></tr>
+    <tr><td><a href="#action_new_file">New File...</a></td></tr>
+    <tr><td><a href="#action_make_directory">Make directory...</a></td></tr>
+    <tr><td><a href="#action_add">Add</a></td></tr>
+    <tr><td><a href="#action_rename">Rename</a></td></tr>
+    <tr><td><hr /></td></tr>
+    <tr><td><a href="#action_delete">Delete...</a></td></tr>
+    <tr><td><a href="#action_revert">Revert...</a></td></tr>
+    <tr><td><hr /></td></tr>
+    <tr><td><a href="#action_clean_up">Clean up</a></td></tr>
+    <tr><td><hr /></td></tr>
+    <tr><td><a href="#action_create_tag">Create tag...</a></td></tr>
+    <tr><td><a href="#action_create_branch">Create branch...</a></td></tr>
+    </table></div></td>
+<td valign="top">
+    <div class="menu_dropdown">
+    <table><!-- Reports -->
+    <tr><td><a href="#report_wc_locks">Working copy Locks...</a></td></tr>
+    <tr><td><a href="#report_repos_locks">Repository Locks...</a></td></tr>
+    <tr><td><hr /></td></tr>
+    <tr><td><a href="#report_changes">Changes...</a></td></tr>
+    <tr><td><a href="#report_updates">Updates...</a></td></tr>
+    <tr><td><a href="#report_branch_changes">Branch changes...</a></td></tr>
+    </table></div>
+
+    <div style="height: 8em;"></div>
+
+    <div class="menu_dropdown">
+    <table><!-- Conflict -->
+    <tr><td><a href="#conflict_diff_old_mine">Diff Conflict Old vs. Mine...</a></td></tr>
+    <tr><td><a href="#conflict_diff_mine_new">Diff Conflict Mine vs. New...</a></td></tr>
+    <tr><td><a href="#conflict_diff_old_new">Diff Conflict Old vs. New...</a></td></tr>
+    <tr><td><hr /></td></tr>
+    <tr><td><a href="#conflict_resolved">Resolved Conflict</a></td></tr>
+    </table></div>
+
+    </td>
+<td valign="top">
+    <div class="menu_dropdown">
+    <table><!-- Bookmarks -->
+    <tr><td><a href="#bookmark_add">Add</a></td></tr>
+    <tr><td><a href="#bookmark_manage">Manage...</a></td></tr>
+    <tr><td><hr /></td></tr>
+    <tr><td><a href="#bookmark_user_bookmark">bookmark 1</a></td></tr>
+    <tr><td><a href="#bookmark_user_bookmark">bookmark 2</a></td></tr>
+    <tr><td><a href="#bookmark_user_bookmark">bookmark 3</a></td></tr>
+    </table></div></td>
+<td valign="top">
+    <div class="menu_dropdown">
+    <table><!-- Project -->
+    <tr><td><a href="#project_add">Add...</a></td></tr>
+    <tr><td><a href="#project_update">Update...</a></td></tr>
+    <tr><td><hr /></td></tr>
+    <tr><td><a href="#project_delete">Delete...</a></td></tr>
+    </table></td>
+<td valign="top">
+    <div class="menu_dropdown">
+    <table><!-- Help -->
+    <tr><td><a href="#help_about">About...</a></td></tr>
+    </table></div></td>
+</tr>
+</table>
+
+<h2><a href="#menus">Menu:</a> File</h2>
+<h3><a name="file_preferences"><a href="#menus">Menu:</a> File &#187; Preferences...</a></h3>
+
+<ul>
+<li>Editor preferences:
+<p><img src="WorkBench_files/wb_prefs_editor.png" />
+</p>
+<p>Enter the path to the editor program you want to use in the "Editor:" text box.
+The Browse button pops up a file picker dialog to help locate the editor program.
+</p>
+<p>Any command line arguments can be entered in the "Editor Arguments:" text box.
+</p>
+</li>
+
+<li>Shell preferences:
+<p><img src="WorkBench_files/wb_prefs_shell.png" />
+</p>
+
+<p>Choose the "Terminal Program" you wish to use for the <a href="#action_command_shell">Command Shell</a> command.
+The available choices depend on your operating system:
+</p>
+<ul>
+<li>Windows: CMD
+<li>Mac OS X: Terminal and iTerm
+<li>Unix (Linux, *BSD, etc): Konsole, gnome-terminal and xterm
+</ul>
+
+<p>The optional "Terminal Init Command" will be run each time a new Command Shell is created.
+</p>
+
+<p>Choose the "File Browser Program" you wish to use for the <a href="#action_file_browser">File Browser</a> command.
+The available choices depend on your operating system:
+</p>
+<ul>
+<li>Windows: Explorer
+<li>Mac OS X: Finder
+<li>Unix (Linux, *BSD, etc): nautilus and konqueror
+</ul>
+
+
+</li>
+
+
+<li>Columns preferences:
+<p><img src="WorkBench_files/wb_prefs_columns.png" />
+</p>
+
+<p>The list on the right shows the columns that will be shown.
+The list on the left shows the available columns.
+</p>Use the "Include --&gt;" and "&lt;-- Exclude" buttons to include and exclude the selected column.
+
+<p>Select a column name then use the "Move Up" and "Move Down" buttons to rearrange the order
+of the columns in the right hand list.
+</p>
+
+<p>The width of each column can be set by selecting the column name in the right hand list and
+then type the width, in characters, into the text box in the middle and press ENTER to complete the
+change.
+</p>
+
+</li>
+</ul>
+
+<h3><a name="file_exit"><a href="#menus">Menu:</a> File &#187; Exit</a></h3>
+
+<p>Quit WorkBench
+</p>
+
+
+<h2><a href="#menus">Menu:</a> <a name="menu_edit">Edit</a></h2>
+
+<p>Using the Copy, Cut and Paste commands you can copy or move
+files and folders. Normally subversion will not allow you to copy
+of move Added or Modified files, but WorkBench does know how to
+correctly copy and move Added and Modified files.</p>
+
+<h3><a name="edit_copy"><a href="#menus">Menu:</a> <a href="#menu_edit">Edit</a> &#187; Copy</a></h3>
+
+<p>Copy the selected folder or files in prepation for using paste
+to make a copy.
+</p>
+
+<h3><a name="edit_cut"><a href="#menus">Menu:</a> <a href="#menu_edit">Edit</a> &#187; Cut</a></h3>
+
+<p>Cut the selected folder or files in prepation for using paste
+to move the files.
+</p>
+
+<h3><a name="edit_paste"><a href="#menus">Menu:</a> <a href="#menu_edit">Edit</a> &#187; Paste</a></h3>
+
+<p>Select a destination folder and use paste to copy files that where
+selected with the Copy command. If you paste a file into a
+folder that already has a file with the same name you will
+be prompted for a new name to use.</p>
+
+<p>Select a destination folder and use paste to move files that where
+selected with the Cut command. If you paste a file into a
+folder that already has a file with the same name you will
+be prompted for a new name to use.</p>
+
+<h3><a name="edit_clear_log"><a href="#menus">Menu:</a> <a href="#menu_edit">Edit</a> &#187; Clear log</a></h3>
+
+<p>Clear the log messages windows.
+</p>
+
+<h2><a href="#menus">Menu:</a> <a name="menu_view">View</a></h2>
+<h3><a name="view_show_control"><a href="#menus">Menu:</a> <a href="#menu_view">View</a> &#187; Show Controlled files</a></h3>
+
+<p>Show Controlled files, files that are under the control of subversion, in the
+list panel.
+</p>
+
+<h3><a name="view_show_uncontrol"><a href="#menus">Menu:</a> <a href="#menu_view">View</a> &#187; Show Uncontrolled files</a></h3>
+
+<p>Show Uncontrolled files, files that are not under the control of subversion, in the
+list panel.
+</p>
+
+<h3><a name="view_show_ignored"><a href="#menus">Menu:</a> <a href="#menu_view">View</a> &#187; Show Ignored files</a></h3>
+
+<p>Show Ignored files, files that subversion noramally ignores, in the
+list panel. Ignored files are configured in the subversion config file.
+</p>
+
+<h3><a name="view_recursive"><a href="#menus">Menu:</a> <a href="#menu_view">View</a> &#187; Show Recursive files</a></h3>
+
+<p>Show files in sub-folders as well as the currently selected folder.
+</p>
+
+<p>
+<img src="WorkBench_files/wb_main_window_recursive.png" />
+</p>
+
+<p>Warning: It can take a long time for WorkBench to get all the information
+about a large number of files from Subversion.</p>
+
+<h3><a name="view_refresh"><a href="#menus">Menu:</a> <a href="#menu_view">View</a> &#187; Refresh</a></h3>
+
+<p>Refresh the tree and list panels with the current state of files.
+</p>
+
+<h3><a name="view_auto_refresh"><a href="#menus">Menu:</a> <a href="#menu_view">View</a> &#187; Automatic Refresh</a></h3>
+
+<p>Normally WorkBench will automatically refresh the tree and list panels.
+Turn off automatic refresh if you find that refreshing is very slow. This can
+happen if you have a large number of shown in the list panel.</p>
+
+<h2><a href="#menus">Menu:</a> <a name="menu_actions">Actions</a></h2>
+
+<h3><a name="action_command_shell"><a href="#menus">Menu:</a><a href="#menu_actions">Actions</a> &#187; Command Shell</a></h3>
+
+<p>Start a command shell which has the selected folder as its current working directory.
+</p>
+
+<p>The <A href="#file_preferences">Preferences</a> allow you to customise how the Command Shell command works.
+</p>
+
+<h3><a name="action_file_browser"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187; File Browser</a></h3>
+
+<p>Start a file browser at the selected folder.
+</p>
+
+<p>The <A href="#file_preferences">Preferences</a> allow you to customise how the File Browser command works.
+</p>
+
+<h3><a name="action_edit"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187; Edit</a></h3>
+
+<p>Edit the selected file using the editor configured in the <A href="#file_preferences">Preferences</a>.
+</p>
+
+<h3><a name="action_open"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187; Open</a></h3>
+
+<p>Open the selected file using the stanard operating system method
+(Windows and Mac OS X only).
+</p>
+
+<h3><a name="action_diff_base"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187; Diff WC vs. BASE...</a></h3>
+<p>Show the differences between the selected files and the checked out BASE version.
+In other words show the work you have done.
+</p>
+
+<p>
+<img src="WorkBench_files/wb_diff_window.png" />
+</p>
+
+<p>The differences windows shows changed lines and changes within a line.
+</p>
+
+<p>By default the diff window has collapsed the folds to hide unmodified text.
+</p>
+
+<p>Use the + and - buttons to toggle the collapsing.
+</p>
+<p>The a.b button toggles the showing of white-space. Useful when looking for
+changes in TAB and SPACE characters.</p>
+
+<p>The up and down arrow buttons move you backwards and forwards through each change in the diff window.
+</p>
+
+<h3><a name="action_diff_head"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187; Diff WC vs. HEAD...</a></h3>
+
+<p>Show the differences between the selected files and the current version in
+the repository. In other words show the work other people have checked in
+against your version.
+</p>
+
+<h3><a name="action_diff_branch_base"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187; Diff WC vs. branch origin BASE...</a></h3>
+
+<p>
+Show the differences between the selected files and their versions at the point this branch was made.
+In other words show the work that has been done in this branch.
+<br>
+An error message is displayed if the active project is not associated with a branch.
+</p>
+
+<h3><a name="action_diff_branch_head"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187; Diff WC vs. branch origin HEAD...</a></h3>
+
+<p>
+Show the differences between the selected files and their latest versions in the main line of development this branch was copied from.
+<br>
+An error message is displayed if the active project is not associated with a branch.
+</p>
+
+<h3><a name="action_conflict"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187; Conflict</a></h3>
+
+<p>The Conflict menu items help you work with a file has conflicts between your edits and the version updated
+from the repository.
+</p>
+
+<h3><a name="action_conflict"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187; <a href="#menu_actions">Conflict</a>  &#187; Diff Conflict Old vs. Mine...</a></h3>
+
+<p>Diff between the Old version of the file and your current working copy version.
+</p>
+
+<h3><a name="action_conflict"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187; <a href="#menu_actions">Conflict</a>  &#187; Diff Conflict Mine vs. New...</a></h3>
+
+<p>Diff between your current working copy version and the New version of the file.
+</p>
+
+<h3><a name="action_conflict"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187; <a href="#menu_actions">Conflict</a>  &#187; Diff Conflict Old vs. New...</a></h3>
+
+<p>Diff between the Old version of the file and the New version of the file.
+</p>
+
+<h3><a name="action_conflict"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187; <a href="#menu_actions">Conflict</a>  &#187; Resolved Conflict</a></h3>
+
+<p>Tell Subversion that you have resolved the conflict.
+</p>
+
+<h3><a name="action_annotate"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187; Annotate...</a></h3>
+
+<p>Show an annotated listing of the selected file showing the origin of each
+line in the file. For each line the author, date and revision is listed.
+</p>
+
+<p>
+<img src="WorkBench_files/wb_annotate_window.png" />
+</p>
+
+<p>Use this command to discover when a line of interest was introduced into
+a file.
+</p>
+
+<h3><a name="action_log_history"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187;</a> Log history...</a></h3>
+
+<p>List the log history of the selected files or folder. You can choose to
+show all the log messages, the last few messages or the messages since a particular
+date.
+</p>
+
+<p><img src="WorkBench_files/wb_log_history_dialog.png" />
+</p>
+
+<p>The Log History window shows an abbreviated listing of all the log messages.
+Select a log message to display the full log message and the changed paths.
+</p>
+
+<p><img src="WorkBench_files/wb_log_history_window.png" />
+</p>
+
+<p>By selecting a single revision you can click the Diff button to view the
+differences between your copy of the file and the choosen revision.
+</p>
+
+<p>By selecting two revisions you can click the Diff button to view the differences
+between the pair of selected revisitions.
+</p>
+
+<h3><a name="action_information"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187;</a> Information...</a></h3>
+
+<p>Show information about the selected files or folder. The information about the
+entry, any lock held and working copy details.
+</p>
+
+
+<p><img src="WorkBench_files/wb_info_dialog.png" />
+</p>
+
+<h3><a name="action_properties"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187;</a> Properties...</a></h3>
+
+<p>Show the Subversion properties of the selected files or folder.
+</p>
+
+<p><img src="WorkBench_files/wb_props_dialog.png" />
+</p>
+
+<p>In the dialog box you can change the properties. The known Subversion
+properties are all listed and any user defined. Change the check boxes to
+add or remove a property. Fill in the bottom pair of text boxes to define
+your own property and value.
+</p>
+
+<p>In the example above a user defined proptery named "foo" has been added with the value "bar".
+</p>
+
+
+<h3><a name="action_update"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187;</a> Update</a></h3>
+
+<p>Update the selected files or folder from the Subversion repository.
+The update will proceed in the background allowing you to do something else in Work Bench.
+</p>
+
+<p>The status bar will show the progress of the update.
+</p>
+
+<h3><a name="action_checkout"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187;</a> Checkout</a></h3>
+
+<p>Checkout files and folders from the repository to populate the working copy.
+</p>
+
+<h3><a name="action_checkin"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187;</a> Checkin...</a></h3>
+
+<p>Search the selected files or folder for changes to checkin and display the
+results in a Checkin Window.
+</p>
+
+<p>This is the same Checkin window is described that the Report Changes command creates.
+</p>
+
+<h3><a name="action_lock"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187;</a> Lock...</a></h3>
+
+<p>Take out a lock against the selected files. The dialog box allows
+a lock comment to be entered. If the lock is already held by another
+user and you wish to override the other users lock check the Force
+option.
+</p>
+
+<h3><a name="action_unlock"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187;</a> Unlock...</a></h3>
+
+<p>Revoke a lock against the selected files. The dialog box allows you
+to confirm that you wish to unlock the file. You can unlock a file that
+is locked by another user by checking the Force option.
+</p>
+
+<h3><a name="action_new_file"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187;</a> New File...</a></h3>
+
+<p>Pop up a dialog that allows you to name a new file and choose a template to initialised it from.
+</p>
+
+<p>The new file is scheduler for addition to the repository.
+</p>
+
+<h3><a name="action_make_directory"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187;</a> Make directory...</a></h3>
+
+<p>Pop up a dialog that allows you to name a new directory.
+</p>
+
+<p>The new directory is scheduler for addition to the repository.
+</p>
+
+<h3><a name="action_add"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187;</a> Add</a></h3>
+
+<p>Schedule the selected files or folder to be added to the repository.
+</p>
+
+<p>When adding a folder a dialog pops up that allows you to set the force option.
+Use force to override some of the checks Subversion makes and allow the addition to proceed.
+</p>
+
+<h3><a name="action_rename"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187;</a> Rename</a></h3>
+
+<p>The Rename command can work on controlled and uncontrolled files.
+</p>
+
+<p>Pop up a dialog that allows you to change the name of the selected files and folders.
+</p>
+
+<p>Work Bench can rename controlled files that have been added or modified.
+</p>
+
+<h3><a name="action_delete"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187;</a> Delete...</a></h3>
+
+<p>The Delete command can work on controlled and uncontrolled files.
+</p>
+
+<p>Uncontrolled files are deleted. Controlled files are scheduled for deletion for the repository.
+</p>
+
+<p>A dialog pops up to confirm the deletion.
+</p>
+
+<h3><a name="action_revert"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187;</a> Revert...</a></h3>
+
+<p>The Revert command allows you to undo additions and modification to files.
+</p>
+
+<p>Added files are left as uncontrolled files. Edits to modified files are lost after a Revert.
+</p>
+
+<p>A dialog pops up to confirm the revertion.
+</p>
+
+<h3><a name="action_clean_up"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187;</a> Clean up</a></h3>
+
+<p>If Work Bench or a Subversion command did not complete it is possible to leave the working copy in a locked
+state (state L).
+</p>
+
+<p>Use the Clean Up command to clean up the working copy, removing locks and resuming
+unfinished operations.
+</p>
+
+<h3><a name="action_create_tag"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187;</a> Create tag...</a></h3>
+
+<p>Create a tag of the current folder in the project's tags folder.</p>
+
+<p>The tags folder can be configured via the
+<tt>Projects</tt> menu <a href="#project_update">Update project...</a> dialog.
+</p>
+
+<h3><a name="action_create_tag"><a href="#menus">Menu:</a> <a href="#menu_actions">Actions</a> &#187;</a> Create branch...</a></h3>
+
+<p>Create a branch of the current folder in the project's branches folder.</p>
+
+<p>The branches folder can be configured via the
+<tt>Projects</tt> menu <a href="#project_update">Update project...</a> dialog.
+</p>
+
+<h2><a href="#menus">Menu:</a> Reports</h2>
+<h3><a name="report_wc_locks"><a href="#menus">Menu:</a> Reports &#187; Working copy Locks...</a></h3>
+
+<p>Search the selected Working Copy folder and all its sub-folders for locks and display
+any found in a new window.
+</p>
+
+<p>The Working Copy Lock Report window allows you to Lock and Unlock the files as
+well as a set of other useful commands. Use the toolbar buttons or Context-Menu to
+access commands.
+</p>
+
+<h3><a name="report_repos_locks"><a href="#menus">Menu:</a> Reports &#187; Repository Locks...</a></h3>
+
+<p>Search the selected folder and all its sub-folders in the repository for
+locks and display any found in a new window.
+</p>
+
+<p>The Repository Lock Report window allows you to Lock and Unlock the files as
+well as a set of other useful commands. Use the toolbar buttons or Context-Menu to
+access commands.
+</p>
+
+<h3><a name="report_changes"><a href="#menus">Menu:</a> Reports &#187; Changes...</a></h3>
+
+<p>Search the selected Working Copy folder and all its sub-folders for
+changes and display any found in a new window.
+</p>
+
+<p>
+<img src="WorkBench_files/wb_checkin_window.png" />
+</p>
+
+<p>The Check in window allows you to Check in the changes found to the repository.
+</p>
+
+<p>You can also use commands from this window like Diff, Properties, Annotate
+and Log History to confirm that the changes are as you expect and help
+you write a suitable log message.
+</p>
+
+<p>Work Bench remembers the last log message you entered and can insert it for
+you when you click the Insert Last Message button.
+</p>
+
+<p>Use the exclude button to exclude a file from being checked in. Use the include
+button to reverse an exclusion.
+</p>
+
+<h3><a name="report_updates"><a href="#menus">Menu:</a> Reports &#187; Updates...</a></h3>
+
+<p>Search the selected folder and all its sub-folders in the repository for
+changes and display any found in a new window.
+</p>
+
+<p>By using the exclude and include buttons you can update a subset of the available
+changes.</p>
+
+<h3><a name="report_branch_changes"><a href="#menus">Menu:</a> Reports &#187; Branch changes...</a></h3>
+
+<p>
+Creates a list of all changes in and below the current folder that were made in the current branch.
+<br>
+An error message is displayed if the active project is not associated with a branch or if no
+changes were made to that branch in or below the current folder.
+</p>
+
+<h2><a href="#menus">Menu:</a> Bookmarks</h2>
+<h3><a name="bookmark_add"><a href="#menus">Menu:</a> Bookmarks &#187; Add</a></h3>
+
+<p>Add the currently selected folder to the book marks.
+</p>
+<p>Use Bookmarks &#187; Manage to edit the properties of the book marks.
+
+<h3><a name="bookmark_manage"><a href="#menus">Menu:</a> Bookmarks &#187; Manage...</a></h3>
+
+<p>Pop up a dialog that allows you to edit the properties of any bookmark.
+</p>
+<p>The dialog lists the book marks in the same order that they will be displayed
+in the Bookmarks menu.</p>
+<p>Select a book mark and click the Properties button to edit the properties.
+</p>
+<p>You can change the name of the bookmark and put it into a folder (sub-menu).
+</p>
+
+<h3><a name="bookmark_user_bookmark"><a href="#menus">Menu:</a> Bookmarks &#187; bookmark 1</a></h3>
+
+<p>Your book marks appear here at the bottom of the Bookmarks menu.
+</p>
+
+<h2><a href="#menus">Menu:</a> <a name="menu_project">Project</a></h2>
+<h3><a name="project_add"><a href="#menus">Menu:</a> <a href="#menu_project">Project</a> &#187; Add...</a></h3>
+
+<p>The Add Project wizard guides you to add an <a href="#project_add_existing">existing working copy</a> 
+to Work Bench or create a <a href="#project_add_new">new working copy</a>.
+</p>
+
+<ul>
+<li><a name="project_add_existing">Use existing working copy:</a></li>
+<ol>
+
+<li><p>To use a existing working copy click the corresponding radio button and click Next.
+<img src="WorkBench_files/wb_project_add_start_existing.png" />
+</p>
+</li>
+
+<li><p>Enter the path to the working copy. Use the Browse button to choose using a folder picker dialog.
+</p>
+<p>The repository URL will be shown when you have entered the path to a working copy.
+</p>
+<p>Click Next to proceed.
+</p>
+<p>
+<img src="WorkBench_files/wb_project_add_select_wc.png" />
+</p>
+</li>
+
+<li><p>Enter the name that you want Work Bench to use for this project.
+<p>Click Finish to complete adding the project.
+</p>
+<p><img src="WorkBench_files/wb_project_add_project_name.png" />
+</p>
+</li>
+
+</ol>
+<li><a name="project_add_new">Create new working copy:</a></li>
+<ol>
+<li><p>To create a new working copy click the corresponding radio button and click Next.
+</p>
+<p><img src="WorkBench_files/wb_project_add_start_existing.png" />
+</p>
+</li>
+
+<li><p>Enter the URL of the Subversion repository. The URL is typically
+publish by the Subversion repository administrators. 
+</p>
+
+<p>You may be prompted for any username and password required to access the
+repository.
+</p>
+
+<p>
+<img src="WorkBench_files/wb_project_add_url.png" />
+</p>
+</li>
+
+<li><p>Enter the path of the new working copy. Use the Browse button to choose using a folder picker dialog.
+</p>
+<p>Click Next to proceed.
+</p>
+
+<p>
+<img src="WorkBench_files/wb_project_add_new_wc.png" />
+</p>
+</li>
+
+<li><p>Enter the name that you want Work Bench to use for this project.
+<p>Click Finish to complete adding the project.
+</p>
+<p><img src="WorkBench_files/wb_project_add_project_name_new.png" />
+</p>
+</li>
+
+
+</ol>
+</ul>
+
+<h3><a name="project_update"><a href="#menus">Menu:</a> <a href="#menu_project">Project</a> &#187; Update...</a></h3>
+
+
+<p><img src="WorkBench_files/wb_project_update.png" />
+</p>
+
+<h3><a name="project_delete"><a href="#menus">Menu:</a> <a href="#menu_project">Project</a> &#187; Delete...</a></h3>
+
+<p>Pop up a dialog to confirm the deletion of the selected project.
+</p>
+
+<p>This does not delete the working copy files, it only removes the project from Work Bench.
+</p>
+
+<h2><a href="#menus">Menu:</a> Help</h2>
+<h3><a name="help_about"><a href="#menus">Menu:</a> Help &#187; About...</a></h3>
+
+<p>Pop up a dialog that shows the version of WorkBench, Subversion, wxPython and Python.
+</p>
+
+</body>
+</html>
