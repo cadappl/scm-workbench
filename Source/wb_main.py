@@ -1,6 +1,7 @@
 '''
  ====================================================================
  Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2010 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -49,6 +50,7 @@ except:
     pass
 
 import wb_app
+import wb_torun_provider
 import wb_subversion_provider
 
 def prerequesitChecks():
@@ -74,6 +76,7 @@ def main( args ):
     initLocale()
 
     # Register all supported source control providers
+    wb_torun_provider.registerProvider()
     wb_subversion_provider.registerProvider()
 
     # Create the win application and start its message loop

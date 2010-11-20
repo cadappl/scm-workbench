@@ -1,6 +1,7 @@
 '''
  ====================================================================
  Copyright (c) 2005-2006 Barry A Scott.  All rights reserved.
+ Copyright (c) 2010 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -12,6 +13,19 @@
 '''
 import locale
 import codecs
+
+def writeFileByLine( filename, content ):
+    try:
+        f = open( filename, 'w' )
+        # resort the content of configspec
+        for li in content.split('\n'):
+            f.write('%s\n' % li.strip())
+
+        f.close()
+    except:
+        return False
+
+    return True
 
 def readFileContentsAsUnicode( filename ):
     f = file( filename, 'r' )

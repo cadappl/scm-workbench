@@ -2,6 +2,7 @@
 
  ====================================================================
  Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2010 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -64,6 +65,7 @@ class Preferences:
         self.pref_handlers['LogHistory'] = LogHistoryPreferences( self.app )
         self.pref_handlers['Toolbar'] = ToolbarPreferences( self.app )
         self.pref_handlers['Advanced'] = AdvancedPreferences( self.app )
+        self.pref_handlers['Repository'] = RepositoryPreferences( self.app )
 
         # read preferences into the handlers
         self.readPreferences()
@@ -248,17 +250,17 @@ class PreferenceData:
     def has_option( self, section_name, option_name ):
         return option_name in self.all_sections[ section_name ]
 
-    def get( self, section_name, option_name ):
-        return self.all_sections[ section_name ][ option_name ]
+    def get( self, section_name, option_name, default='' ):
+        return self.all_sections[ section_name ].get( option_name, default )
 
     def getint( self, section_name, option_name ):
-        return int( self.get( section_name, option_name ).strip() )
+        return int( self.get( section_name, option_name, 0 ).strip() )
 
     def getfloat( self, section_name, option_name ):
-        return float( self.get( section_name, option_name ).strip() )
+        return float( self.get( section_name, option_name, 0.0 ).strip() )
 
     def getboolean( self, section_name, option_name ):
-        return self.get( section_name, option_name ).strip().lower() == 'true'
+        return self.get( section_name, option_name, 'false' ).strip().lower() == 'true'
 
     def remove_section( self, section_name ):
         if section_name in self.all_sections:
@@ -322,6 +324,9 @@ class GetOption:
     def has( self, name ):
         return self.pref_data.has_option( self.section_name, name )
 
+    def get( self, name ):
+        return self.pref_data.get( self.section_name, name )
+
     def getstr( self, name ):
         return self.pref_data.get( self.section_name, name ).strip()
 
@@ -346,7 +351,8 @@ class SetOption:
         self.section_name = section_name
 
     def set( self, name, value, sep='' ):
-        if type(value) == types.ListType:
+        # Extend for list saving with a delimiter
+        if type(value) == types.ListType and len(sep) > 0:
             value = sep.join( value )
 
         self.pref_data.set( self.section_name, name, value )
@@ -888,6 +894,42 @@ class AdvancedPreferences(PreferenceSection):
     def writePreferences( self, pref_data ):
         set_option = SetOption( pref_data, self.section_name )
         set_option.set( 'arbitrary_tag_branch', self.arbitrary_tag_branch )
+
+class RepositoryPreferences(PreferenceSection):
+    def __init__( self, app ):
+        PreferenceSection.__init__( self, 'Repository' )
+        self.app = app
+
+        self.repo_baseline = ''
+        self.repo_map_list = {}
+
+    def readPreferences( self, pref_data ):
+        get_option = GetOption( pref_data, self.section_name )
+
+        if get_option.has( 'repo_baseline' ):
+            self.repo_baseline = get_option.getstr('repo_baseline')
+
+        if get_option.has( 'repo_map_list'):
+            mp = get_option.get( 'repo_map_list' )
+            # avoid mp is a null value
+            if isinstance( mp, dict ):
+                listp = mp.get( 'repository' )
+                for e in listp:
+                    o, v = e[ 'name' ], e[ 'url' ]
+                    self.repo_map_list[o] = v
+
+    def writePreferences( self, pref_data ):
+        set_option = SetOption( pref_data, self.section_name )
+        set_option.set( 'repo_baseline', self.repo_baseline )
+
+        listp = list()
+        for o, v in self.repo_map_list.items():
+           dic = dict()
+           dic[ 'name ' ] = o
+           dic[ 'url' ] = v
+           listp.append(dic)
+
+        set_option.set( 'repo_map_list', dict( { 'repository' : listp } ) )
 
 if __name__ == '__main__':
     class FakeApp:

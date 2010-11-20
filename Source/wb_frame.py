@@ -1,6 +1,7 @@
 '''
  ====================================================================
  Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2010 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -23,6 +24,7 @@ import wb_exceptions
 import wb_version
 import wb_images
 import wb_preferences_dialog
+import wb_torun_setting_dialog
 import wb_source_control_providers
 import wb_platform_specific
 import wb_bookmarks_dialogs
@@ -40,7 +42,7 @@ class WbFrame(wx.Frame):
 
     def __init__( self, app ):
         self.app = app
-        title = T_('PySVN WorkBench')
+        title = T_('kSVN WorkBench')
 
         win_prefs = self.app.prefs.getWindow()
 
@@ -71,6 +73,7 @@ class WbFrame(wx.Frame):
             self.menu_file = self.menu_edit
 
         self.menu_file.Append( wx.ID_PREFERENCES, T_("&Preferences..."), T_("Preferences") )
+        self.menu_file.Append( wb_ids.id_Torun_Setting, T_("TSVN &Settings..."), T_("Customize the TSVN preferences") )
         self.menu_file.Append( wx.ID_EXIT, T_("E&xit"), T_("Exit the application") )
 
         self.menu_actions = wx.Menu()
@@ -239,6 +242,7 @@ class WbFrame(wx.Frame):
             # Set up the event handlers
             wx.EVT_MENU( event_source, wx.ID_ABOUT, try_wrapper( self.OnCmdAbout ) )
             wx.EVT_MENU( event_source, wx.ID_PREFERENCES, try_wrapper( self.OnCmdPreferences ) )
+            wx.EVT_MENU( event_source, wb_ids.id_Torun_Setting, try_wrapper( self.OnCmdTorunSettings ) )
             wx.EVT_MENU( event_source, wx.ID_EXIT, try_wrapper( self.OnCmdExit ) )
             wx.EVT_MENU( event_source, wb_ids.id_ClearLog, try_wrapper( self.OnCmdClearLog ) )
 
@@ -462,16 +466,26 @@ class WbFrame(wx.Frame):
         ver_str = ('%d.%d.%d-%d\n' %
                     (wb_version.major, wb_version.minor,
                      wb_version.patch, wb_version.build))
-        str_message =    ((T_('Work Bench version: %s') % ver_str) +
+        str_message =    ((T_('kSVN version: %s') % ver_str) +
                 '\n' + wb_source_control_providers.getProviderAboutStrings() +
-                '\nwxPython %d.%d.%d.%d %s' % wx.VERSION +
+                'wxPython %d.%d.%d.%d %s' % wx.VERSION +
                 '\nPython %d.%d.%d %s %d\n' % sys.version_info +
-                T_('\nCopyright Barry Scott (c) 2003-2009. All rights reserved')
+                T_('\nCopyright Barry Scott (c) 2003-2009. All rights reserved') +
+                T_('\nCopyright ccc (c) 2010. All rights reserved')
                 )
         wx.LogMessage( str_message )
 
     def OnCmdPreferences( self, event ):
         pref_dialog = wb_preferences_dialog.PreferencesDialog( self, self.app )
+        rc = pref_dialog.ShowModal()
+        if rc == wx.ID_OK:
+            self.app.savePreferences()
+
+        self.list_panel.updateHandler()
+        self.refreshFrame()
+
+    def OnCmdTorunSettings( self, event ):
+        pref_dialog = wb_torun_setting_dialog.TorunSettingDialog( self, self.app )
         rc = pref_dialog.ShowModal()
         if rc == wx.ID_OK:
             self.app.savePreferences()
@@ -727,14 +741,14 @@ class WbFrame(wx.Frame):
 
     def OnUpdateUiCommandShell( self, event ):
         self.getUpdateUiState()
-        event.Enable( self.ui_state_tree.file_exists )
+        event.Enable( self.ui_state_tree.file_exists or self.ui_state_tree.is_folder )
 
     def OnFileBrowser( self, event ):
         return self.tree_panel.OnFileBrowser()
 
     def OnUpdateUiFileBrowser( self, event ):
         self.getUpdateUiState()
-        event.Enable( self.ui_state_tree.file_exists )
+        event.Enable( self.ui_state_tree.file_exists or self.ui_state_tree.is_folder )
 
     def OnSpEditCopy( self, event ):
         return self.Sp_Dispatch( 'OnSpEditCopy' )
@@ -1020,13 +1034,26 @@ class WbFrame(wx.Frame):
         self.getUpdateUiState()
 
         if self.ui_state_focus.need_checkout:
-            event.Enable( False )
-
+            import wb_subversion_tree_handler
+            handler = self.tree_panel.getSelectionProjectHandler()
+            if isinstance(handler, wb_subversion_tree_handler.SubversionProject):
+                event.Enable( self.ui_state_focus.versioned )
+            else:
+                event.Enable(True)
         elif self.ui_state_focus.is_project_parent:
-            event.Enable( self.ui_state_focus.versioned and self.ui_state_focus.file_exists )
-
+            handler = self.tree_panel.getSelectionProjectHandler()
+            import wb_subversion_tree_handler
+            if isinstance(handler, wb_subversion_tree_handler.SubversionProject):
+                event.Enable( self.ui_state_focus.versioned and self.ui_state_focus.file_exists )
+            else:
+                event.Enable(True)
         else:
-            event.Enable( self.ui_state_focus.versioned )
+            import wb_subversion_tree_handler
+            handler = self.tree_panel.getSelectionProjectHandler()
+            if isinstance(handler, wb_subversion_tree_handler.SubversionProject):
+                event.Enable( self.ui_state_focus.versioned )
+            else:
+                event.Enable(True)
 
     def OnUpdateUiProjectUpdateOrDelete( self, event ):
         handler = self.tree_panel.getSelectionProjectHandler()

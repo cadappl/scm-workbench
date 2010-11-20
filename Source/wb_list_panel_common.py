@@ -323,6 +323,10 @@ class WbListPanelCommon(wx.Panel):
         if not self.list_handler:
             return
 
+        # ignore the specified prompts
+        if self.list_handler.project_info.need_checkout:
+            return
+
         for row in self.getSelectedRows():
             filename = self.list_handler.getFilename( row )
             if self.list_handler.mayOpen( row ):

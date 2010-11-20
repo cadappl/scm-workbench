@@ -28,7 +28,7 @@ elif wx.Platform == '__WXMAC__':
     point_size = 12
 else:
     face = 'Courier'
-    point_size = 12
+    point_size = 8
 
 # control the experimental focus ring code
 # that is not working yet

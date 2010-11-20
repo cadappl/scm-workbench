@@ -637,7 +637,8 @@ class WbTreePanel(wx.Panel):
         if not tree_pi:
             return
 
-        dialog = wb_project_dialogs.UpdateProjectDialog( self.app, self, tree_pi )
+        provider = wb_source_control_providers.getProvider( tree_pi.provider_name )
+        dialog = provider.UpdateProjectDialog( self.app, self, tree_pi )
         rc = dialog.ShowModal()
         if rc == wx.ID_OK:
             # get rid of the old

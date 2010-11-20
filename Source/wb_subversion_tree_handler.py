@@ -300,7 +300,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
         try:
             # lose any trailing / on the URL it stops checkout working
             url = self.project_info.url
-            if url[-1] == '/':
+            if url and url[-1] == '/':
                 url = url[:-1]
             if recursive:
                 self.project_info.client_bg.checkout( url, self.project_info.wc_path, recurse=True, revision=rev )

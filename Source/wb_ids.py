@@ -12,6 +12,8 @@
 '''
 import wx
 
+id_Torun_Setting = wx.NewId()
+
 id_View_Refresh = wx.NewId()
 id_View_AutoRefresh = wx.NewId()
 id_View_ControlledFiles = wx.NewId()

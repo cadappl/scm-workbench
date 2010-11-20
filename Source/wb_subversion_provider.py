@@ -1,6 +1,7 @@
 '''
  ====================================================================
  Copyright (c) 2003-2006 Barry A Scott.  All rights reserved.
+ Copyright (c) 2010 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -35,6 +36,9 @@ class SubversionProvider(wb_source_control_providers.Provider):
 
     def getProjectInfo( self, app, parent=None ):
         return wb_subversion_project_info.ProjectInfo( app, parent )
+
+    def UpdateProjectDialog(self, app, parent, project_info):
+        return wb_subversion_project_info.UpdateProjectDialog(app, parent, project_info )
 
     def getProjectTreeItem( self, app, project_info ):
         return wb_subversion_tree_handler.SubversionProject( app, project_info )
