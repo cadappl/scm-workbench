@@ -1041,19 +1041,10 @@ class WbFrame(wx.Frame):
             else:
                 event.Enable(True)
         elif self.ui_state_focus.is_project_parent:
-            handler = self.tree_panel.getSelectionProjectHandler()
-            import wb_subversion_tree_handler
-            if isinstance(handler, wb_subversion_tree_handler.SubversionProject):
-                event.Enable( self.ui_state_focus.versioned and self.ui_state_focus.file_exists )
-            else:
-                event.Enable(True)
+            event.Enable( self.ui_state_focus.versioned and self.ui_state_focus.file_exists )
+
         else:
-            import wb_subversion_tree_handler
-            handler = self.tree_panel.getSelectionProjectHandler()
-            if isinstance(handler, wb_subversion_tree_handler.SubversionProject):
-                event.Enable( self.ui_state_focus.versioned )
-            else:
-                event.Enable(True)
+            event.Enable( self.ui_state_focus.versioned )
 
     def OnUpdateUiProjectUpdateOrDelete( self, event ):
         handler = self.tree_panel.getSelectionProjectHandler()

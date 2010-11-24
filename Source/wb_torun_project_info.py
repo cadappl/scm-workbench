@@ -45,6 +45,7 @@ class ProjectState:
         self.configspec = ''
         self.background_colour = 0
         self.use_background_colour = False
+        self.new_file_template_dir = ''
 
 class ProjectDialog(wx.Dialog):
     def __init__( self, app, parent, project_info, title ):
@@ -101,13 +102,13 @@ class ProjectDialog(wx.Dialog):
         provider = wb_source_control_providers.getProvider( 'torun' )
 
         pi = provider.getProjectInfo( self.app )
-        pi.new_file_template_dir = self.newfile_dir_ctrl.GetValue().strip()
+        pi.new_file_template_dir = self.state.new_file_template_dir
+        pi.setBackgroundColour( self.state.use_background_colour, self.state.background_colour )
 
         pi.init( self.state.name,
             configspec=self.state.configspec,
             wc_path=os.path.expanduser( self.state.wc_path ) )
 
-        pi.setBackgroundColour( self.state.use_background_colour, self.background_colour )
 
         return pi
 
@@ -119,9 +120,6 @@ class ProjectDialog(wx.Dialog):
         for page in self.pages:
             if not page.validate(self.state):
                 return
-
-        for page in self.pages:
-            page.savePreferences()
 
         self.EndModal( wx.ID_OK )
 
@@ -144,12 +142,13 @@ class PagePanel(wx.Panel):
     def initControls( self ):
         raise wb_exceptions.InternalError('must override initControls')
 
-    def validate( self ):
+    def validate( self, state ):
         return True
 
 class ProjectPanel(PagePanel):
     def __init__( self, parent, notebook, app, project_info ):
         self.app = app
+        self.parent = parent
         self.project_info = project_info
 
         PagePanel.__init__( self, notebook, T_('Project') )
@@ -233,6 +232,7 @@ class ProjectPanel(PagePanel):
         state.wc_path = self.wc_path_ctrl.GetValue().strip()
         state.use_background_colour = self.list_background_colour_ctrl.GetValue()
         state.background_colour = self.list_background_colour;
+        state.new_file_template_dir = self.newfile_dir_ctrl.GetValue().strip()
 
         return True
 
@@ -324,7 +324,7 @@ class ConfigspecPanel(PagePanel):
         self.configspec_ctrl.SetValue( self.project_info.configspec )
 
     def validate( self, state ):
-        if self.configspec.GetValue().strip() == '':
+        if self.configspec_ctrl.GetValue().strip() == '':
             wx.MessageBox( T_('Enter a configspec'), style=wx.OK|wx.ICON_ERROR );
             return False
 
@@ -400,6 +400,8 @@ class SubversionClient:
 #        self.client.commit_info_style = 1
         self.client.callback_get_login = wb_exceptions.TryWrapper( self.app.log, self.app.getCredentials )
         self.client.callback_ssl_server_trust_prompt = wb_exceptions.TryWrapper( self.app.log, self.getServerTrust )
+
+        self.initNotify()
 
     def initNotify( self ):
         self.client.callback_notify = wb_exceptions.TryWrapper( self.app.log, self.callback_notify )
@@ -716,14 +718,18 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
 
 class TorunProject(wb_subversion_tree_handler.SubversionProject):
     def __init__( self, app, project_info ):
+        self.project_info = project_info
         wb_subversion_tree_handler.SubversionProject.__init__( self, app, project_info )
 
     def getContextMenu( self, state ):
         menu_item =[('', wb_ids.id_Command_Shell, T_('&Command Shell') )
             ,('', wb_ids.id_File_Browser, T_('&File Browser') )
-            ,('-', 0, 0 )
-            ,('', wb_ids.id_SP_Checkout, T_('Checkout') )
-            ,('', wb_ids.id_SP_Update, T_('Update') )]
+            ,('-', 0, 0 )]
+
+        if self.project_info.need_checkout:
+            menu_item += [('', wb_ids.id_SP_Checkout, T_('Checkout') )]
+        else:
+            menu_item += [('', wb_ids.id_SP_Update, T_('Update') )]
 
         return wb_subversion_utils.populateMenu( wx.Menu(), menu_item )
 
