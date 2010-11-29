@@ -24,7 +24,7 @@ import wb_read_file
 import wb_exceptions
 import wb_subversion_utils
 
-import wb_diff_frame
+import wb_config
 
 import wb_source_control_providers
 import wb_subversion_tree_handler
@@ -311,7 +311,7 @@ class ConfigspecPanel(PagePanel):
         self.sizer = wx.BoxSizer( wx.VERTICAL )
 
         self.configspec_ctrl = wx.TextCtrl( self, -1, size=(-1, 200), style=wx.HSCROLL|wx.TE_MULTILINE|wx.TE_RICH2 )
-        self.configspec_ctrl.SetFont(wx.Font(wb_diff_frame.point_size, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, wb_diff_frame.face))
+        self.configspec_ctrl.SetFont(wx.Font(wb_config.point_size, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, wb_config.face))
         self.sizer.Add( self.configspec_ctrl, 1, wx.EXPAND|wx.ALL )
         self.configspec_edit = wx.Button( self, -1, T_(" Edit... ") )
 
@@ -344,21 +344,6 @@ class RepositoryPanel(PagePanel):
     def initControls( self ):
         self.list_background_colour = None
 
-        def _cmp ( x, y ):
-            (ax, bx, ay, by) = (x, y, '0', '0')
-            mx = re.match( '([^0-9]+)([0-9]+)', x)
-            if mx: ax, ay = mx.group(1), mx.group(2)
-            my = re.match( '([^0-9]+)([0-9]+)', y)
-            if my: bx, by = my.group(1), my.group(2)
-
-            if cmp(ax, bx) == 0:
-                try:
-                    return int(ay, 10) - int(by, 10)
-                except:
-                    return 0
-            else:
-                return cmp( ax, bx )
-
         repo_names = self.project_info.svn_project_infos.keys()
         repo_map_list = self.app.prefs.getRepository().repo_map_list
 
@@ -371,7 +356,7 @@ class RepositoryPanel(PagePanel):
         self.list_box.InsertColumn( 1, T_('Location') )
         self.list_box.SetColumnWidth( 1, 400 )
 
-        repo_names.sort(_cmp)
+        repo_names.sort(wb_subversion_utils.compare)
         for item in repo_names:
             index = self.list_box.GetItemCount()
             self.list_box.InsertStringItem( index, item )
@@ -680,9 +665,9 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         all_files_status = list()
         for repo in self.svn_project_infos:
             if self.svn_project_infos[ repo ]:
-                file_status = self.svn_project_infos[ repo ].getFilesStatus()
+                file_status = self.svn_project_infos[ repo ].getDirStatus()
                 if file_status:
-                    all_files_status.append( file_status[0] )
+                    all_files_status.append( file_status )
 
 #        print 'getFilesStatus', all_files_status
         if len(all_files_status):
@@ -695,9 +680,9 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
 
         for repo in self.svn_project_infos:
             if self.svn_project_infos[ repo ]:
-                tree_files_status = self.svn_project_infos[ repo ].getTreeFilesStatus()
+                tree_files_status = self.svn_project_infos[ repo ].getDirStatus()
                 if tree_files_status:
-                    all_tree_files_status.append( tree_files_status[0] )
+                    all_tree_files_status.append( tree_files_status )
 
 #        print 'getTreeFilesStatus', all_tree_files_status
         return all_tree_files_status
@@ -705,15 +690,15 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
     def getDirStatus( self ):
         all_dir_status = None
 
+        # FIXME: check the function
         for repo in self.svn_project_infos:
             if self.svn_project_infos[ repo ]:
                 dir_status = self.svn_project_infos[ repo ].getDirStatus()
                 # it just needs one status
                 if dir_status and len(dir_status) > 0:
-                    all_dir_status.append( dir_status[0] )
-                    #break
+                    all_dir_status = dir_status
+                    break
 
-#        print 'getDirStatus', dir_status
         return all_dir_status
 
 class TorunProject(wb_subversion_tree_handler.SubversionProject):
@@ -732,6 +717,12 @@ class TorunProject(wb_subversion_tree_handler.SubversionProject):
             menu_item += [('', wb_ids.id_SP_Update, T_('Update') )]
 
         return wb_subversion_utils.populateMenu( wx.Menu(), menu_item )
+
+    def getTreeNodeColour( self ):
+        if self.project_info.need_checkout:
+            return wb_config.colour_status_need_checkout
+        else:
+            return wb_config.colour_status_normal
 
 class TorunListHandler(wb_subversion_list_handler.SubversionListHandler):
     def __init__( self, app, list_panel, project_info ):

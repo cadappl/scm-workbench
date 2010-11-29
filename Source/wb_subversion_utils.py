@@ -1,6 +1,7 @@
 '''
  ====================================================================
  Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2010 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -10,6 +11,8 @@
     wb_subversion_utils.py
 
 '''
+
+import re
 import pysvn
 import time
 import types
@@ -250,4 +253,19 @@ def populateMenu( menu, contents ):
 
 def by_path( a, b ):
     return cmp( a.path, b.path )
+
+def compare ( x, y ):
+    (ax, bx, ay, by) = (x, y, '0', '0')
+    mx = re.match( '([^0-9]+)([0-9]+)', x)
+    if mx: ax, ay = mx.group(1), mx.group(2)
+    my = re.match( '([^0-9]+)([0-9]+)', y)
+    if my: bx, by = my.group(1), my.group(2)
+
+    if cmp(ax, bx) == 0:
+        try:
+            return int(ay, 10) - int(by, 10)
+        except:
+            return 0
+    else:
+        return cmp( ax, bx )
 

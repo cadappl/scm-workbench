@@ -24,6 +24,7 @@ import wb_dialogs
 import wb_project_dialogs
 
 import wb_config
+import wb_subversion_utils
 
 class TreeState:
     def __init__( self, place_holder=False ):
@@ -950,7 +951,8 @@ class WbTreeCtrl(wx.TreeCtrl):
             return cmp( self.GetItemText( a_item ).lower(), self.GetItemText( b_item ).lower() )
         else:
             # compare children of projects
-            return cmp( a_pi.wc_path.lower(), b_pi.wc_path.lower() )
+            # return cmp( a_pi.wc_path.lower(), b_pi.wc_path.lower() )
+            return wb_subversion_utils.compare( a_pi.wc_path.lower().split( os.sep )[-1], b_pi.wc_path.lower().split( os.sep )[-1] )
 
 #--------------------------------------------------------------------------------
 #

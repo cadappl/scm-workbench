@@ -15,6 +15,7 @@ import re
 import wx
 import wb_exceptions
 import os
+import wb_subversion_utils
 import wb_subversion_list_handler_common
 import wb_shell_commands
 import wb_dialogs
@@ -181,21 +182,6 @@ class RepoListPage(PagePanel):
         PagePanel.__init__( self, notebook, T_('Repo Map List') )
 
     def initControls( self ):
-        def _cmp ( x, y ):
-            (ax, bx, ay, by) = (x, y, '0', '0')
-            mx = re.match( '([^0-9]+)([0-9]+)', x)
-            if mx: ax, ay = mx.group(1), mx.group(2)
-            my = re.match( '([^0-9]+)([0-9]+)', y)
-            if my: bx, by = my.group(1), my.group(2)
-
-            if cmp(ax, bx) == 0:
-                try:
-                    return int(ay, 10) - int(by, 10)
-                except:
-                    return 0
-            else:
-                return cmp( ax, bx )
-
         self.p = self.app.prefs.getRepository()
 
         self.repo_map_list = wx.ListCtrl( self, -1, wx.DefaultPosition,
@@ -207,7 +193,7 @@ class RepoListPage(PagePanel):
         self.repo_map_list.SetColumnWidth( 1, 400 )
 
         repo_names = self.p.repo_map_list.keys()
-        repo_names.sort(_cmp)
+        repo_names.sort(wb_subversion_utils.compare)
         for item in repo_names:
             index = self.repo_map_list.GetItemCount()
             self.repo_map_list.InsertStringItem( index, item )

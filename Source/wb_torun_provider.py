@@ -36,5 +36,5 @@ class TorunProvider(wb_source_control_providers.Provider):
         return wb_torun_project_info.TorunListHandler( app, list_panel, project_info )
 
     def getAboutString( self ):
-        return ('TORUN version: 1.0\n'
+        return ('TORUN version: 1.1\n'
             'configspec version: %s\n' % wb_configspec.__version__)
