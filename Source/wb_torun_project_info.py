@@ -394,8 +394,11 @@ class SubversionClient:
     def __getattribute__(self, attr):
         print attr
 
-    def info(self, path):
-        return self.client.info(path)
+    def info(self, path, **args):
+        return self.client.info(path, **args)
+
+    def info2(self, path, **args):
+        return self.client.info2(path, **args)
 
     def status(self, path, **args):
         return self.client.status(path, **args)
@@ -427,13 +430,12 @@ class SubversionClient:
             wc_path = '%s/%s' % ( self.project_info.wc_path, repo )
             # build up the repository location with /trunk
             if not os.path.exists( wc_path ):
-#                print 'checkout: %s -> %s' % (wc_path, url)
                 self.client.checkout( url, wc_path, depth=pysvn.depth.infinity,
                                       revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
             dirs.append( wc_path )
 
         # 2. update or switch directory according to the configspec
-        while len( dirs ):
+        while len( dirs ) > 0:
 #            print '-------------------------------------'
             wc_path = dirs.pop( 0 )
 #            print 'wc_path=%s' % wc_path
@@ -443,17 +445,15 @@ class SubversionClient:
             mlist = cs_parser.match( repo_map_list, wc_path )
 #            print 'url=>', url
 #            print 'mlist=>', mlist
-            if url in mlist or list():
-                if not checkout and self.exists(url):
-                    self.client.update( url, depth=pysvn.depth.infinity,
+            for new_url in mlist or list():
+                if not self.exists( new_url ): continue
+                if url == new_url:
+                    self.client.update( wc_path, depth=pysvn.depth.empty,
                                         revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
-            else:
-                # check the existence of urls in mlist and do switching
-                # FIXME: do a careful switching for the existent modules?
-                for url in mlist:
-                    if self.exists(url):
-                        self.client.switch( wc_path, url, depth=pysvn.depth.infinity,
-                                            revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+                else:                
+                    self.client.switch( wc_path, new_url, depth=pysvn.depth.infinity,
+                                        revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+                break
 
             # cache the directories in current directory
             for d in os.listdir( wc_path ):
@@ -717,6 +717,25 @@ class TorunProject(wb_subversion_tree_handler.SubversionProject):
             menu_item += [('', wb_ids.id_SP_Update, T_('Update') )]
 
         return wb_subversion_utils.populateMenu( wx.Menu(), menu_item )
+
+    def getExpansion( self ):
+        project_info_list = []
+
+        for file in self.project_info.getTreeFilesStatus():
+            if( (file.entry is None and os.path.isdir( file.path ))
+            or (file.entry is not None and file.entry.kind == pysvn.node_kind.dir) ):
+                pi = wb_subversion_project_info.ProjectInfo( self.app, self.project_info )
+                name = os.path.basename( file.path )
+                if file.entry is None or file.entry.url is None:
+                    url = '%s/%s' % (self.project_info.url, name )
+                else:
+                    url = file.entry.url
+
+                # use default subversion clients instead of the ones in ProjectInfo for Torun
+                pi.init( name, url=url, wc_path=file.path)
+                project_info_list.append( pi )
+
+        return project_info_list
 
     def getTreeNodeColour( self ):
         if self.project_info.need_checkout:

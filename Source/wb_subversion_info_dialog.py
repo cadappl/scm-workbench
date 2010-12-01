@@ -1,6 +1,7 @@
 '''
  ====================================================================
  Copyright (c) 2003-2007 Barry A Scott.  All rights reserved.
+ Copyright (c) 2010 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -180,7 +181,7 @@ class InfoDialog(wx.Dialog):
                                         style=wx.TE_MULTILINE )
         else:
             value_ctrl = wx.TextCtrl( self, -1, unicode(value) )
-        value_ctrl.SetSelection( -1, -1 )
+        # value_ctrl.SetSelection( -1, -1 )
 
         self.g_sizer.Add( label_ctrl, 1, wx.LEFT|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 3 )
         self.g_sizer.Add( value_ctrl, 0, wx.EXPAND|wx.RIGHT, 3)
