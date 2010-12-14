@@ -255,17 +255,25 @@ def by_path( a, b ):
     return cmp( a.path, b.path )
 
 def compare ( x, y ):
-    (ax, bx, ay, by) = (x, y, '0', '0')
-    mx = re.match( '([^0-9]+)([0-9]+)', x)
-    if mx: ax, ay = mx.group(1), mx.group(2)
-    my = re.match( '([^0-9]+)([0-9]+)', y)
-    if my: bx, by = my.group(1), my.group(2)
+def handleMenuInfo( project_info, start=0 ):
+    menu_context = list()
 
-    if cmp(ax, bx) == 0:
-        try:
-            return int(ay, 10) - int(by, 10)
-        except:
-            return 0
-    else:
-        return cmp( ax, bx )
+    length = len( project_info.menu_info or list() )
+    while start < length:
+        id, func, callback = project_info.menu_info[start]
+        # optimized for separator
+        if id == 0 or func == None:
+            menu_tmp = handleMenuInfo( project_info, start + 1 )
+            if len(menu_tmp):
+                menu_context.append( ( '-', 0, 0 ) )
+                menu_context += menu_tmp
+                break
+        else:
+            ret, context = func( project_info )
+            if ret:
+                menu_context.append( ( '', id, context) )
+
+        start += 1
+
+    return menu_context
 

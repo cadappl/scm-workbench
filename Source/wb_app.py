@@ -391,8 +391,8 @@ class WbApp(wx.App):
                                         wb_platform_specific.getLastCheckinMessageFilename() )
         result = dialog.ShowModal()
         if result == wx.ID_OK:
-            return dialog.getLogMessage()
-        return None
+            return True, dialog.getLogMessage()
+        return False, ''
 
     def getLockMessage( self, title, all_filenames ):
         dialog = wb_dialogs.LogMessage( self.frame, title, all_filenames,
@@ -453,6 +453,21 @@ class WbApp(wx.App):
             return True, dialog.getNewFilename()
         else:
             return False, ''
+
+    def getIdent( self, title, dir_name, ban_list, no_name=False ):
+        dialog = wb_dialogs.NewIdent( self.frame, title, dir_name, ban_list, no_name )
+        result = dialog.ShowModal()
+
+        if no_name:
+            if result == wx.ID_OK:
+                return True, dialog.getTagName()
+            else:
+                return False, ''
+        else:
+            if result == wx.ID_OK:
+                return True, dialog.getDirName(), dialog.getTagName()
+            else:
+                return False, '', ''
 
     def savePreferences( self ):
         self.prefs.writePreferences()

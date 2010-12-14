@@ -37,8 +37,8 @@ class SubversionProvider(wb_source_control_providers.Provider):
     def getProjectInfo( self, app, parent=None ):
         return wb_subversion_project_info.ProjectInfo( app, parent )
 
-    def UpdateProjectDialog(self, app, parent, project_info):
-        return wb_subversion_project_info.UpdateProjectDialog(app, parent, project_info )
+    def updateProjectDialog( self, app, parent, project_info ):
+        return wb_subversion_project_info.updateProjectDialog( app, parent, project_info )
 
     def getProjectTreeItem( self, app, project_info ):
         return wb_subversion_tree_handler.SubversionProject( app, project_info )

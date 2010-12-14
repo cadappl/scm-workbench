@@ -1,6 +1,7 @@
 '''
  ====================================================================
  Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2010 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -458,6 +459,9 @@ class WbListPanelCommon(wx.Panel):
 
     def OnSpUpdateTo( self ):
         return self.Sp_Dispatch( 'Cmd_File_UpdateTo' )
+
+    def OnSpSwitch( self ):
+        return self.Sp_Dispatch( 'Cmd_File_Switch' )
 
     def Sp_Dispatch( self, sp_func_name ):
         self.app.trace.info( 'WbListPanel.Sp_Dispatch( %s ) event' % sp_func_name )

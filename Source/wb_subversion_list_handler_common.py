@@ -428,11 +428,7 @@ class SubversionListHandlerCommon(wb_list_panel_common.ListHandler):
             return False
 
     def GetItemIsDir(self, item):
-        #FIXME: turnaround solution, use a default one instead of False?
-        try:
-            status = self.all_files[ item ]
-        except:
-            return False
+        status = self.all_files[ item ]
         if status.entry is None:
             is_dir = os.path.isdir( status.path )
         else:

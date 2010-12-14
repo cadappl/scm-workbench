@@ -18,6 +18,8 @@ import wb_source_control_providers
 import pysvn
 import os
 
+import wb_config
+
 #
 #    Later need to make these dialogs work with the
 #    registered providers to put up provider specific
@@ -31,9 +33,6 @@ url_tags_path_text_ctrl_id = wx.NewId()
 
 wizard_id = wx.NewId()
 
-#FIXME: share the font definition in wb_diff_frame
-import wb_diff_frame
-
 class _TinyEditor(wx.Dialog):
     def __init__(self, parent, title, text=''):
         wx.Dialog.__init__(self, parent, -1, title,
@@ -44,7 +43,7 @@ class _TinyEditor(wx.Dialog):
                         size=(500, 400),
                         style=wx.HSCROLL|wx.TE_MULTILINE|wx.TE_RICH2)
         # FIXME: fix the referrence in wb_diff_frame
-        self.textctrl.SetFont(wx.Font(wb_diff_frame.point_size, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, wb_diff_frame.face))
+        self.textctrl.SetFont(wx.Font(wb_config.point_size, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, wb_config.face))
         sizer.Add(self.textctrl, 1, wx.ALL|wx.EXPAND, 5)
         sizer.Add(wx.StaticLine(self, -1, size=(20,-1),
                   style=wx.LI_HORIZONTAL),
@@ -406,8 +405,7 @@ class TorunProjectSelectionPage(TitledPage):
         self.project_label = wx.ComboBox( self, -1, style=wx.CB_READONLY|wx.CB_SORT )
         self.extend_proj = wx.CheckBox( self, -1, T_("Include Extended Projects") )
 
-        sb = wx.StaticBox( self, -1, T_( "Baseline Info" ) )
-        info_sizer = wx.StaticBoxSizer( sb, wx.VERTICAL )
+        info_sizer = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_( "Baseline Info" ) ), wx.VERTICAL )
         prj_size = wx.FlexGridSizer( 0, 4, 2, 2 )
         prj_size.AddGrowableCol( 1 )
         prj_size.AddGrowableCol( 3 )
@@ -516,9 +514,8 @@ class TorunProjectSelectionPage(TitledPage):
                     peg_revision=pysvn.Revision( pysvn.opt_revision_kind.unspecified ) )
 
             for item in dirs:
-                if item.name.rfind( '/tags/%s/' % uproject ) > 0:
-                    label = '%s-%s' % ( uproject, item.name.split('/')[-1] )
-                    dir_list[ label ] = item.name
+                label = '%s-%s' % ( uproject, item.name.split('/')[-1] )
+                dir_list[ label ] = item.name
         except:
             # ignore the exception
             pass
@@ -532,6 +529,7 @@ class TorunProjectSelectionPage(TitledPage):
             self.OnProjectLabelChange( None )
 
     def OnProjectLabelChange( self, event ):
+        self.configspec = ''
         location = self.project_label.GetClientData( self.project_label.GetSelection() )
 
         # read the configspec with the order defined in the list
@@ -568,16 +566,19 @@ element %s/%s/... %s
 
     def updateControls( self, choice ):
         self.choice = choice
-        self.project_id.Enable( choice == 1 )
-        self.project_label.Enable( choice == 1 )
-        self.extend_proj.Enable( choice == 1 )
 
-        if choice == 1:
-            if not self.repo_list:
-                p = self.parent.app.prefs.getRepository()
-                self.repo_list = self._readRepoList( p.repo_baseline )
-                self.repo_map = p.repo_map_list
+        if self.repo_list is None:
+            p = self.parent.app.prefs.getRepository()
+            self.repo_map = p.repo_map_list
+            self.repo_list = self._readRepoList( p.repo_baseline )
 
+        is_torun_p = choice == 1 and len( self.repo_list ) > 0
+
+        self.project_id.Enable( is_torun_p )
+        self.project_label.Enable( is_torun_p )
+        self.extend_proj.Enable( is_torun_p )
+
+        if is_torun_p:
             self.project_id.Clear()
             for item in self.repo_list.keys():
                 if item.startswith( 'vy' ):
@@ -621,9 +622,9 @@ element %s/%s/... %s
                 li = li.strip()
 
                 if li.startswith( '#' ): continue
-                a = li.strip().replace( '\t', ' ' ).split( ' ' )
+                a = li.strip().split()
                 if len(a) > 1:
-                    ret[ a[0] ] = a[-1]
+                    ret[ a[0] ] = a[1]
 
         return ret
 
@@ -682,7 +683,7 @@ class DirectoryPage(TitledPage):
         # warn: if project name doesn't match the directory ...
         if len( parts ) > 1 and parts[1] != project_name:
             wx.MessageBox( T_('Preferred directory %s mismatches Project %s')
-                    % ( state.wc_path, state.project_name ), style=wx.OK|wx.ICON_WARNING )
+                    % ( state.wc_path, project_name ), style=wx.OK|wx.ICON_WARNING )
 
         if state.project_name in self.parent.pi_names:
             wx.MessageBox( T_('Project %s already exist.\n'

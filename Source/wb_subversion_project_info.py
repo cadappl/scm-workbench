@@ -304,6 +304,7 @@ class ProjectDialog(wx.Dialog):
 
         pi.init( self.name_ctrl.GetValue().strip(),
             wc_path=os.path.expanduser( self.wc_path_ctrl.GetValue().strip() ),
+            menu_info=self.menu_info,
             url=self.url_trunk_ctrl.GetValue().strip(),
             tags_url=self.url_tags_ctrl.GetValue().strip(),
             branches_url=self.url_branches_ctrl.GetValue().strip() )
@@ -375,13 +376,13 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
             # need one client/project/thread
             self.client_fg = pysvn.Client()
             self.client_fg.exception_style = 1
-#            self.client_fg.commit_info_style = 1
+            self.client_fg.commit_info_style = 1
             self.client_fg.callback_get_login = wb_exceptions.TryWrapper( self.app.log, self.app.getCredentials )
             self.client_fg.callback_ssl_server_trust_prompt = wb_exceptions.TryWrapper( self.app.log, self.getServerTrust )
 
             self.client_bg = pysvn.Client()
             self.client_bg.exception_style = 1
-#            self.client_bg.commit_info_style = 1
+            self.client_bg.commit_info_style = 1
             self.client_bg.callback_get_login = CallFunctionOnMainThread( self.app, self.app.getCredentials )
             self.client_bg.callback_ssl_server_trust_prompt = CallFunctionOnMainThread( self.app, self.getServerTrust )
 
@@ -389,6 +390,9 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
 
         self.tags_url = kws.get( 'tags_url', '' )
         self.branches_url = kws.get( 'branches_url', '' )
+
+        if not self.menu_info:
+            self.menu_info = kws.get( 'menu_info', None )
 
         # default the tags and branches URLs
         url_parts = self.url.split('/')

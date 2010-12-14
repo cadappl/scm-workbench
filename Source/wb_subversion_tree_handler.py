@@ -83,6 +83,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
                     url = file.entry.url
 
                 pi.init( name, url=url, wc_path=file.path,
+                    menu_info=self.project_info.menu_info,
                     client_fg=self.project_info.client_fg,
                     client_bg=self.project_info.client_bg )
                 project_info_list.append( pi )
@@ -186,6 +187,8 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
             menu_item += [('', wb_ids.id_SP_Checkout, T_('Checkout') )]
             menu_item += [('', wb_ids.id_SP_CheckoutTo, T_('Checkout to...') )]
         else:
+            menu_item += [('', wb_ids.id_SP_Switch, T_('Switch...') )]
+            menu_item += [('-', 0, '')]
             menu_item += [('', wb_ids.id_SP_Update, T_('Update') )]
             menu_item += [('', wb_ids.id_SP_UpdateTo, T_('Update to..') )]
         menu_item += [('-', 0, '' )
@@ -201,6 +204,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
             ,('-', 0, 0 )
             ,('', wb_ids.id_SP_Cleanup, T_('Clean up') )
             ]
+        menu_item += wb_subversion_utils.handleMenuInfo( self.project_info )
 
         return wb_subversion_utils.populateMenu( wx.Menu(), menu_item )
 
@@ -918,3 +922,32 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
             self.app.log_client_error( e )
 
         self.app.refreshFrame()
+
+    def Cmd_Dir_Switch ( self ):
+        dialog = wb_dialogs.Switch( self.app.frame.tree_panel.tree_ctrl, self.app, self.project_info.wc_path, T_('Switch to Branch/Tag') )
+        if dialog.ShowModal() != wx.ID_OK:
+            return
+
+        to_url, recurse, svndepth = dialog.getValues()
+
+        self.app.setAction( T_('Switch %s...') % self.project_info.wc_path )
+        self.app.setProgress( T_('Switch %(count)d'), 0 )
+
+        yield self.app.backgroundProcess
+
+        try:
+            if recurse:
+                self.project_info.client_fg.switch( self.project_info.wc_path, to_url, depth=svndepth,
+                                    revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+            else:
+                self.project_info.client_fg.switch( self.project_info.wc_path, to_url, recurse=True,
+                                    revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+        except pysvn.ClientError, e:
+            self.app.log_client_error( e )
+
+        yield self.app.foregroundProcess
+
+        self.app.clearProgress()
+        self.app.setAction( T_('Ready') )
+        self.app.refreshFrame()
+

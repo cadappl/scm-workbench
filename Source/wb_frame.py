@@ -348,6 +348,8 @@ class WbFrame(wx.Frame):
         wx.EVT_UPDATE_UI( self, wb_ids.id_SP_Update, self.app.eventWrapper( self.OnUpdateUiSpUpdate ) )
         wx.EVT_MENU( self, wb_ids.id_SP_UpdateTo, self.app.eventWrapper( self.OnSpUpdateTo ) )
         wx.EVT_UPDATE_UI( self, wb_ids.id_SP_UpdateTo, self.app.eventWrapper( self.OnUpdateUiSpUpdateTo ) )
+        wx.EVT_MENU( self, wb_ids.id_SP_Switch, self.app.eventWrapper( self.OnSpSwitch ) )
+        wx.EVT_UPDATE_UI( self, wb_ids.id_SP_Switch, self.app.eventWrapper( self.OnUpdateUiSpSwitch ) )
 
         wx.EVT_MENU( self, wb_ids.id_SP_Report_Updates, self.app.eventWrapper( self.OnSpReportUpdates ) )
         wx.EVT_UPDATE_UI( self, wb_ids.id_SP_Report_Updates, self.app.eventWrapper( self.OnUpdateUiSpReportUpdates ) )
@@ -364,6 +366,11 @@ class WbFrame(wx.Frame):
         wx.EVT_MENU( self, wb_ids.id_Project_Delete, try_wrapper( self.app.eventWrapper( self.tree_panel.OnProjectDelete ) ) )
         wx.EVT_UPDATE_UI( self, wb_ids.id_Project_Delete, try_wrapper( self.app.eventWrapper( self.OnUpdateUiProjectUpdateOrDelete ) ) )
 
+        wx.EVT_MENU( self, wb_ids.id_SP_Torun_ProcAdd, try_wrapper( self.app.eventWrapper( self.OnSp_TorunDispatch ) ) )
+        wx.EVT_MENU( self, wb_ids.id_SP_Torun_ProcDelete, try_wrapper( self.app.eventWrapper( self.OnSp_TorunDispatch ) ) )
+        wx.EVT_MENU( self, wb_ids.id_SP_Torun_ProcDevelop, try_wrapper( self.app.eventWrapper( self.OnSp_TorunDispatch ) ) )
+        wx.EVT_MENU( self, wb_ids.id_SP_Torun_ProcDeliver, try_wrapper( self.app.eventWrapper( self.OnSp_TorunDispatch ) ) )
+        wx.EVT_MENU( self, wb_ids.id_SP_Torun_ProcRevert, try_wrapper( self.app.eventWrapper( self.OnSp_TorunDispatch ) ) )
         wx.EVT_MENU( self, wb_ids.id_Bookmark_Add, try_wrapper( self.OnBookmarkAdd ) )
         wx.EVT_MENU( self, wb_ids.id_Bookmark_Manage, try_wrapper( self.OnBookmarkManage ) )
 
@@ -1058,6 +1065,27 @@ class WbFrame(wx.Frame):
 
     def OnUpdateUiSpUpdateTo( self, event ):
         self.OnUpdateUiSpUpdate(event)
+
+    def OnSpSwitch( self, event ):
+        return self.Sp_Dispatch( 'OnSpSwitch' )
+
+    def OnUpdateUiSpSwitch( self, event ):
+        self.getUpdateUiState()
+        event.Enable( self.ui_state_focus.is_folder and self.ui_state_focus.file_exists )
+
+    def OnSp_TorunDispatch( self, event ):
+        self.clearUpdateUiState()
+
+        if self.event_handler is None:
+            print 'No event_handler, cannot call %r' % (sp_func_name,)
+            return None
+
+        fn = getattr( self.event_handler, 'Sp_DispatchEvent' )
+        if fn is None:
+            print 'Not implemented: %s in %r' % ('Sp_DispatchEvent', self.event_handler)
+            return None
+        else:
+            return fn( event )
 
     #----------------------------------------
     def Sp_Dispatch( self, sp_func_name ):

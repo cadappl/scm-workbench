@@ -65,6 +65,8 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
                 ,('', wb_ids.id_SP_Lock, T_('Lock...') )
                 ,('', wb_ids.id_SP_Unlock, T_('Unlock...') )
                 ,('-', 0, 0 )
+                ,('', wb_ids.id_SP_Switch, T_('Switch...') )
+                ,('-', 0, 0 )
                 ,('', wb_ids.id_SP_Update, T_('Update') )
                 ,('', wb_ids.id_SP_UpdateTo, T_('Update to..') )
                 ,('-', 0, 0 )
@@ -78,6 +80,7 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
                 ,('-', 0, 0 )
                 ,('', wb_ids.id_SP_Cleanup, T_('Clean up') )
                 ]
+        menu_template += wb_subversion_utils.handleMenuInfo( self.project_info )
 
         return wb_subversion_utils.populateMenu( wx.Menu(), menu_template )
 
@@ -519,3 +522,31 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
         self.app.clearProgress()
         self.app.setAction( T_('Ready') )
         self.app.refreshFrame()
+
+    def Cmd_File_Switch ( self ):
+        dialog = wb_dialogs.Switch( self.app.frame.tree_panel.tree_ctrl, self.app, self.project_info.wc_path, T_('Switch to Branch/Tag') )
+        if dialog.ShowModal() != wx.ID_OK:
+            return
+
+        to_url, recurse, svndepth = dialog.getValues()
+
+        for filename in [self.getFilename( row ) for row in all_rows]:
+            self.app.setAction( T_('Switch %s...') % filename )
+
+            yield self.app.backgroundProcess
+
+            try:
+                if recurse:
+                    self.project_info.client_fg.switch( filename, to_url, depth=svndepth,
+                                        revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+                else:
+                    self.project_info.client_fg.switch( filename, to_url, recurse=True,
+                                        revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+            except pysvn.ClientError, e:
+                self.app.log_client_error( e )
+
+            yield self.app.foregroundProcess
+
+        self.app.setAction( T_('Ready') )
+        self.app.refreshFrame()
+

@@ -11,55 +11,68 @@
 
 '''
 
-__version__ = '1.0'
+__version__ = '1.1'
+
+import os
 
 class ConfigspecRule:
-  def __init__ (self, scope, line, rule, error, slot, opts):
-    self.scope = scope
-    self.line = line
-    self.rule = rule
-    self.error = error
-    self.slot = slot
-    self.opts = opts
+  def __init__ ( self, scope, lineno, context, error, slot, opts ):
+      self.scope = scope
+      self.lineno = lineno
+      self.context = context
+      self.error = error
+      self.slot = slot
+      self.opts = opts
 
   def dump(self):
-    return rule
+      return self.context
 
   def filter(self, args):
-    for k in args.keys():
-      v = k
-      ret = True
-      reversed = True
-      if k.startswith('not-'):
-        v = k[4:]
-        reversed = False
+      for k in args.keys():
+          v = k
+          ret = True
+          reversed = True
+          if k.startswith('not-'):
+              v = k[4:]
+              reversed = False
 
-      if self.opts.has_key(v):
-        if isinstance(self.opts[v], (list, tuple)) \
-            and args[k] in self.opts[v]:
-          ret = reversed
-        elif self.opts[v].find(args[k]) > -1:
-          ret = reversed
+          if self.opts.has_key(v):
+              if isinstance(self.opts[v], (list, tuple)) \
+                      and args[k] in self.opts[v]:
+                  ret = reversed
+              elif self.opts[v].find(args[k]) > -1:
+                  ret = reversed
 
       # retrun false only
-      if ret == False:
-        return False
+          if ret == False:
+              return False
 
-    return True
+      return True
 
-  def match(self, sci):
-    return False
+  def match( self, sci_path ):
+      return False
 
-  def get(self, item=None):
-    return None
+  def get( self, opt=None ):
+      if isinstance( opt, ( list, tuple ) ):
+          ret = list()
+          for o in opt:
+              ret.append( self.opts.get( o ) )
+          return ret
+      else:
+          return self.opts.get( opt )
 
+  def set( self, opt, value ):
+      self.opts[opt] = value
   def getRepository(self):
-    return None
+      return None
 
 class Error (ConfigspecRule):
-  def __init__ (self, line, rule):
-    ConfigspecRule.__init__(self, 'e', line, rule, 'unknown keyword', 0, dict())
+    def __init__ ( self, lineno, context ):
+        ConfigspecRule.__init__( self, 'e', lineno, context, 'unknown keyword', 0, dict() )
 
+class CommentRule( ConfigspecRule ):
+    def __init__( self, lineno, context ):
+        ConfigspecRule.__init__( self, 'C', lineno, context, None, 0, dict() )
 #
 # scope pattern version-selector [optional-clause]
 #  - scope
@@ -74,7 +87,7 @@ class Error (ConfigspecRule):
 
 # selector '-config do-pname [-select do-leaf-pattern] [-ci] isn't support
 class ElementRule(ConfigspecRule):
-  def __init__(self, line, rule, branch_name, date_time):
+  def __init__(self, lineno, rule, branch_name=None, date_time=None):
     error = None
     opts = dict({'date-time' : date_time})
     is_file = is_dir = is_elf = False
@@ -130,12 +143,12 @@ class ElementRule(ConfigspecRule):
           k += 1
 
     if k < len(s):
-      error = 'Unknown parameter in line'
+      error = 'Unknown parameter in lineno'
 
     # analyze the pattern and verson selector
     if error == None:
       # pattern
-      p = opts['pattern'].replace('\\', '/').split('/')
+      p = opts['pattern'].split('/')
       if p[0] == '...':
         tp = 'l'
       elif p[-1] == '...':
@@ -149,7 +162,7 @@ class ElementRule(ConfigspecRule):
 
       opts['_pattern'] = list([tp, p])
 
-    ConfigspecRule.__init__(self, 'E', line, rule, error, k, opts)
+    ConfigspecRule.__init__(self, 'E', lineno, rule, error, k, opts)
 
   def match(self, sci):
     r = True
@@ -208,8 +221,12 @@ class ElementRule(ConfigspecRule):
 
     return r
 
-  def get(self, item=None):
-    return self.opts['pattern'], self.opts['version-selector']
+  def set(self, selector=None, optional=None):
+    if selector:
+      self.opts['version-selector'] = selector
+
+    if optional:
+      self.opts['optional-clause'] = optional
 
   def dump(self):
     li = 'element'
@@ -226,6 +243,7 @@ class ElementRule(ConfigspecRule):
     li += ' ' + self.opts.get('version-selector', '')
     # optional clause
     li += ' ' + self.opts.get('-time', '')
+    li += ' ' + self.opts.get('optional-clause', '')
 
     li = li.replace('   ', ' ')
     li = li.replace('  ', ' ')
@@ -238,7 +256,7 @@ class ElementRule(ConfigspecRule):
 
 # mkbranch branch-type-name [-override]
 class MkBranchRule(ConfigspecRule):
-  def __init__(self, line, rule, branch_name):
+  def __init__(self, lineno, rule, branch_name):
     error = None
     opts = dict({'-override' : False})
     s = rule.split()
@@ -256,11 +274,11 @@ class MkBranchRule(ConfigspecRule):
         k += 1
 
     if k < len(s):
-      error = 'Unknown parameter in line'
+      error = 'Unknown parameter in lineno'
     else:
       branch_name.append(s[k], opts['-override'])
 
-    ConfigspecRule.__init__(self, 'B', line, rule, error, k, opts)
+    ConfigspecRule.__init__(self, 'B', lineno, rule, error, k, opts)
 
   def dump(self):
     li = 'mkbranch'
@@ -274,7 +292,7 @@ class MkBranchRule(ConfigspecRule):
 
 # end mkbranch mkbranch-type-name
 class EndMkbranchRule(ConfigspecRule):
-  def __init__(self, line, rule, branch_name):
+  def __init__(self, lineno, rule, branch_name):
     error = None
     opts = dict()
     s = rule.split()
@@ -291,9 +309,9 @@ class EndMkbranchRule(ConfigspecRule):
       k += 1
 
     if k < len(s):
-      error = 'Unknown parameter in line'
+      error = 'Unknown parameter in lineno'
 
-    ConfigspecRule.__init__(self, 'b', line, rule, error, k, opts)
+    ConfigspecRule.__init__(self, 'b', lineno, rule, error, k, opts)
 
 def dump(self):
   li = 'end mkbranch'
@@ -304,7 +322,7 @@ def dump(self):
 
 # time date-time
 class TimeRule(ConfigspecRule):
-  def __init__(self, line, rule, date_time):
+  def __init__(self, lineno, rule, date_time):
     error = None
     opts = dict()
     is_file = is_dir = is_elf = False
@@ -319,9 +337,9 @@ class TimeRule(ConfigspecRule):
       error = 'date-time is missed'
 
     if k < len(s):
-      error = 'Unknown parameter in line'
+      error = 'Unknown parameter in lineno'
 
-    ConfigspecRule.__init__(self, 'T', line, rule, error, k, opts)
+    ConfigspecRule.__init__(self, 'T', lineno, rule, error, k, opts)
 
   def dump(self):
     li = 'time'
@@ -332,7 +350,7 @@ class TimeRule(ConfigspecRule):
 
 # end time [date-time]
 class EndTimeRule(ConfigspecRule):
-  def __init__(self, line, rule, date_time):
+  def __init__(self, lineno, rule, date_time):
     error = None
     opts = dict()
     s = rule.split()
@@ -349,9 +367,9 @@ class EndTimeRule(ConfigspecRule):
       k += 1
 
     if k < len(s):
-      error = 'Unknown parameter in line'
+      error = 'Unknown parameter in lineno'
 
-    ConfigspecRule.__init__(self, 't', line, rule, error, k, opts)
+    ConfigspecRule.__init__(self, 't', lineno, rule, error, k, opts)
 
   def dump(self):
     li = 'end time'
@@ -362,7 +380,7 @@ class EndTimeRule(ConfigspecRule):
 
 # include config-spec-pname
 class IncludeRule(ConfigspecRule):
-  def __init__(self, line, rule, branch_name, date_time):
+  def __init__(self, lineno, rule, branch_name, date_time):
     error = None
     opts = dict()
     s = rule.split()
@@ -373,10 +391,10 @@ class IncludeRule(ConfigspecRule):
       k += 1
 
     if k < len(s):
-      error = 'Unknown parameter in line'
+      error = 'Unknown parameter in lineno'
 
     # FIXME: implement the include rule here ...
-    ConfigspecRule.__init__(self, 'I', line, rule, error, k, opts)
+    ConfigspecRule.__init__(self, 'I', lineno, rule, error, k, opts)
 
   def dump(self):
     li = 'include'
@@ -387,7 +405,7 @@ class IncludeRule(ConfigspecRule):
 
 # load pname
 class LoadRule(ConfigspecRule):
-  def __init__(self, line, rule):
+  def __init__(self, lineno, rule):
     error = None
     opts = dict()
     s = rule.split()
@@ -398,9 +416,9 @@ class LoadRule(ConfigspecRule):
       k += 1
 
     if k < len(s):
-      error = 'Unknown parameter in line'
+      error = 'Unknown parameter in lineno'
 
-    ConfigspecRule.__init__(self, 'L', line, rule, error, k, opts)
+    ConfigspecRule.__init__(self, 'L', lineno, rule, error, k, opts)
 
   def dump(self):
     li = 'load'
@@ -414,20 +432,27 @@ class LoadRule(ConfigspecRule):
 
 class Configspec:
   def __init__ (self, configspec='', configspec_file=''):
-    lines = configspec.split('\n')
-    self.err = self.parse(lines)
+    self.configspec = configspec
+    self.configspec_file = configspec_file
+    linenos = configspec.split('\n')
+    self.err = self.parse(linenos)
 
   def error (self):
     return self.err
 
-  def parse (self, lines):
+  def parse (self, linenos):
     date_time = list()
     branch_name = list()
 
-    self.parsed_lines = list()
-    for k, lo in enumerate(lines):
+    self.parsed_linenos = list()
+    for k, lo in enumerate(linenos):
       #print "Line %d: %s" % (k, lo)
-      if lo.find('#') > -1: lo = lo[:lo.find('#')]
+      off_hash = lo.find( '#' )
+      if off_hash > -1:
+          rp = CommentRule(k, lo[off_hash:])
+          self.parsed_linenos.append(rp)
+          lo = lo[:off_hash]
+
       for li in lo.split(';'):
         li = li.strip()
 
@@ -461,9 +486,9 @@ class Configspec:
           rp = Error(k, lo)
 
         if rp.error:
-          return 'Line %d: Error - %s' % (rp.line, rp.error)
+          return 'Line %d: Error - %s' % (rp.lineno, rp.error)
 
-        self.parsed_lines.append(rp)
+        self.parsed_linenos.append(rp)
 
     return None
 
@@ -474,7 +499,7 @@ class Configspec:
       root = root[:-1]
 
     sci = sci.replace(root, prefix).replace('\\', '/')
-    for item in self.parsed_lines:
+    for item in self.parsed_linenos:
       if item.match(sci):
         ret.append(item)
 
@@ -483,18 +508,28 @@ class Configspec:
     else:
       return None
 
-  def get(self, c, sci):
-    return c.get(sci)
+  def get(self, c, opt):
+      return c.get( opt )
+
+  def set( self, c, opt, value ):
+      return c.set( opt, value )
 
   def getRepositories(self):
     pnames = list()
 
-    for item in self.parsed_lines:
+    for item in self.parsed_linenos:
         repo = item.getRepository()
         if repo and (repo not in pnames):
             pnames.append(repo)
 
     return pnames
+
+  def dump( self ):
+    linenos = list()
+    for rule in self.parsed_linenos:
+        linenos.append( rule.dump() )
+
+    return os.linenosep.join( linenos )
 
 if __name__ == '__main__':
   cs = '''

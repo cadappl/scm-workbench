@@ -901,13 +901,45 @@ class RepositoryPreferences(PreferenceSection):
         self.app = app
 
         self.repo_baseline = ''
-        self.repo_map_list = {}
+        self.repo_configspec = ''
+        self.info_module = dict( {
+            'parent'    : '.+modules$',
+            'pattern'   : '%D/%F.ident',
+            'component' : 'config comfirm incl srce %F.ident'
+          } )
+        self.info_package = dict( {
+            'parent'    : '.+package\d*$',
+            'pattern'   : '%D/%F.package',
+            'component' : 'config confirm env incl modules srce %F.package'
+          } )
+        self.info_project = dict( {
+            'parent'    : '.+project\d*$',
+            'pattern'   : '%D/%F.project',
+            'component' : 'config confirm doc env incl input packages output srce %F.project'
+          } )
+
+        self.repo_map_list = dict()
 
     def readPreferences( self, pref_data ):
         get_option = GetOption( pref_data, self.section_name )
 
         if get_option.has( 'repo_baseline' ):
             self.repo_baseline = get_option.getstr('repo_baseline')
+
+        if get_option.has( 'repo_configspec' ):
+            self.repo_configspec = get_option.getstr( 'repo_configspec')
+
+        if not self.repo_configspec:
+            self.repo_configspec = '.configspec'
+
+        if get_option.has( 'info_module' ):
+            self.info_module = get_option.get( 'info_module' )
+
+        if get_option.has( 'info_package' ):
+            self.info_package = get_option.get( 'info_package' )
+
+        if get_option.has( 'info_project' ):
+            self.info_project = get_option.get( 'info_project' )
 
         if get_option.has( 'repo_map_list'):
             mp = get_option.get( 'repo_map_list' )
@@ -921,6 +953,7 @@ class RepositoryPreferences(PreferenceSection):
     def writePreferences( self, pref_data ):
         set_option = SetOption( pref_data, self.section_name )
         set_option.set( 'repo_baseline', self.repo_baseline )
+        set_option.set( 'repo_configspec', self.repo_configspec )
 
         listp = list()
         for o, v in self.repo_map_list.items():

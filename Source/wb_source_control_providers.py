@@ -57,6 +57,7 @@ class ProjectInfo:
         self.project_name = None
         self.new_file_template_dir = ''
         self.menu_name = None
+        self.menu_info = None
         self.menu_folder = ''
         self.menu_folder2 = ''
         self.menu_folder3 = ''

@@ -15,7 +15,8 @@ import re
 import wx
 import wb_exceptions
 import os
-import wb_subversion_utils
+
+import wb_torun_configspec
 import wb_subversion_list_handler_common
 import wb_shell_commands
 import wb_dialogs
@@ -50,6 +51,7 @@ class TorunSettingDialog( wx.Dialog ):
         self.pages = []
         self.pages.append( RepoListPage( self.notebook, self.app ) )
         self.pages.append( RepoSettingPage( self.notebook, self.app ) )
+        self.pages.append( RepoPatternPage( self.notebook, self.app ) )
 
         self.button_ok = wx.Button( self, wx.ID_OK, T_(' OK ') )
         self.button_ok.SetDefault()
@@ -83,7 +85,7 @@ class PagePanel(wx.Panel):
         wx.Panel.__init__( self, notebook, -1, style = wx.NO_BORDER )
 
         self.page_v_sizer = wx.BoxSizer( wx.VERTICAL )
-        self.page_v_sizer.Add( self.initControls(), 0, wx.EXPAND|wx.ALL, 5 )
+        self.page_v_sizer.Add( self.initControls(), 1, wx.EXPAND|wx.ALL, 5 )
         self.SetSizer( self.page_v_sizer )
         self.SetAutoLayout( True )
         self.page_v_sizer.Fit( self )
@@ -105,17 +107,23 @@ class RepoSettingPage(PagePanel):
     def initControls( self ):
         p = self.app.prefs.getRepository()
 
+        self.grid_sizer = wx.FlexGridSizer( 0, 3, 0, 0 )
+        self.grid_sizer.AddGrowableCol( 1 )
         self.static_text1 = wx.StaticText( self, -1, T_('Baseline Repo: '), style=wx.ALIGN_RIGHT)
-        self.text_ctrl_editor = wx.TextCtrl( self, -1, p.repo_baseline, wx.DefaultPosition, wx.Size(415, -1) )
+        self.text_ctrl_editor = wx.TextCtrl( self, -1, p.repo_baseline, wx.DefaultPosition, wx.Size( 300, -1 ) )
 
         self.browse_button = wx.Button( self, -1, T_(' Browse... '))
 
-        self.grid_sizer = wx.FlexGridSizer( 0, 3, 0, 0 )
-        self.grid_sizer.AddGrowableCol( 1 )
-
-        self.grid_sizer.Add( self.static_text1, 1, wx.EXPAND|wx.ALL, 3 )
-        self.grid_sizer.Add( self.text_ctrl_editor, 0, wx.EXPAND|wx.ALL, 5 )
+        self.grid_sizer.Add( self.static_text1, 0, wx.EXPAND|wx.ALL, 3 )
+        self.grid_sizer.Add( self.text_ctrl_editor, 1, wx.EXPAND|wx.ALL, 3 )
         self.grid_sizer.Add( self.browse_button, 0, wx.EXPAND )
+
+        self.static_text2 = wx.StaticText( self, -1, T_('Configspec Name: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_configspec = wx.TextCtrl( self, -1, p.repo_configspec, wx.DefaultPosition, wx.Size( 300, -1 ) )
+
+        self.grid_sizer.Add( self.static_text2, 0, wx.EXPAND|wx.ALL, 3 )
+        self.grid_sizer.Add( self.text_ctrl_configspec, 1, wx.EXPAND|wx.ALL, 3 )
+        self.grid_sizer.Add( (1, 1), 0, wx.EXPAND )
 
         wx.EVT_BUTTON( self, self.browse_button.GetId(), self.OnBrowseExe )
 
@@ -123,7 +131,9 @@ class RepoSettingPage(PagePanel):
 
     def savePreferences( self ):
         p = self.app.prefs.getRepository()
-        p.repo_baseline = self.text_ctrl_editor.GetValue()
+
+        p.repo_baseline = self.text_ctrl_editor.GetValue().strip()
+        p.repo_configspec = self.text_ctrl_configspec.GetValue().strip()
 
     def OnBrowseExe( self, event ):
         dir_dialog = wx.DirDialog(self, "Choose a directory:",
@@ -179,21 +189,20 @@ class RepoListPage(PagePanel):
         self.selected_name = None
         self.selected_item = None
 
-        PagePanel.__init__( self, notebook, T_('Repo Map List') )
+        PagePanel.__init__( self, notebook, T_('Repository List') )
 
     def initControls( self ):
         self.p = self.app.prefs.getRepository()
 
-        self.repo_map_list = wx.ListCtrl( self, -1, wx.DefaultPosition,
-                wx.Size( 200, 100 ), wx.LC_REPORT )
+        self.repo_map_list = wx.ListCtrl( self, -1, wx.DefaultPosition, wx.DefaultSize, wx.LC_REPORT )
         self.repo_map_list.InsertColumn( 0, T_('Name') )
         self.repo_map_list.SetColumnWidth( 0, 100 )
 
         self.repo_map_list.InsertColumn( 1, T_('Location') )
-        self.repo_map_list.SetColumnWidth( 1, 400 )
+        self.repo_map_list.SetColumnWidth( 1, 300 )
 
         repo_names = self.p.repo_map_list.keys()
-        repo_names.sort(wb_subversion_utils.compare)
+        repo_names.sort( wb_torun_configspec.compare )
         for item in repo_names:
             index = self.repo_map_list.GetItemCount()
             self.repo_map_list.InsertStringItem( index, item )
@@ -209,15 +218,17 @@ class RepoListPage(PagePanel):
 
         # build the sizers
         button_sizer = wx.BoxSizer( wx.HORIZONTAL )
-        button_sizer.Add( self.button_add, 0, wx.EXPAND, 5 )
-        button_sizer.Add( self.button_remove, 0, wx.EXPAND, 5 )
-        button_sizer.Add( self.button_edit, 0, wx.EXPAND, 5 )
-        button_sizer.Add( self.button_import, 0, wx.EXPAND, 5 )
-        button_sizer.Add( self.button_export, 0, wx.EXPAND, 5 )
+        button_sizer.Add( self.button_add, 0, wx.EXPAND|wx.ALL, 3 )
+        button_sizer.Add( self.button_remove, 0, wx.EXPAND|wx.ALL, 3 )
+        button_sizer.Add( self.button_edit, 0, wx.EXPAND|wx.ALL, 3 )
+        button_sizer.Add( self.button_import, 0, wx.EXPAND|wx.ALL, 3 )
+        button_sizer.Add( self.button_export, 0, wx.EXPAND|wx.ALL, 3 )
 
-        self.sizer = wx.BoxSizer( wx.VERTICAL )
-        self.sizer.Add ( self.repo_map_list, 0, wx.EXPAND, 5 )
-        self.sizer.Add ( button_sizer, 0, wx.ALIGN_RIGHT, 5)
+        self.sizer = wx.FlexGridSizer( 2, 1, 0, 0 )
+        self.sizer.AddGrowableRow( 0 )
+        self.sizer.AddGrowableCol( 0 )
+        self.sizer.Add ( self.repo_map_list, 1, wx.EXPAND|wx.ALL, 5 )
+        self.sizer.Add ( button_sizer, 0, wx.ALIGN_RIGHT )
 
         self.button_add.Bind( wx.EVT_BUTTON, self.OnButtonAdd )
         self.button_remove.Bind( wx.EVT_BUTTON, self.OnButtonRemove )
@@ -293,15 +304,15 @@ class RepoListPage(PagePanel):
             f = open( file_dialog.GetPath() )
             if f:
                 for li in f:
-                    li = li.strip().replace('\t', ' ')
+                    li = li.strip()
                     if li[0] == ';' or li[0] == '#':
                         continue
 
-                    parts = li.split(' ')
+                    parts = li.split()
                     if len(parts) < 2:
                         continue
 
-                    repo, dir = parts[0], parts[-1]
+                    repo, dir = parts[0], parts[1]
                     if self.p.repo_map_list.has_key( repo ):
                         self._ReplaceContentInList( repo, dir )
                     else:
@@ -337,3 +348,85 @@ class RepoListPage(PagePanel):
 
     def savePreferences( self ):
         p = self.app.prefs.getRepository()
+
+class RepoPatternPage(PagePanel):
+    def __init__( self, notebook, app ):
+        self.app = app
+        PagePanel.__init__( self, notebook, T_('Module Pattern') )
+
+    def initControls( self ):
+        p = self.app.prefs.getRepository()
+        self.v_sizer = wx.BoxSizer( wx.VERTICAL )
+
+        # Add module info
+        self.v_sizer1 = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_('Module') ), wx.VERTICAL )
+
+        self.g_sizer1 = wx.FlexGridSizer( 0, 2, 0, 0 )
+        self.g_sizer1.AddGrowableCol( 1 )
+
+        self.static_text1 = wx.StaticText( self, -1, T_('Pattern: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_pattern_module = wx.TextCtrl( self, -1, p.info_module.get( 'pattern', ''), size=(400, -1) )
+        self.static_text2 = wx.StaticText( self, -1, T_('Components: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_component_module = wx.TextCtrl( self, -1, p.info_module.get( 'component', ''), size=(400, -1) )
+
+        self.g_sizer1.Add( self.static_text1, 0, wx.EXPAND|wx.ALL, 3 )
+        self.g_sizer1.Add( self.text_ctrl_pattern_module, 1, wx.EXPAND|wx.ALL, 3 )
+        self.g_sizer1.Add( self.static_text2, 0, wx.EXPAND|wx.ALL, 3 )
+        self.g_sizer1.Add( self.text_ctrl_component_module, 1, wx.EXPAND|wx.ALL, 3 )
+        self.v_sizer1.Add( self.g_sizer1 )
+
+        self.v_sizer.Add( self.v_sizer1, 1, wx.EXPAND|wx.ALL, 3 )
+
+        # Add package info
+        self.v_sizer2 = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_('Package') ), wx.VERTICAL )
+
+        self.g_sizer2 = wx.FlexGridSizer( 0, 2, 0, 0 )
+        self.g_sizer2.AddGrowableCol( 1 )
+
+        self.static_text3 = wx.StaticText( self, -1, T_('Pattern: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_pattern_package = wx.TextCtrl( self, -1, p.info_package.get( 'pattern', ''), size=(400, -1) )
+        self.static_text4 = wx.StaticText( self, -1, T_('Components: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_component_package = wx.TextCtrl( self, -1, p.info_package.get( 'component', ''), size=(400, -1) )
+
+        self.g_sizer2.Add( self.static_text3, 0, wx.EXPAND|wx.ALL, 3 )
+        self.g_sizer2.Add( self.text_ctrl_pattern_package, 1, wx.EXPAND|wx.ALL, 3 )
+        self.g_sizer2.Add( self.static_text4, 0, wx.EXPAND|wx.ALL, 3 )
+        self.g_sizer2.Add( self.text_ctrl_component_package, 1, wx.EXPAND|wx.ALL, 3 )
+        self.v_sizer2.Add( self.g_sizer2 )
+
+        self.v_sizer.Add( self.v_sizer2, 1, wx.EXPAND|wx.ALL, 3 )
+
+        # Add project info
+        self.v_sizer3 = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_('Package') ), wx.VERTICAL )
+
+        self.g_sizer3 = wx.FlexGridSizer( 0, 2, 0, 0 )
+        self.g_sizer3.AddGrowableCol( 1 )
+
+        self.static_text5 = wx.StaticText( self, -1, T_('Pattern: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_pattern_project = wx.TextCtrl( self, -1, p.info_project.get( 'pattern', ''), size=(400, -1) )
+        self.static_text6 = wx.StaticText( self, -1, T_('Components: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_component_project = wx.TextCtrl( self, -1, p.info_project.get( 'component', ''), size=(400, -1) )
+
+        self.g_sizer3.Add( self.static_text5, 0, wx.EXPAND|wx.ALL, 3 )
+        self.g_sizer3.Add( self.text_ctrl_pattern_project, 1, wx.EXPAND|wx.ALL, 3 )
+        self.g_sizer3.Add( self.static_text6, 0, wx.EXPAND|wx.ALL, 3 )
+        self.g_sizer3.Add( self.text_ctrl_component_project, 1, wx.EXPAND|wx.ALL, 3 )
+        self.v_sizer3.Add( self.g_sizer3 )
+
+        self.v_sizer.Add( self.v_sizer3, 1, wx.EXPAND|wx.ALL, 3 )
+        self.v_sizer.Fit( self )
+
+        return self.v_sizer
+
+    def savePreferences( self ):
+        p = self.app.prefs.getRepository()
+
+        p.info_module['pattern'] = self.text_ctrl_pattern_module.GetValue().strip()
+        p.info_module['component'] = self.text_ctrl_component_module.GetValue().strip()
+
+        p.info_package['pattern'] = self.text_ctrl_pattern_package.GetValue().strip()
+        p.info_package['component'] = self.text_ctrl_component_package.GetValue().strip()
+
+        p.info_project['pattern'] = self.text_ctrl_pattern_project.GetValue().strip()
+        p.info_project['component'] = self.text_ctrl_component_project.GetValue().strip()
+

@@ -25,6 +25,7 @@ import wb_exceptions
 import wb_subversion_utils
 
 import wb_config
+import wb_tree_panel
 
 import wb_source_control_providers
 import wb_subversion_tree_handler
@@ -107,8 +108,8 @@ class ProjectDialog(wx.Dialog):
 
         pi.init( self.state.name,
             configspec=self.state.configspec,
-            wc_path=os.path.expanduser( self.state.wc_path ) )
-
+            wc_path=os.path.expanduser( self.state.wc_path ),
+            menu_info=self.project_info.menu_info )
 
         return pi
 
@@ -356,7 +357,7 @@ class RepositoryPanel(PagePanel):
         self.list_box.InsertColumn( 1, T_('Location') )
         self.list_box.SetColumnWidth( 1, 400 )
 
-        repo_names.sort(wb_subversion_utils.compare)
+        repo_names.sort(wb_torun_configspec.compare)
         for item in repo_names:
             index = self.list_box.GetItemCount()
             self.list_box.InsertStringItem( index, item )
@@ -382,26 +383,27 @@ class SubversionClient:
 
         self.client = pysvn.Client()
         self.client.exception_style = 1
-#        self.client.commit_info_style = 1
+        self.client.commit_info_style = 1
+
         self.client.callback_get_login = wb_exceptions.TryWrapper( self.app.log, self.app.getCredentials )
+        self.client.callback_get_log_message = wb_exceptions.TryWrapper( self.app.log, self.getLogMessage )
+
         self.client.callback_ssl_server_trust_prompt = wb_exceptions.TryWrapper( self.app.log, self.getServerTrust )
 
         self.initNotify()
 
+        #==== add functions except checkout and update
+        for func in ('add', 'cat', 'checkin', 'copy', 'copy2',
+                     'diff', 'info', 'info2', 'list', 'log', 'ls', 'mkdir',
+                     'move', 'remove', 'propget', 'propset', 'proplist', 'status',
+                     'switch'):
+            self.__dict__[func] = getattr( self.client, func )
+
+    def getLogMessage( self ):
+        return True, 'Torun Client'
+
     def initNotify( self ):
         self.client.callback_notify = wb_exceptions.TryWrapper( self.app.log, self.callback_notify )
-
-    def __getattribute__(self, attr):
-        print attr
-
-    def info(self, path, **args):
-        return self.client.info(path, **args)
-
-    def info2(self, path, **args):
-        return self.client.info2(path, **args)
-
-    def status(self, path, **args):
-        return self.client.status(path, **args)
 
     def checkout(self, *arg, **args):
         self.updateWithConfigspec()
@@ -422,12 +424,11 @@ class SubversionClient:
         dirs = list()
         # 1. find and check out all repositories
         repos = cs_parser.getRepositories()
-#        print 'repo=>', repos
         for repo in repos:
             # FIXME: ignore the unmapped repository?
             if not repo_map_list.has_key( repo ): continue
             url = '%s/trunk' % repo_map_list[repo]
-            wc_path = '%s/%s' % ( self.project_info.wc_path, repo )
+            wc_path = os.path.join( self.project_info.wc_path, repo )
             # build up the repository location with /trunk
             if not os.path.exists( wc_path ):
                 self.client.checkout( url, wc_path, depth=pysvn.depth.infinity,
@@ -436,21 +437,22 @@ class SubversionClient:
 
         # 2. update or switch directory according to the configspec
         while len( dirs ) > 0:
-#            print '-------------------------------------'
             wc_path = dirs.pop( 0 )
-#            print 'wc_path=%s' % wc_path
             # 2.1 get the URL from the path
             url = self.get_url_from_path( wc_path )
             # 2.2 get the target URL from the configspec
+            # Configspec.match returns a url list of matched rules in order,
+            # to handle the list, a loop is required to check each url.
             mlist = cs_parser.match( repo_map_list, wc_path )
-#            print 'url=>', url
-#            print 'mlist=>', mlist
+
+            # check the existence of urls in mlist and do switching
+            # FIXME: do a careful switching for the existent modules?
             for new_url in mlist or list():
                 if not self.exists( new_url ): continue
                 if url == new_url:
                     self.client.update( wc_path, depth=pysvn.depth.empty,
                                         revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
-                else:                
+                else:
                     self.client.switch( wc_path, new_url, depth=pysvn.depth.infinity,
                                         revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
                 break
@@ -462,26 +464,22 @@ class SubversionClient:
                     dirs.append( path )
 
     def exists( self, filename ):
-        dirs = list()
+        ret = True
         try:
             dirs = self.client.ls( filename,
                     recurse=False,
                     revision=pysvn.Revision( pysvn.opt_revision_kind.head ),
                     peg_revision=pysvn.Revision( pysvn.opt_revision_kind.unspecified ) )
         except:
-            pass
+            ret = False
 
-        if len(dirs):
-            return True
-        else:
-            return False
+        return ret
 
     def get_url_from_path( self, filename ):
         info = self.client.info2( filename, recurse=False )[0][1]
 
         return info.URL
 
-#FIXME...
     def getServerTrust( self, trust_data ):
         realm = trust_data['realm']
 
@@ -553,6 +551,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         self.app = app
         self.parent = self.parent
         #TODO: check the usage of need_checkout
+        self.need_update = False
         self.need_checkout = True
         self.need_properties = False
         self.svn_project_infos = dict()
@@ -563,8 +562,20 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
     def init( self, project_name, **kws):
         wb_source_control_providers.ProjectInfo.init( self, project_name )
 
+        self.menu_info = \
+            [( 0, None, None )
+            ,( wb_ids.id_SP_Torun_ProcAdd, self.isDirToAddIdent, self.Cmd_Torun_ProcAdd )
+            ,( wb_ids.id_SP_Torun_ProcDelete, self.isDirToDeleteIdent, self.Cmd_Torun_ProcDelete )
+            ,( 0, None, None )
+            ,( wb_ids.id_SP_Torun_ProcDevelop, self.isDirToDevelop, self.Cmd_Torun_ProcDevel )
+            ,( wb_ids.id_SP_Torun_ProcDeliver, self.isDirToDeliver, self.Cmd_Torun_ProcDeliv )
+            ,( wb_ids.id_SP_Torun_ProcRevert, self.isDirToRevert, self.Cmd_Torun_ProcRevert )
+            ]
+
         self.wc_path = kws['wc_path']
         self.configspec = kws.get( 'configspec', '' )
+        if not self.menu_info:
+            self.menu_info = kws.get( 'menu_info', None )
 
         # need one client/project/thread
         self.client_bg = SubversionClient( self.app, self )
@@ -573,6 +584,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         self.initRepositoryInfo()
 
     def initRepositoryInfo( self ):
+        self.need_checkout = False
         # build up the subversion project infos
         cs_parser = wb_torun_configspec.wb_subversion_configspec(
                         rootdir=self.wc_path,
@@ -581,22 +593,106 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         for repo in cs_parser.getRepositories() or list():
             self.svn_project_infos[repo] = None
 
-        try:
-            for repo in self.svn_project_infos.keys():
-                wc_path = '%s/%s' % ( self.wc_path, repo )
+        for repo in self.svn_project_infos.keys():
+            wc_path = os.path.join( self.wc_path, repo )
+            try:
                 url = self.client_bg.get_url_from_path( wc_path )
                 # create a temporary subversion project_name '@@repo'
-                self.svn_project_infos[repo] = wb_subversion_project_info.ProjectInfo( self.app, self.parent )
-                self.svn_project_infos[repo].init('@@%s' % repo, url=url, wc_path=wc_path )
-            self.need_checkout = False
-        except:
-            self.need_checkout = True
+                self.svn_project_infos[repo] = wb_subversion_project_info.ProjectInfo(
+                                                    self.app, self.parent )
+                self.svn_project_infos[repo].init( '@@%s' % repo, url=url,
+                                                   wc_path=wc_path, menu_info=self.menu_info )
+            except:
+                self.need_update = True
+                self.need_checkout = True
 
     def initNotify( self ):
         self.notification_of_files_in_conflict = 0
 
         self.client_bg.initNotify()
         self.client_fg.initNotify()
+
+    def getTagsUrl( self, rel_url ):
+        if self.parent is not None:
+            return self.parent.getTagsUrl( rel_url )
+        return self.expandedLabelUrl( True, rel_url )
+
+    def getBranchesUrl( self, rel_url ):
+        if self.parent is not None:
+            return self.parent.getBranchesUrl( rel_url )
+        return self.expandedLabelUrl( self.branches_url, rel_url )
+
+    def expandedLabelUrl( self, is_label, rel_url ):
+        label_url = ''
+
+        # pick the branch or tags from relative svn.ProjectInfo
+        repo = self.findRepository( rel_url )
+        if repo:
+            if is_label:
+                label_url = self.svn_project_infos[repo].tags_url
+            else:
+                label_url = self.svn_project_infos[repo].branches_url
+
+        if label_url is '':
+            return ''
+
+        label_url_parts = label_url.split('/')
+        wild_parts = 0
+        while label_url_parts[-1] == '*':
+            del label_url_parts[-1]
+            wild_parts += 1
+
+        if wild_parts == 0:
+            return label_url
+
+        # replace wild_part dirs from the rel_url
+        assert( rel_url[0:len(self.url)] == self.url )
+        suffix_parts = rel_url[len(self.url)+1:].split('/')
+        label_url_parts.extend( suffix_parts[0:wild_parts] )
+
+        return '/'.join( label_url_parts )
+
+    def findRepository( self, url ):
+        for name, repo in self.svn_project_infos.items():
+            if url.startswith( repo.url ) \
+            or url.startswith( repo.branches_url ) \
+            or url.startswith( repo.tags_url ):
+                return repo
+
+        return None
+
+    def getLabesInTags( self, repo_info, name ):
+        labels = list()
+
+        uname = name.upper()
+        try:
+            # 1. project_location/tags/U(name)-x/project/
+            dirs =  self.client_bg.ls( repo_info.tags_url,
+                    recurse=False,
+                    revision=pysvn.Revision( pysvn.opt_revision_kind.head ),
+                    peg_revision=pysvn.Revision( pysvn.opt_revision_kind.unspecified ) )
+
+            prefix = '%s/%s' % ( repo_info.tags_url, uname )
+            for item in dirs:
+                if item.name.rfind(prefix) >= 0:
+                    labels.append( item.name.split('/')[-1] )
+        except:
+            pass
+
+        # 2. project_location/tags/U(project_name)/x/project/
+        try:
+            ls_str = '%s/%s' % ( repo_info.tags_url, uname )
+            dirs =  self.client_bg.ls( ls_str,
+                    recurse=False,
+                    revision=pysvn.Revision( pysvn.opt_revision_kind.head ),
+                    peg_revision=pysvn.Revision( pysvn.opt_revision_kind.unspecified ) )
+
+            for item in dirs:
+                labels.append( '%s-%s' % ( uname, item.name.split('/')[-1] ) )
+        except:
+            pass
+
+        return labels
 
     def readPreferences( self, get_option ):
         wb_source_control_providers.ProjectInfo.readPreferences( self, get_option )
@@ -623,8 +719,9 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
             pref_dict[ 'configspec' ] = self.configspec
 
         if len(self.configspec):
-            # FIXME: read out configspec name from somewhere
-            wb_read_file.writeFileByLine( "%s/.configspec" % self.wc_path, self.configspec )
+            # read the name from preferences
+            repo_configspec = self.app.prefs.getRepository().repo_configspec
+            wb_read_file.writeFileByLine( os.path.join( self.wc_path, repo_configspec ), self.configspec )
 
     def isEqual( self, pi ):
         return (self.provider_name == pi.provider_name
@@ -635,16 +732,11 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         if type(pi) == types.StringType:
             # see if the wc path of the parent is a prefix of the child
             url = self.url + os.path.sep
-            return pi[:len(wc_path)] == wc_path \
-              and pi[len(wc_path):].replace( '\\', '/' ).find( '/' ) == -1
+            return pi[:len(wc_path)] == wc_path
         else:
-            # true if pi is a child of this node
-
             # see if the wc path of the parent is a prefix of the child
             wc_path = self.wc_path + os.path.sep
-
-            return pi.wc_path[:len(wc_path)] == wc_path \
-              and pi.wc_path[len(wc_path):].replace( '\\', '/' ).find( '/' ) == -1
+            return pi.wc_path[:len(wc_path)] == wc_path
 
     def getWorkingDir( self ):
         return self.wc_path
@@ -669,11 +761,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
                 if file_status:
                     all_files_status.append( file_status )
 
-#        print 'getFilesStatus', all_files_status
-        if len(all_files_status):
-            return all_files_status
-        else:
-            return None
+        return all_files_status
 
     def getTreeFilesStatus( self ):
         all_tree_files_status = list()
@@ -684,7 +772,6 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
                 if tree_files_status:
                     all_tree_files_status.append( tree_files_status )
 
-#        print 'getTreeFilesStatus', all_tree_files_status
         return all_tree_files_status
 
     def getDirStatus( self ):
@@ -701,9 +788,514 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
 
         return all_dir_status
 
+    def replaceEscapeString( self, dirname, list_str ):
+        # two alternatives are defined: %D %F, %R
+        dirname = dirname.replace( '\\', '/' )
+        if dirname.endswith( '/' ):
+            dirname = dirname[ :len(dirname) - 1 ]
+
+        basename = dirname.split( '/' )[-1]
+
+        list_str = list_str.replace( '%D', dirname )
+        list_str = list_str.replace( '%F', basename )
+        list_str = list_str.replace( '%R', self.wc_path )
+
+        return list_str
+
+    def isInCheckList( self, dirname, list_str ):
+        new_str = self.replaceEscapeString( dirname, list_str )
+        items = new_str.split()
+
+        for item in items:
+            if os.path.exists(item):
+                return True
+
+        return False
+
+    def isDirMatchParent( self, file_path ):
+        ret, context = False, ''
+
+        p = self.app.prefs.getRepository()
+        #= check module's parent directory
+        if re.match( p.info_module['parent'], file_path ):
+            ret, context = ( True, 'module' )
+        #= check package's parent directory
+        if (not ret) and re.match( p.info_package['parent'], file_path ):
+            ret, context = ( True, 'package' )
+        # check project's parent directory
+        if (not ret) and re.match( p.info_project['parent'], file_path ):
+            ret, context = ( True, 'project' )
+
+        return ret, context
+
+    def isDirMatchPattern( self, file_path ):
+        ret, context = False, ''
+
+        wc_path = file_path.replace( '\\', '/' )
+        p = self.app.prefs.getRepository()
+        # check module's directory
+        if self.isInCheckList( wc_path, p.info_module['pattern'] ):
+            ret, context = True, 'module'
+        # check package's directory
+        if (not ret) and self.isInCheckList( wc_path, p.info_package['pattern'] ):
+            ret, context = True, 'package'
+        # check project's directory
+        if (not ret) and self.isInCheckList( wc_path, p.info_project['pattern'] ):
+            ret, context = True, 'project'
+
+        return ret, context
+
+    def isDirToAddIdent( self, project_info ):
+        ret, context = self.isDirMatchParent( project_info.wc_path )
+
+        return ret, 'Add %s...' % context
+
+    def isDirToDeleteIdent( self, project_info ):
+        wc_path = project_info.wc_path.replace( '\\', '/' )
+
+        ret, context = self.isDirMatchPattern( wc_path )
+        # check the parent directory even the identifier directory is empty
+        if not ret:
+            ret, context = self.isDirMatchParent( wc_path[:wc_path.rfind( '/' )] )
+
+        if ret:
+            context = "Delete %s '%s'" % (context, wc_path[wc_path.rfind( '/' ) + 1:])
+
+        return ret, context
+
+    def isDirToDevelop( self, project_info ):
+        # 1. it should be an identifier directory
+        ret, _ = self.isDirToDeleteIdent( project_info )
+        if ret:
+            # 2. check the file status
+            file_status = self.client_fg.status( project_info.wc_path, recurse=False, ignore=False )
+            state = self.getFileStatus( file_status )
+            ret = (not state.modified) \
+                  and (not state.new_versioned) \
+                  and state.versioned \
+                  and (not state.unversioned) \
+                  and (not state.need_checkin) \
+                  and (not state.need_checkout) \
+                  and (not state.conflict) \
+                  and state.file_exists
+
+        if ret:
+            # 3. check the file status
+            props = self.readOrWriteSpecifiedProperties( project_info.wc_path )
+            ret = props.get('status') != 'EXPERIMENTAL'
+
+        return ret, 'kSVN Develop'
+
+    def isDirToDeliver( self, project_info ):
+        # 1. it should be an identifier directory
+        ret, _ = self.isDirToDeleteIdent( project_info )
+        if ret:
+            # 2. check the file status
+            file_status = self.client_fg.status( project_info.wc_path, recurse=True, ignore=False )
+            state = self.getFileStatus( file_status )
+            ret = (not state.modified) \
+                  and (not state.new_versioned) \
+                  and state.versioned \
+                  and (not state.unversioned) \
+                  and (not state.need_checkin) \
+                  and (not state.need_checkout) \
+                  and (not state.conflict) \
+                  and state.file_exists
+
+        if ret:
+            # 3. check the file status
+            props = self.readOrWriteSpecifiedProperties( project_info.wc_path )
+            ret = props.get('status') == 'EXPERIMENTAL'
+
+        return ret, 'kSVN Deliver'
+
+    def isDirToRevert( self, project_info ):
+        # 1. it should be an identifier directory
+        ret, _ = self.isDirToDeleteIdent( project_info )
+        if ret:
+            # 2. check the file status
+            file_status = self.client_fg.status( project_info.wc_path, recurse=True, ignore=False )
+            state = self.getFileStatus( file_status )
+            ret = state.modified and state.revertable
+
+        if ret:
+            # 3. check the file status
+            props = self.readOrWriteSpecifiedProperties( project_info.wc_path )
+            ret = props.get('status') == 'EXPERIMENTAL'
+
+        return ret, 'kSVN Revert'
+
+    def Cmd_Torun_ProcAdd( self, project_info ):
+        repo_info = self.findRepository( project_info.url )
+        if repo_info is None:
+            return
+
+        wc_path = project_info.wc_path.replace( '\\', '/' )
+        ret, ident_type = self.isDirMatchParent( wc_path )
+
+        if not ret:
+            return
+
+        ident_url, tailing_dir, local_ident = self.splitDirectory( repo_info, project_info )
+        dir_name = os.path.basename( local_ident )
+
+        # 1. it's under 'tags' directory
+        if project_info.url.startswith( repo_info.tags_url ):
+            # info to input a new tags label
+            tag_list = self.getLabesInTags( repo_info, dir_name )
+            rc, name, tag = self.app.getIdent( T_('Make new %s' % ident_type), dir_name, tag_list )
+            if not rc:
+                return
+
+            # check the temporary directory for the process
+            temp_dir = self.temporaryDevelopBranch( repo_info, self.project_name, name )
+            if self.client_bg.exists( temp_dir ):
+                wx.MessageBox( T_('Temporary is existent: %s' % temp_dir), style=wx.OK|wx.ICON_ERROR )
+                return
+
+            local_dir = os.path.join( project_info.wc_path, name )
+            if os.path.exists( local_dir ):
+                wx.MessageBox( T_('new path is existent: %s' % local_dir), style=wx.OK|wx.ICON_ERROR )
+                return
+
+            # 1.1 copy the SCIs to the new tag directory and make the new ident
+            tag_dir = '%s/%s/%s' % ( repo_info.tags_url, tag, dir_name )
+            self.client_bg.copy2( self.__listCopy( ident_url ), tag_dir, make_parents=True )
+            # 1.2 create the new identifier in the repository directly
+            new_dir = '%s/%s/%s' % ( tag_dir, tailing_dir, name )
+            self.client_bg.mkdir( new_dir, 'kSVN ProcAdd' )
+            # 1.3 switch the new tags
+            self.client_bg.switch( local_ident, tag_dir, depth=pysvn.depth.infinity,
+                                   revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+
+            # 1.4 copy the new directory
+            self.client_bg.copy2( self.__listCopy( new_dir ), temp_dir, make_parents=True )
+            # 1.5 switch to the temp directory ...
+            new_local = '%s/%s' % ( project_info.wc_path, name )
+            self.client_bg.switch( new_local, temp_dir, depth=pysvn.depth.infinity,
+                                   revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+            # 1.6 create SCIs locally and don't submit
+            self.createScisOnLocal( project_info, ident_type, local_dir )
+        # 2. it's a trunk or branch, add the identifier directory directly
+        else:
+            rc, name = self.app.getFilename( T_('Make new %s' % ident_type), T_('Name:') )
+            if not rc:
+                return
+
+            local_dir = os.path.join( project_info.wc_path, name )
+            if os.path.exists( local_dir ):
+                wx.MessageBox( T_('new path is existent: %s' % local_dir), style=wx.OK|wx.ICON_ERROR )
+                return
+
+            # check the temporary directory for the process
+            temp_dir = self.temporaryDevelopBranch( repo_info, self.project_name, name )
+            if self.client_bg.exists( temp_dir ):
+                wx.MessageBox( T_('Temporary is existent: %s' % temp_dir), style=wx.OK|wx.ICON_ERROR )
+                return
+
+            # 2.1 create the new directory on the remote
+            new_url = '%s/%s' % ( project_info.url, name )
+            self.client_bg.mkdir( new_url, 'kSVN ProcAdd' )
+            # 2.2 switch to the temp directory ...
+            self.client_bg.copy2( self.__listCopy( new_url ), temp_dir, make_parents=True )
+            self.client_bg.switch( local_dir, temp_dir, depth=pysvn.depth.infinity,
+                                   revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+            # 2.3 create SCIs locally but don't submit
+            self.createScisOnLocal( project_info, ident_type, local_dir )
+
+    def Cmd_Torun_ProcDelete( self, project_info ):
+        repo_info = self.findRepository( project_info.url )
+        if repo_info is None:
+            return
+
+        wc_path = project_info.wc_path.replace( '\\', '/' )
+        ret, ident_type = self.isDirMatchPattern( wc_path )
+        if not ret:
+            ret, ident_type = self.isDirMatchParent( wc_path[:wc_path.rfind( '/' )] )
+
+        if not ret:
+            return
+
+        # 1. it's under 'tags' directory
+        if project_info.url.startswith( repo_info.tags_url ):
+            # 1.1 make sure the temporary directory could be used
+
+            ident_url, tailing_dir, local_ident = self.splitDirectory( repo_info, project_info, True )
+            dir_name = os.path.basename( local_ident )
+            temp_dir = self.temporaryDevelopBranch( repo_info, self.project_name, dir_name )
+
+            if self.client_bg.exists( temp_dir ):
+                wx.MessageBox( T_('Temporary is existent: %s' % temp_dir), style=wx.OK|wx.ICON_ERROR )
+                return
+
+            # 1.2 create the temporary path
+            temp_dir = self.temporaryDevelopBranch( repo_info, self.project_name, dir_name )
+            # 1.3 copy the new directory
+            self.client_bg.copy2( self.__listCopy( ident_url ), temp_dir, make_parents=True )
+            # 1.4 switch to the temp directory ...
+            self.client_bg.switch( local_ident, temp_dir, depth=pysvn.depth.infinity,
+                                   revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+            # 1.5 setup the properties
+            properties['status'] = 'EXPERIMENTAL'
+            properties['vsnorigin'] = project_info.url
+
+            self.readOrWriteSpecifiedProperties( local_ident, properties )
+            # 1.6 create SCIs locally and don't submit
+            self.client_bg.remove( project_info.wc_path )
+
+        # 2. it's a trunk or branch, remove the directory directly
+        else:
+            self.client_bg.remove( project_info.wc_path )
+
+    def Cmd_Torun_ProcDevel( self, project_info ):
+        repo_info = self.findRepository( project_info.url )
+        if repo_info is None:
+            return
+
+        wc_path = project_info.wc_path.replace( '\\', '/' )
+        ret, ident_type = self.isDirMatchPattern( wc_path )
+        if not ret:
+            ret, ident_type = self.isDirMatchParent( wc_path[:wc_path.rfind( '/' )] )
+
+        if not ret:
+            return
+
+        # check the temporary directory for the process
+        temp_dir = self.temporaryDevelopBranch( repo_info, self.project_name, dir_name )
+        if self.client.bg.exists( temp_dir ):
+            wx.MessageBox( T_('Temporary is existent: %s' % temp_dir), style=wx.OK|wx.ICON_ERROR )
+            return
+
+        dir_name = os.path.basename( project_info.wc_path )
+        ident_url, tailing_dir, local_ident = self.splitDirectory( repo_info, project_info )
+
+        properties = self.readOrWriteSpecifiedProperties( local_ident )
+        # 1 copy the contents to the temporary directory ...
+        self.client_bg.copy2( self.__listCopy( ident_url ), temp_dir, make_parents=True )
+        # 2 switch to the temp directory ...
+        self.client_bg.switch( local_ident, temp_dir, depth=pysvn.depth.infinity,
+                               revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+        # 3. update the properties
+        properties['status'] = 'EXPERIMENTAL'
+        properties['vsnorigin'] = project_info.url
+
+        self.readOrWriteSpecifiedProperties( local_ident, properties )
+
+    def Cmd_Torun_ProcDeliv( self, project_info ):
+        repo_info = self.findRepository( project_info.url )
+        if repo_info is None:
+            return
+
+        wc_path = project_info.wc_path.replace( '\\', '/' )
+        ret, ident_type = self.isDirMatchPattern( wc_path )
+        if not ret:
+            ret, ident_type = self.isDirMatchParent( wc_path[wc_path.rfind( '/' )] )
+
+        if not ret:
+            return
+
+        ident_url, tailing_dir, local_ident = self.splitDirectory( repo_info, project_info )
+        properties = self.readOrWriteSpecifiedProperties( local_ident )
+        if properties['status'] != 'EXPERIMENTAL':
+            return
+
+        dir_name = os.path.basename( project_info.wc_path )
+        tag_list = self.getLabesInTags( repo_info, dir_name )
+        rc, tag = self.app.getIdent( T_('Make new %s' % ident_type), dir_name, tag_list, True )
+        if rc:
+            # 1. copy the SCIs to the new tag directory and make the new ident
+            tag_dir = '%s/%s/%s' % ( repo_info.tags_url, tag, dir_name )
+            # 2. update and submit the properties
+            properties['status'] = 'CONFIDENTIAL'
+            properties['vsnnumber'] = tag
+            properties['vsnorigin'] = project_info.url
+            self.readOrWriteSpecifiedProperties( local_ident, properties )
+            self.client_bg.checkin( local_ident, 'Torun Deliv', recurse=True )
+            # 3. copy and switch to the new tag location
+            self.client_bg.copy2( self.__listCopy( ident_url ), tag_dir, make_parents=True )
+            # 4. create the new identifier in the repository directly
+            self.client_bg.switch( local_ident, tag_dir, depth=pysvn.depth.infinity,
+                                   revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+            # 5. remove the temporary location
+            self.client_bg.remove( ident_url )
+
+    def Cmd_Torun_ProcRevert( self, project_info ):
+        repo_info = self.findRepository( project_info.url )
+        if repo_info is None:
+            return
+
+        wc_path = project_info.wc_path.replace( '\\', '/' )
+        ret, ident_type = self.isDirMatchPattern( wc_path )
+        if not ret:
+            ret, ident_type = self.isDirMatchParent( wc_path[:wc_path.rfind( '/' )] )
+
+        if not ret:
+            return
+
+        properties = self.readOrWriteSpecifiedProperties( local_ident )
+        orginal_url = properties.get( 'vsnorigin' )
+        if not ( orginal_url and self.client_bg.exists( orginal_url ) ):
+            if orginal_url:
+                MessageBox( T_("vsnorigin '%s' is not existent" % orginal_urld), style=wx.OK|wx.ICON_ERROR )
+            else:
+                MessageBox( T_("'vsnorigin' is not defined"), style=wx.OK|wx.ICON_ERROR )
+            return
+
+        dir_name = os.path.basename( project_info.wc_path )
+        ident_url, tailing_dir, local_ident = self.splitDirectory( repo_info, project_info )
+
+        # should not be equal
+        if orginal_url == ident_url:
+            MessageBox( T_("'vsnorigin' is equal with current url"), style=wx.OK|wx.ICON_ERROR )
+            return
+
+        # 4. create the new identifier in the repository directly
+        self.client_bg.switch( local_ident, orginal_url, depth=pysvn.depth.infinity,
+                               revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+        # 5. remove the temporary location
+        self.client_bg.remove( project_info.url )
+
+    def readOrWriteSpecifiedProperties( self, filename, value_dict=None ):
+        ret = dict()
+        props = ['status', 'vsnbranch', 'vsnnumber', 'vsnorigin']
+
+        if isinstance( value_dict, dict ):
+            for name, value in value_dict.items():
+                name = 'svncm:%s' % name
+                if value is not None:
+                    self.client_bg.propset( name, value, filename )
+        else:
+            prop_list = self.client_bg.proplist( filename,
+                    revision=pysvn.Revision( pysvn.opt_revision_kind.working ) )
+            if len( prop_list ) == 0:
+                prop_dict = {}
+            else:
+                _, prop_dict = prop_list[0]
+
+            for name in props:
+                k = 'svncm:%s' % name
+                ret[name] = prop_dict.get( k, None )
+
+        return ret
+
+    def temporaryDevelopBranch( self, project_info, project_name, directory ):
+        dir_name = directory.split( '/' )[-1]
+
+        return '%s/SvnCM/%s/%s' % ( project_info.branches_url, project_name, dir_name )
+
+    def createScisOnLocal( self, repo_info, ident_type, new_dir ):
+        p = self.app.prefs.getRepository()
+
+        if ident_type == 'module':
+            component = p.info_module['component']
+        elif ident_type == 'package':
+            component = p.info_package['component']
+        elif ident_type == 'project':
+            component = p.info_project['component']
+
+        dirs = list()
+        files = list()
+
+        item_list = self.replaceEscapeString( new_dir, component )
+        for item in item_list.split():
+            if item.find( '.' ) >= 0:
+                files.append( os.path.join( new_dir, item ) )
+            else:
+                dirs.append( os.path.join( new_dir, item ) )
+
+        self.client_bg.mkdir( dirs, 'kSVN SCIs_Creation' )
+        for f in files:
+            wb_read_file.writeFileByLine( f, '' )
+
+        self.client_bg.add( files )
+        properties = dict( { 'status':'EXPERIMENTAL'} )
+
+        self.readOrWriteSpecifiedProperties( new_dir, properties )
+
+    def splitDirectory( self, repo_info, project_info, parent=False ):
+        ident_url = ''
+        repo_dir = repo_info.wc_path.replace( '\\', '/' )
+        tailing_dir = local_dir = project_info.wc_path.replace( '\\', '/' )
+
+        while local_dir != repo_dir:
+            if parent:
+                local_dir = local_dir[:local_dir.rfind( '/' )]
+                ret, _ = self.isDirMatchPattern( local_dir )
+                if ret:
+                    break
+            else:
+                ret, _ = self.isDirMatchPattern( local_dir )
+                if ret:
+                    break
+                local_dir = local_dir[:local_dir.rfind( '/' )]
+
+        if os.path.exists( local_dir ):
+            ident_url = self.client_bg.get_url_from_path( local_dir )
+
+        tailing_dir = tailing_dir[len( local_dir ) + 1:]
+
+        return ident_url, tailing_dir, local_dir
+
+    def getFileStatus( self, all_files_status ):
+        all_files_status.sort( wb_subversion_utils.by_path )
+
+        file_status = all_files_status[0]
+
+        state = wb_tree_panel.TreeState()
+        if file_status is None:
+            state.modified = False
+            state.new_versioned = False
+            state.versioned = True
+            state.unversioned = False
+            state.need_checkin = False
+            state.need_checkout = True
+            state.conflict = False
+            state.file_exists = False
+            state.revertable = False
+        else:
+            state.versioned = True
+            state.unversioned = True
+            state.need_checkout = False
+            state.file_exists = True
+
+            if not os.path.exists( file_status.path ):
+                state.file_exists = False
+
+            text_status = file_status.text_status
+            if text_status in [pysvn.wc_status_kind.unversioned, pysvn.wc_status_kind.ignored]:
+                state.versioned = False
+            else:
+                state.unversioned = False
+
+            state.new_versioned = state.new_versioned and text_status in [pysvn.wc_status_kind.added]
+
+            prop_status = file_status.prop_status
+            state.modified = (text_status in [pysvn.wc_status_kind.modified,
+                                                pysvn.wc_status_kind.conflicted]
+                            or
+                                prop_status in [pysvn.wc_status_kind.modified,
+                                                pysvn.wc_status_kind.conflicted])
+            state.need_checkin = (text_status in [pysvn.wc_status_kind.added,
+                                                    pysvn.wc_status_kind.deleted,
+                                                    pysvn.wc_status_kind.modified]
+                                or
+                                    prop_status in [pysvn.wc_status_kind.added,
+                                                    pysvn.wc_status_kind.deleted,
+                                                    pysvn.wc_status_kind.modified])
+            state.conflict = text_status in [pysvn.wc_status_kind.conflicted]
+
+            state.revertable = state.conflict or state.modified or state.need_checkin or not state.file_exists
+
+        return state
+
+    def __listCopy( self, file_list ):
+        if isinstance( file_list, ( list, tuple ) ):
+            return [ file_list ]
+        else:
+            return [ (file_list, ) ]
+
 class TorunProject(wb_subversion_tree_handler.SubversionProject):
     def __init__( self, app, project_info ):
-        self.project_info = project_info
         wb_subversion_tree_handler.SubversionProject.__init__( self, app, project_info )
 
     def getContextMenu( self, state ):
@@ -713,7 +1305,7 @@ class TorunProject(wb_subversion_tree_handler.SubversionProject):
 
         if self.project_info.need_checkout:
             menu_item += [('', wb_ids.id_SP_Checkout, T_('Checkout') )]
-        else:
+        if self.project_info.need_update or (not self.project_info.need_checkout):
             menu_item += [('', wb_ids.id_SP_Update, T_('Update') )]
 
         return wb_subversion_utils.populateMenu( wx.Menu(), menu_item )
@@ -722,6 +1314,7 @@ class TorunProject(wb_subversion_tree_handler.SubversionProject):
         project_info_list = []
 
         for file in self.project_info.getTreeFilesStatus():
+
             if( (file.entry is None and os.path.isdir( file.path ))
             or (file.entry is not None and file.entry.kind == pysvn.node_kind.dir) ):
                 pi = wb_subversion_project_info.ProjectInfo( self.app, self.project_info )
@@ -732,7 +1325,7 @@ class TorunProject(wb_subversion_tree_handler.SubversionProject):
                     url = file.entry.url
 
                 # use default subversion clients instead of the ones in ProjectInfo for Torun
-                pi.init( name, url=url, wc_path=file.path)
+                pi.init( name, url=url, wc_path=file.path, menu_info=self.project_info.menu_info)
                 project_info_list.append( pi )
 
         return project_info_list
@@ -746,7 +1339,6 @@ class TorunProject(wb_subversion_tree_handler.SubversionProject):
 class TorunListHandler(wb_subversion_list_handler.SubversionListHandler):
     def __init__( self, app, list_panel, project_info ):
         wb_subversion_list_handler.SubversionListHandler.__init__( self, app, list_panel, project_info )
-
 
 #
 #    Used to allow a call to function on the background thread

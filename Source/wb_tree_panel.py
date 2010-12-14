@@ -24,7 +24,7 @@ import wb_dialogs
 import wb_project_dialogs
 
 import wb_config
-import wb_subversion_utils
+import wb_torun_configspec
 
 class TreeState:
     def __init__( self, place_holder=False ):
@@ -771,6 +771,39 @@ class WbTreePanel(wx.Panel):
     def OnSpUpdateTo( self ):
         return self.Sp_Dispatch( 'Cmd_Dir_UpdateTo' )
 
+    def OnSpSwitch( self ):
+        return self.Sp_Dispatch( 'Cmd_Dir_Switch' )
+
+    def Sp_DispatchEvent( self, event ):
+        self.app.trace.info( 'WbTreePanel.Sp_DispatchEvent( %r ) event' % event )
+        item = self.tree_ctrl.GetSelection()
+        if not item:
+            return None
+
+        handler = self.tree_ctrl.GetPyData( item )
+        if not handler:
+            return None
+
+        project_info = getattr( handler, 'project_info' )
+        if not project_info:
+            return
+
+        menu_info = project_info.menu_info
+        if not menu_info:
+            return
+
+        for id, func, fn in menu_info:
+            if id == event.GetId():
+                self.app.trace.info( 'WbTreePanel.Sp_Torun_Dispatch( %r ) calling' % fn )
+
+                if fn is None:
+                    print 'Not implemented for' % id
+                    return None
+                else:
+                    return fn( handler.getProjectInfo() )
+
+        return None
+
     #----------------------------------------
     def OnSpCopy( self, filename_list ):
         return self.Sp_DispatchDrop( 'Cmd_Dir_Copy', filename_list )
@@ -952,7 +985,7 @@ class WbTreeCtrl(wx.TreeCtrl):
         else:
             # compare children of projects
             # return cmp( a_pi.wc_path.lower(), b_pi.wc_path.lower() )
-            return wb_subversion_utils.compare( a_pi.wc_path.lower().split( os.sep )[-1], b_pi.wc_path.lower().split( os.sep )[-1] )
+            return wb_torun_configspec.compare( a_pi.wc_path.lower().split( os.sep )[-1], b_pi.wc_path.lower().split( os.sep )[-1] )
 
 #--------------------------------------------------------------------------------
 #
