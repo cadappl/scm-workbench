@@ -17,7 +17,7 @@ import subprocess
 __sigchld_handler_installed = False
 
 gui_terminals = ['gnome-terminal', 'konsole', 'xterm', 'xfce4-terminal']
-gui_file_browsers = ['nautilus', 'konqueror', 'thunar']
+gui_file_browsers = ['nautilus', 'konqueror', 'thunar', 'dolphin']
 
 def getTerminalProgramList():
     return gui_terminals[:]
@@ -52,7 +52,7 @@ def ShellOpen( app, project_info, filename ):
     cur_dir = os.getcwd()
     try:
         os.chdir( project_info.getWorkingDir() )
-        os.system( "gnome-open '%s'" % filename )
+        os.system( "xdg-open '%s'" % filename )
     finally:
         os.chdir( cur_dir )
 
@@ -105,7 +105,7 @@ def CommandShell( app, project_info ):
 
     if terminal_program == 'konsole':
         __run_command( app, terminal_program,
-            ['-T',  ' '.join( title ), '--workdir', working_dir, '-e', shell_script_filename] )
+            ['--title',  ' '.join( title ), '--workdir', working_dir, '-e', '/bin/sh', shell_script_filename] )
     elif terminal_program in ('gnome-terminal', 'xfce4-terminal'):
         __run_command( app, terminal_program,
             ['--title',  ' '.join( title ), '--working-directory', working_dir, '-x', shell_script_filename] )
@@ -130,9 +130,9 @@ def FileBrowser( app, project_info ):
     if not found:
         return
 
-    if browser_program == 'konsole':
+    if browser_program == 'konqueror':
         __run_command( app, browser_program, ['--mimetype', 'inode/directory', project_info.getWorkingDir()] )
-    elif browser_program in ('nautilus', 'thunar'):
+    elif browser_program in ('nautilus', 'thunar', 'dolphin'):
         __run_command( app, browser_program, [project_info.getWorkingDir()] )
 
 def __run_command( app, cmd, args ):

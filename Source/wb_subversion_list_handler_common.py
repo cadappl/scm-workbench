@@ -494,7 +494,7 @@ class SubversionListHandlerCommon(wb_list_panel_common.ListHandler):
             return wb_subversion_utils.fmtDateTime( status.entry.commit_time )
 
     def __get_LockCommentColumn( self, status ):
-        if status.repos_lock is not None:
+        if status.repos_lock is not None and status.repos_lock.comment is not None:
             comment = status.repos_lock.comment.replace( '\n', ' ' )
         elif status.entry is not None and status.entry.lock_comment is not None:
             comment = status.entry.lock_comment.replace( '\n', ' ' )

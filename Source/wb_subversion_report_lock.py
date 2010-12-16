@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2006-2007 Barry A Scott.  All rights reserved.
+ Copyright (c) 2006-2010 Barry A Scott.  All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -16,6 +16,7 @@ import wb_images
 import time
 import pysvn
 
+import wb_config
 import wb_ids
 import wb_images
 import wb_exceptions

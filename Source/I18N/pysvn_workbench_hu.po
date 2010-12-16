@@ -1,0 +1,2416 @@
+# Hungarian translation of pysvn/WorkBench
+# Copyright (C) 2010 Free Software Foundation, Inc.
+# This file is distributed under the same license as the pysvn/WorkBench package.
+# Laszlo Csordas <csola48 at gmail dot com>, Copyright (C) 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: pysvn_workbench_hu.current\n"
+"Report-Msgid-Bugs-To: barryscott@tigris.org\n"
+"POT-Creation-Date: 2009-09-30 19:53+0200\n"
+"PO-Revision-Date: 2010-07-11 10:15+0100\n"
+"Last-Translator: csola48 <csola48@gmail.com>\n"
+"Language-Team: magyar <csola48@gmail.hu>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.10\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Language: Hungarian\n"
+"X-Poedit-Country: HUNGARY\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: wb_app.py:111
+#: wb_frame.py:43
+msgid "PySVN WorkBench"
+msgstr "PySVN WorkBench"
+
+#: wb_app.py:185
+msgid "Work Bench starting"
+msgstr "WorkBench indítása"
+
+#: wb_bookmarks_dialogs.py:58
+#: wb_frame.py:158
+msgid "Manage Bookmarks"
+msgstr "Könyvjelző kezelése"
+
+#: wb_bookmarks_dialogs.py:73
+#: wb_bookmarks_dialogs.py:74
+#: wb_bookmarks_dialogs.py:75
+#: wb_bookmarks_dialogs.py:76
+msgid "Menu"
+msgstr "Menü"
+
+#: wb_bookmarks_dialogs.py:77
+msgid "WC Path"
+msgstr "Munkapéldány útvonala"
+
+#: wb_bookmarks_dialogs.py:93
+#: wb_preferences_dialog.py:374
+msgid " Delete "
+msgstr "Törlés"
+
+#: wb_bookmarks_dialogs.py:96
+msgid " Properties "
+msgstr "Tulajdonságok"
+
+#: wb_bookmarks_dialogs.py:99
+#: wb_bookmarks_dialogs.py:306
+#: wb_dialogs.py:59
+#: wb_dialogs.py:187
+#: wb_dialogs.py:244
+#: wb_dialogs.py:314
+#: wb_dialogs.py:388
+#: wb_dialogs.py:444
+#: wb_dialogs.py:511
+#: wb_dialogs.py:610
+#: wb_dialogs.py:736
+#: wb_preferences_dialog.py:59
+#: wb_project_dialogs.py:103
+#: wb_subversion_history.py:228
+#: wb_subversion_info_dialog.py:35
+#: wb_subversion_properties_dialog.py:175
+msgid " OK "
+msgstr " OK "
+
+#: wb_bookmarks_dialogs.py:100
+#: wb_bookmarks_dialogs.py:307
+#: wb_dialogs.py:60
+#: wb_dialogs.py:189
+#: wb_dialogs.py:246
+#: wb_dialogs.py:316
+#: wb_dialogs.py:390
+#: wb_dialogs.py:446
+#: wb_dialogs.py:513
+#: wb_dialogs.py:612
+#: wb_dialogs.py:739
+#: wb_preferences_dialog.py:61
+#: wb_project_dialogs.py:105
+#: wb_subversion_checkin.py:137
+#: wb_subversion_history.py:230
+#: wb_subversion_properties_dialog.py:177
+#: wb_subversion_report_updates.py:287
+msgid " Cancel "
+msgstr " Töröl"
+
+#: wb_bookmarks_dialogs.py:244
+msgid "Bookmark Properties"
+msgstr "Könyvjelző tulajdonságok"
+
+#: wb_bookmarks_dialogs.py:286
+msgid "WC Path: "
+msgstr "Munkapéldány útvonala: "
+
+#: wb_bookmarks_dialogs.py:290
+msgid "Menu1: "
+msgstr "Menü 1: "
+
+#: wb_bookmarks_dialogs.py:294
+msgid "Menu2: "
+msgstr "Menü 2: "
+
+#: wb_bookmarks_dialogs.py:298
+msgid "Menu3: "
+msgstr "Menü 3: "
+
+#: wb_bookmarks_dialogs.py:302
+msgid "Menu Name: "
+msgstr "Menü neve: "
+
+#: wb_dialogs.py:40
+msgid "Status"
+msgstr "Állapot"
+
+#: wb_dialogs.py:42
+msgid "Filename"
+msgstr "Fájlnév"
+
+#: wb_dialogs.py:56
+msgid "Force"
+msgstr "Kényszerít"
+
+#: wb_dialogs.py:134
+#: wb_subversion_checkin.py:140
+msgid "Insert Last Message"
+msgstr "Utolsó üzenet beszúrása"
+
+#: wb_dialogs.py:164
+msgid "Credentials"
+msgstr "Igazoló iratok"
+
+#: wb_dialogs.py:168
+msgid "Username:"
+msgstr "Felhasználó neve:"
+
+#: wb_dialogs.py:176
+msgid "Password:"
+msgstr "Jelszó:"
+
+#: wb_dialogs.py:182
+msgid "Always uses these credentials"
+msgstr "Már használt ez az igazoló irat"
+
+#: wb_dialogs.py:227
+#, python-format
+msgid "Trust server %s"
+msgstr "Hitelesítő szerver %s"
+
+#: wb_dialogs.py:232
+msgid "Server Certificate"
+msgstr "Szerver igazolás"
+
+#: wb_dialogs.py:239
+msgid "Always trust this server"
+msgstr "Ez a szerver már hitelesített"
+
+#: wb_dialogs.py:290
+#: wb_frame.py:114
+#: wb_frame.py:157
+#: wb_subversion_list_handler.py:73
+msgid "Add"
+msgstr "Hozzáadás"
+
+#: wb_dialogs.py:294
+#: wb_dialogs.py:366
+msgid "From:"
+msgstr "Innen:"
+
+#: wb_dialogs.py:300
+msgid "Force Add"
+msgstr "Kényszerített hozzáadás"
+
+#: wb_dialogs.py:306
+msgid "Recursive Add"
+msgstr "Rekurzív hozzáadás"
+
+#: wb_dialogs.py:362
+#: wb_frame.py:115
+#: wb_subversion_list_handler.py:150
+#: wb_subversion_list_handler.py:379
+#: wb_subversion_list_handler.py:386
+#: wb_subversion_tree_handler.py:794
+msgid "Rename"
+msgstr "Átnevezés"
+
+#: wb_dialogs.py:372
+msgid "To:"
+msgstr "Eddig:"
+
+#: wb_dialogs.py:383
+msgid "Force rename"
+msgstr "Kényszerített átnevezés"
+
+#: wb_dialogs.py:436
+#: wb_subversion_info_dialog.py:56
+#: wb_subversion_tree_handler.py:513
+msgid "Name:"
+msgstr "Név:"
+
+#: wb_dialogs.py:437
+msgid "New Folder"
+msgstr "Új dosszié"
+
+#: wb_dialogs.py:480
+#: wb_dialogs.py:485
+msgid "New File"
+msgstr "Új fájl"
+
+#: wb_dialogs.py:489
+msgid "New Filename:"
+msgstr "Új fájlnév:"
+
+#: wb_dialogs.py:504
+msgid "Template:"
+msgstr "Minta:"
+
+#: wb_dialogs.py:554
+msgid "Empty directory"
+msgstr "Üres könyvtár"
+
+#: wb_dialogs.py:556
+msgid "Children files only"
+msgstr "Csak alfájlok"
+
+#: wb_dialogs.py:557
+msgid "Immediate children"
+msgstr "Közvetlen alfájlok"
+
+#: wb_dialogs.py:558
+msgid "Only already checked out descendants"
+msgstr "Csak már ellenőrzött leszármazottak"
+
+#: wb_dialogs.py:559
+msgid "All descendants (Full recursion)"
+msgstr "Összes leszármazott (teljesen rekurzív)"
+
+#: wb_dialogs.py:570
+msgid "HEAD revision"
+msgstr "HEAD revízió"
+
+#: wb_dialogs.py:578
+#: wb_subversion_info_dialog.py:64
+#: wb_subversion_info_dialog.py:108
+msgid "Revision:"
+msgstr "Revízió:"
+
+#: wb_dialogs.py:590
+msgid "Apply on"
+msgstr "Alkalmazás be"
+
+#: wb_dialogs.py:593
+msgid "Recursive (all)"
+msgstr "Rekurzív (összes)"
+
+#: wb_dialogs.py:599
+msgid "Depth:"
+msgstr "Mélység:"
+
+#: wb_dialogs.py:648
+msgid "Please enter a revision number > 0!"
+msgstr "Írjon egy revízió számot, amely > 0!"
+
+#: wb_dialogs.py:653
+msgid "Please enter digits only!"
+msgstr "Csak számjegy lehet!"
+
+#: wb_dialogs.py:705
+msgid "Copy From:"
+msgstr "Másol innen:"
+
+#: wb_dialogs.py:708
+msgid "Copy To:"
+msgstr "Másol ide:"
+
+#: wb_dialogs.py:733
+#: wb_subversion_checkin.py:133
+msgid "Log message"
+msgstr "Napló bejegyzés"
+
+#: wb_dialogs.py:791
+#: wb_frame.py:122
+msgid "Create Tag"
+msgstr "Tag készítése"
+
+#: wb_dialogs.py:795
+#: wb_frame.py:123
+msgid "Create Branch"
+msgstr "Branch készítése"
+
+#: wb_diff_frame.py:49
+#: wb_show_diff_frame.py:32
+#, python-format
+msgid "Diff %(title1)s and %(title2)s"
+msgstr "Összehasonlítás a/z/ %(title1)s és a/z/ %(title2)s között"
+
+#: wb_diff_frame.py:59
+msgid "Expand folds"
+msgstr "Dosszié kibontása"
+
+#: wb_diff_frame.py:59
+msgid "Expand all folds"
+msgstr "Összes dosszié kibontása"
+
+#: wb_diff_frame.py:60
+msgid "Collapse folds"
+msgstr "Dosszié bezárása"
+
+#: wb_diff_frame.py:60
+msgid "Collapse all folds"
+msgstr "Összes dosszién bezárása"
+
+#: wb_diff_frame.py:62
+msgid "Toggle whitespace"
+msgstr "Látható szóköz bekapcsolása"
+
+#: wb_diff_frame.py:62
+msgid "Show/hide whitespace"
+msgstr "Látható szóköz mutatása/rejtése"
+
+#: wb_diff_frame.py:64
+msgid "Previous difference"
+msgstr "Korábbi különbség"
+
+#: wb_diff_frame.py:64
+msgid "Positions the cursor at the previous difference between the files"
+msgstr "Helyezze a kurzort a fájlok közötti megelőző különbségre"
+
+#: wb_diff_frame.py:65
+msgid "Next difference"
+msgstr "Következő különbség"
+
+#: wb_diff_frame.py:65
+msgid "Positions the cursor at the next difference between the files"
+msgstr "Helyezze a kurzort a fájlok közötti következő különbségre"
+
+#: wb_diff_frame.py:85
+msgid "Key: "
+msgstr "Kulcs: "
+
+#: wb_diff_frame.py:86
+msgid "Inserted text "
+msgstr "Beszúrt szöveg "
+
+#: wb_diff_frame.py:87
+msgid "Deleted text "
+msgstr "Törölt szöveg"
+
+#: wb_diff_frame.py:88
+msgid "Changed text"
+msgstr "Cserélt szöveg"
+
+#: wb_diff_frame.py:176
+#, python-format
+msgid "Diff %(change1)d of %(change2)d"
+msgstr "Összehasonlítás a/z/ %(change1)d és a/z/ %(change2)d között"
+
+#: wb_frame.py:62
+msgid "&Copy"
+msgstr "&Másol"
+
+#: wb_frame.py:62
+msgid "Copy Files"
+msgstr "Fájl másolása"
+
+#: wb_frame.py:63
+msgid "&Cut"
+msgstr "&Vágás"
+
+#: wb_frame.py:63
+msgid "Cut Files"
+msgstr "Fájl kivágása"
+
+#: wb_frame.py:64
+msgid "&Paste"
+msgstr "&Beillesztés"
+
+#: wb_frame.py:64
+msgid "Paste Files"
+msgstr "Fájl beillesztése"
+
+#: wb_frame.py:66
+msgid "&Clear log"
+msgstr "Napló kiürítése"
+
+#: wb_frame.py:66
+msgid "Clear the log window"
+msgstr "Napló ablak kiürítése"
+
+#: wb_frame.py:73
+msgid "&Preferences..."
+msgstr "&Beállítások"
+
+#: wb_frame.py:73
+#: wb_preferences_dialog.py:24
+msgid "Preferences"
+msgstr "Beállítások"
+
+#: wb_frame.py:74
+msgid "E&xit"
+msgstr "&Kilépés"
+
+#: wb_frame.py:74
+msgid "Exit the application"
+msgstr "Kilépés egy alkalmazásból"
+
+#: wb_frame.py:77
+#: wb_subversion_tree_handler.py:174
+msgid "&Command Shell"
+msgstr "&Terminál"
+
+#: wb_frame.py:77
+#: wb_toolbars.py:91
+msgid "Command Shell"
+msgstr "Terminál"
+
+#: wb_frame.py:78
+#: wb_subversion_tree_handler.py:175
+msgid "&File Browser"
+msgstr "&Fájlkezelő"
+
+#: wb_frame.py:78
+#: wb_toolbars.py:95
+msgid "File Browser"
+msgstr "Fájlkezelő"
+
+#: wb_frame.py:80
+#: wb_subversion_checkin.py:38
+#: wb_subversion_checkin.py:335
+#: wb_subversion_list_handler.py:42
+#: wb_subversion_report_updates.py:216
+msgid "Edit"
+msgstr "Szerkesztés"
+
+#: wb_frame.py:81
+#: wb_subversion_checkin.py:40
+#: wb_subversion_checkin.py:339
+#: wb_subversion_list_handler.py:45
+#: wb_subversion_report_updates.py:219
+msgid "Open"
+msgstr "Megnyitás"
+
+#: wb_frame.py:83
+#: wb_subversion_checkin.py:42
+#: wb_subversion_checkin.py:343
+#: wb_subversion_list_handler.py:48
+#: wb_subversion_tree_handler.py:177
+msgid "Diff WC vs. BASE..."
+msgstr "Összehasonlítás: munkapéldány és BASE..."
+
+#: wb_frame.py:84
+#: wb_subversion_checkin.py:43
+#: wb_subversion_checkin.py:344
+#: wb_subversion_list_handler.py:49
+#: wb_subversion_report_branch_changes.py:30
+#: wb_subversion_report_branch_changes.py:158
+#: wb_subversion_report_lock.py:38
+#: wb_subversion_report_lock.py:194
+#: wb_subversion_report_updates.py:38
+#: wb_subversion_report_updates.py:222
+#: wb_subversion_tree_handler.py:178
+msgid "Diff WC vs. HEAD..."
+msgstr "Összehasonlítás: munkapéldány és HEAD..."
+
+#: wb_frame.py:85
+#: wb_subversion_checkin.py:44
+#: wb_subversion_checkin.py:345
+#: wb_subversion_list_handler.py:50
+#: wb_subversion_report_branch_changes.py:31
+#: wb_subversion_report_branch_changes.py:159
+#: wb_subversion_report_lock.py:39
+#: wb_subversion_report_lock.py:195
+#: wb_subversion_report_updates.py:39
+#: wb_subversion_report_updates.py:223
+msgid "Diff WC vs. branch origin BASE..."
+msgstr "Összehasonlítás: munkapéldány kontra branch eredeti BASE..."
+
+#: wb_frame.py:86
+#: wb_subversion_checkin.py:45
+#: wb_subversion_checkin.py:346
+#: wb_subversion_list_handler.py:51
+#: wb_subversion_report_branch_changes.py:32
+#: wb_subversion_report_branch_changes.py:160
+#: wb_subversion_report_lock.py:40
+#: wb_subversion_report_lock.py:196
+#: wb_subversion_report_updates.py:40
+#: wb_subversion_report_updates.py:224
+msgid "Diff WC vs. branch origin HEAD..."
+msgstr "Összehasonlítás: munkapéldány kontra branch eredeti HEAD..."
+
+#: wb_frame.py:89
+#: wb_subversion_list_handler.py:52
+msgid "Conflict"
+msgstr "Konfliktus"
+
+#: wb_frame.py:90
+#: wb_subversion_list_handler.py:53
+msgid "Diff Conflict Old vs. Mine..."
+msgstr "Összehasonlító konfliktus: régi és saját..."
+
+#: wb_frame.py:91
+#: wb_subversion_list_handler.py:54
+msgid "Diff Conflict Mine vs. New..."
+msgstr "Összehasonlító konfliktus: saját és új..."
+
+#: wb_frame.py:92
+#: wb_subversion_list_handler.py:55
+msgid "Diff Conflict Old vs. New..."
+msgstr "Összehasonlító konfliktus: régi és új..."
+
+#: wb_frame.py:94
+#: wb_subversion_list_handler.py:57
+msgid "Resolved Conflict"
+msgstr "Feloldott konfliktus"
+
+#: wb_frame.py:97
+#: wb_subversion_checkin.py:48
+#: wb_subversion_checkin.py:348
+#: wb_subversion_list_handler.py:60
+#: wb_subversion_report_branch_changes.py:35
+#: wb_subversion_report_branch_changes.py:162
+#: wb_subversion_report_lock.py:43
+#: wb_subversion_report_lock.py:198
+#: wb_subversion_report_revision_changes.py:50
+#: wb_subversion_report_revision_changes.py:279
+#: wb_subversion_report_updates.py:43
+#: wb_subversion_report_updates.py:226
+msgid "Annotate..."
+msgstr "Megjegyzés..."
+
+#: wb_frame.py:98
+#: wb_subversion_checkin.py:49
+#: wb_subversion_checkin.py:349
+#: wb_subversion_list_handler.py:61
+#: wb_subversion_report_branch_changes.py:36
+#: wb_subversion_report_branch_changes.py:163
+#: wb_subversion_report_lock.py:44
+#: wb_subversion_report_lock.py:199
+#: wb_subversion_report_revision_changes.py:51
+#: wb_subversion_report_revision_changes.py:280
+#: wb_subversion_report_updates.py:44
+#: wb_subversion_report_updates.py:227
+#: wb_subversion_tree_handler.py:180
+msgid "Log history..."
+msgstr "Napló előzmények..."
+
+#: wb_frame.py:99
+#: wb_subversion_checkin.py:50
+#: wb_subversion_checkin.py:350
+#: wb_subversion_list_handler.py:62
+#: wb_subversion_report_branch_changes.py:37
+#: wb_subversion_report_branch_changes.py:164
+#: wb_subversion_report_lock.py:45
+#: wb_subversion_report_lock.py:200
+#: wb_subversion_report_revision_changes.py:52
+#: wb_subversion_report_revision_changes.py:281
+#: wb_subversion_tree_handler.py:181
+msgid "Information..."
+msgstr "Információ..."
+
+#: wb_frame.py:100
+#: wb_subversion_checkin.py:51
+#: wb_subversion_checkin.py:351
+#: wb_subversion_list_handler.py:63
+#: wb_subversion_tree_handler.py:182
+msgid "Properties..."
+msgstr "Tulajdonságok..."
+
+#: wb_frame.py:102
+#: wb_subversion_list_handler.py:68
+#: wb_subversion_tree_handler.py:188
+msgid "Update"
+msgstr "Frissítés"
+
+#: wb_frame.py:103
+msgid "Update to..."
+msgstr "Frissítés..."
+
+#: wb_frame.py:104
+#: wb_subversion_list_handler.py:39
+#: wb_subversion_tree_handler.py:185
+msgid "Checkout"
+msgstr "Ellenőrzés"
+
+#: wb_frame.py:105
+#: wb_subversion_tree_handler.py:186
+msgid "Checkout to..."
+msgstr "Ellenőrzés..."
+
+#: wb_frame.py:107
+#: wb_subversion_list_handler.py:71
+#: wb_subversion_tree_handler.py:191
+msgid "Checkin..."
+msgstr "Ellenőrzés..."
+
+#: wb_frame.py:109
+#: wb_subversion_list_handler.py:65
+#: wb_subversion_report_lock.py:202
+msgid "Lock..."
+msgstr "Zárás..."
+
+#: wb_frame.py:110
+#: wb_subversion_list_handler.py:66
+#: wb_subversion_report_lock.py:203
+msgid "Unlock..."
+msgstr "Nyitás..."
+
+#: wb_frame.py:112
+#: wb_subversion_tree_handler.py:193
+msgid "New File..."
+msgstr "Új fájl..."
+
+#: wb_frame.py:113
+#: wb_subversion_tree_handler.py:194
+msgid "Make directory..."
+msgstr "Könyvtár készítése..."
+
+#: wb_frame.py:115
+#: wb_subversion_list_handler.py:74
+#: wb_subversion_tree_handler.py:196
+msgid "Rename..."
+msgstr "Átnevezés..."
+
+#: wb_frame.py:117
+#: wb_frame.py:167
+#: wb_subversion_list_handler.py:76
+#: wb_subversion_tree_handler.py:198
+msgid "Delete..."
+msgstr "Törlés..."
+
+#: wb_frame.py:117
+msgid "Delete"
+msgstr "Törlés"
+
+#: wb_frame.py:118
+#: wb_subversion_checkin.py:352
+#: wb_subversion_list_handler.py:77
+#: wb_subversion_tree_handler.py:199
+msgid "Revert..."
+msgstr "Visszavonás..."
+
+#: wb_frame.py:118
+#: wb_subversion_checkin.py:93
+#: wb_subversion_checkin.py:378
+#: wb_subversion_list_handler.py:399
+#: wb_subversion_tree_handler.py:819
+msgid "Revert"
+msgstr "Visszavonás"
+
+#: wb_frame.py:120
+#: wb_subversion_list_handler.py:79
+#: wb_subversion_tree_handler.py:201
+msgid "Clean up"
+msgstr "Tisztítás"
+
+#: wb_frame.py:120
+msgid "Clean up working copy"
+msgstr "Munkapéldány tisztítása"
+
+#: wb_frame.py:122
+msgid "Create Tag..."
+msgstr "Tag készítése..."
+
+#: wb_frame.py:123
+msgid "Create Branch..."
+msgstr "Branch készítése..."
+
+#: wb_frame.py:126
+msgid "Working copy Locks..."
+msgstr "Munkapéldány zárása..."
+
+#: wb_frame.py:126
+msgid "Locks held in Working Copy"
+msgstr "Munkapéldány zárva tartása"
+
+#: wb_frame.py:127
+msgid "Repository Locks..."
+msgstr "Tároló zárása..."
+
+#: wb_frame.py:127
+msgid "Locks held in Repository"
+msgstr "Tároló zárva tartása"
+
+#: wb_frame.py:129
+msgid "Changes..."
+msgstr "Változások..."
+
+#: wb_frame.py:129
+msgid "Changes available for checkin"
+msgstr "Változások használata ellenőrzéshez"
+
+#: wb_frame.py:130
+msgid "Updates..."
+msgstr "Frissítés..."
+
+#: wb_frame.py:130
+msgid "Updates available in the Repository"
+msgstr "Frissítések használata a tárolóban"
+
+#: wb_frame.py:131
+msgid "Branch changes..."
+msgstr "Branch cseréje"
+
+#: wb_frame.py:131
+msgid "Files changed in this branch"
+msgstr "Fájlok cseréje ebben a branchban"
+
+#: wb_frame.py:134
+msgid "Show &Controlled files"
+msgstr "&Ellenőrzött fájlok mutatása"
+
+#: wb_frame.py:134
+msgid "Show Controlled files"
+msgstr "Ellenőrzött fájlok mutatása"
+
+#: wb_frame.py:135
+msgid "Show &Uncontrolled files"
+msgstr "Ellenőrizetlen fájlok mutatása"
+
+#: wb_frame.py:135
+msgid "Show Uncontrolled files"
+msgstr "Ellenőrizetlen fájlok mutatása"
+
+#: wb_frame.py:136
+msgid "Show &Ignored files"
+msgstr "Kihagyott fájlok mutatása"
+
+#: wb_frame.py:136
+msgid "Show ignored files"
+msgstr "Kihagyott fájlok mutatása"
+
+#: wb_frame.py:137
+msgid "Show &Only changed files"
+msgstr "Csak a módosított fájlok mutatása"
+
+#: wb_frame.py:137
+msgid "Filter out unchanged files"
+msgstr "Filter kikapcsolása a nem változott fájloknál"
+
+#: wb_frame.py:139
+msgid "Show &Recursive files"
+msgstr "Rekurzív fájlok mutatása"
+
+#: wb_frame.py:139
+msgid "Show recursive files"
+msgstr "Rekurzív fájlok mutatása"
+
+#: wb_frame.py:141
+msgid "Use WorkBench Diff"
+msgstr "WorkBench összehasonlító használata"
+
+#: wb_frame.py:142
+msgid "Use External GUI Diff"
+msgstr "Külső GUI összehasonlító használata"
+
+#: wb_frame.py:143
+msgid "Use External Text Diff"
+msgstr "Szöveges összehasonlító használata"
+
+#: wb_frame.py:144
+msgid "Use SVN Diff"
+msgstr "SVN összehasonlító használata"
+
+#: wb_frame.py:146
+msgid "&Refresh\tF5"
+msgstr "Frissítés\tF5"
+
+#: wb_frame.py:146
+msgid "Refresh display"
+msgstr "Képernyő frissítése"
+
+#: wb_frame.py:147
+msgid "&Automatic Refresh"
+msgstr "&Automatikus frissítés"
+
+#: wb_frame.py:147
+msgid "Automatic refresh"
+msgstr "Automatikus frissítés"
+
+#: wb_frame.py:157
+msgid "Add Bookmark"
+msgstr "Könyvjelző hozzáadása"
+
+#: wb_frame.py:158
+msgid "Manage..."
+msgstr "Intéz..."
+
+#: wb_frame.py:164
+#: wb_subversion_tree_handler.py:195
+msgid "Add..."
+msgstr "Hozzáad..."
+
+#: wb_frame.py:164
+msgid "Project Add"
+msgstr "Projekt hozzáadása"
+
+#: wb_frame.py:165
+msgid "Settings..."
+msgstr "Beállítások..."
+
+#: wb_frame.py:165
+#: wb_project_dialogs.py:303
+#: wb_tree_panel.py:574
+msgid "Project Settings"
+msgstr "Projekt beállítások"
+
+#: wb_frame.py:167
+#: wb_tree_panel.py:575
+#: wb_tree_panel.py:616
+msgid "Delete Project"
+msgstr "Projekt törlése"
+
+#: wb_frame.py:170
+msgid "&About..."
+msgstr "&Névjegy"
+
+#: wb_frame.py:170
+msgid "About the application"
+msgstr "Alkalmazás névjegye"
+
+#: wb_frame.py:174
+msgid "&File"
+msgstr "Fájl"
+
+#: wb_frame.py:175
+msgid "&Edit"
+msgstr "Szerkesztés"
+
+#: wb_frame.py:176
+msgid "&View"
+msgstr "Nézet"
+
+#: wb_frame.py:177
+#: wb_subversion_checkin.py:60
+#: wb_subversion_report_branch_changes.py:40
+#: wb_subversion_report_lock.py:48
+#: wb_subversion_report_revision_changes.py:55
+#: wb_subversion_report_updates.py:51
+msgid "&Actions"
+msgstr "Művelet"
+
+#: wb_frame.py:178
+msgid "&Reports"
+msgstr "Beszámoló"
+
+#: wb_frame.py:179
+msgid "&Bookmarks"
+msgstr "Könyvjelző"
+
+#: wb_frame.py:180
+msgid "&Project"
+msgstr "Projekt"
+
+#: wb_frame.py:181
+msgid "&Help"
+msgstr "Súgó"
+
+#: wb_frame.py:198
+msgid "Work Bench"
+msgstr "Work Bench"
+
+#: wb_frame.py:200
+#: wb_frame.py:483
+#: wb_subversion_checkin.py:257
+#: wb_subversion_list_handler_common.py:704
+#: wb_subversion_list_handler_common.py:737
+#: wb_subversion_list_handler_common.py:773
+#: wb_subversion_list_handler_common.py:821
+#: wb_subversion_list_handler_common.py:868
+#: wb_subversion_list_handler_common.py:906
+#: wb_subversion_list_handler_common.py:951
+#: wb_subversion_list_handler_common.py:1017
+#: wb_subversion_list_handler.py:467
+#: wb_subversion_list_handler.py:520
+#: wb_subversion_report_revision_changes.py:143
+#: wb_subversion_report_revision_changes.py:180
+#: wb_subversion_report_revision_changes.py:219
+#: wb_subversion_report_updates.py:159
+#: wb_subversion_tree_handler.py:244
+#: wb_subversion_tree_handler.py:282
+#: wb_subversion_tree_handler.py:296
+#: wb_subversion_tree_handler.py:325
+#: wb_subversion_tree_handler.py:348
+#: wb_subversion_tree_handler.py:416
+#: wb_subversion_tree_handler.py:451
+#: wb_subversion_tree_handler.py:490
+#: wb_subversion_tree_handler.py:629
+#: wb_subversion_tree_handler.py:672
+#: wb_subversion_tree_handler.py:779
+#: wb_subversion_tree_handler.py:894
+msgid "Ready"
+msgstr "Kész"
+
+#: wb_frame.py:465
+#, python-format
+msgid "Work Bench version: %s"
+msgstr "Work Bench verzió: %s"
+
+#: wb_frame.py:469
+msgid ""
+"\n"
+"Copyright Barry Scott (c) 2003-2009. All rights reserved"
+msgstr ""
+"\n"
+"Copyright Barry Scott (C) 2003-2009. Minden jog fenntartva!"
+
+#: wb_frame.py:673
+#, python-format
+msgid "Adding bookmark to %s"
+msgstr "Könyvjelző hozzáadása %s"
+
+#: wb_list_panel_common.py:108
+#: wb_list_panel_common.py:511
+#: wb_subversion_list_handler_common.py:31
+#: wb_subversion_list_handler_common.py:110
+#: wb_subversion_list_handler_common.py:243
+#: wb_subversion_report_branch_changes.py:147
+#: wb_subversion_report_lock.py:183
+#: wb_subversion_report_revision_changes.py:266
+#: wb_subversion_report_updates.py:205
+msgid "Name"
+msgstr "Név"
+
+#: wb_list_panel_common.py:511
+#: wb_subversion_annotate.py:59
+#: wb_subversion_history.py:71
+#: wb_subversion_history.py:377
+#: wb_subversion_history.py:503
+#: wb_subversion_list_handler_common.py:35
+#: wb_subversion_list_handler_common.py:114
+#: wb_subversion_list_handler_common.py:246
+msgid "Author"
+msgstr "Szerző"
+
+#: wb_preferences_dialog.py:32
+msgid "PreferencesDialog"
+msgstr "Beállítások párbeszéd"
+
+#: wb_preferences_dialog.py:106
+msgid "Editor"
+msgstr "Szerkesztő"
+
+#: wb_preferences_dialog.py:111
+msgid "Editor: "
+msgstr "Szerkesztő"
+
+#: wb_preferences_dialog.py:114
+msgid "Edit Arguments: "
+msgstr "Szerkesztő paraméterei:"
+
+#: wb_preferences_dialog.py:117
+#: wb_preferences_dialog.py:210
+#: wb_project_dialogs.py:58
+#: wb_project_dialogs.py:87
+#: wb_project_dialogs.py:477
+#: wb_project_dialogs.py:636
+msgid " Browse... "
+msgstr " Keres..."
+
+#: wb_preferences_dialog.py:143
+#: wb_preferences_dialog.py:267
+msgid "Executable files (*.exe)|*.exe"
+msgstr "Végrehajtható fájlok (*.exe)|*.exe"
+
+#: wb_preferences_dialog.py:145
+#: wb_preferences_dialog.py:269
+msgid "Applications|*.app|Executable files|*"
+msgstr "Alkalmazások|*.app|Végrehajtható fájlok|*"
+
+#: wb_preferences_dialog.py:147
+#: wb_preferences_dialog.py:271
+msgid "Executable files|*"
+msgstr "Végrehajtható fájlok|*"
+
+#: wb_preferences_dialog.py:152
+#: wb_preferences_dialog.py:276
+msgid "Choose an Executable file"
+msgstr "Végrehajtható fájl választása"
+
+#: wb_preferences_dialog.py:182
+msgid "You must enter a valid editor executable"
+msgstr "Érvényes szerkesztő megadása szükséges"
+
+#: wb_preferences_dialog.py:183
+#: wb_preferences_dialog.py:573
+#: wb_preferences_dialog.py:584
+#: wb_preferences_dialog.py:631
+#: wb_preferences_dialog.py:644
+#: wb_preferences_dialog.py:695
+#: wb_preferences_dialog.py:761
+#: wb_preferences_dialog.py:773
+#: wb_preferences_dialog.py:968
+#: wb_subversion_checkin.py:314
+#: wb_subversion_list_handler.py:224
+#: wb_subversion_list_handler.py:464
+#: wb_subversion_list_handler.py:517
+#: wb_subversion_properties_dialog.py:93
+#: wb_subversion_properties_dialog.py:114
+#: wb_subversion_tree_handler.py:355
+#: wb_subversion_tree_handler.py:637
+#: wb_subversion_tree_handler.py:640
+#: wb_subversion_tree_handler.py:669
+#: wb_subversion_tree_handler.py:815
+#: wb_subversion_tree_handler.py:891
+msgid "Warning"
+msgstr "Vigyázat"
+
+#: wb_preferences_dialog.py:193
+msgid "Diff Tool"
+msgstr "Összehasonlító eszköz"
+
+#: wb_preferences_dialog.py:201
+msgid "Work Bench Diff"
+msgstr "Work Bench összehasonlító"
+
+#: wb_preferences_dialog.py:201
+msgid "External GUI Diff Command"
+msgstr "Külső GUI összehasonlító parancs"
+
+#: wb_preferences_dialog.py:201
+msgid "External Text Diff"
+msgstr "Külső szöveges összehasonlító"
+
+#: wb_preferences_dialog.py:201
+msgid "SVN diff"
+msgstr "SVN összehasonlító"
+
+#: wb_preferences_dialog.py:215
+msgid "Mode: "
+msgstr "Módszer:"
+
+#: wb_preferences_dialog.py:219
+msgid "Diff Tool: "
+msgstr "Összehasonlító eszköz:"
+
+#: wb_preferences_dialog.py:223
+msgid "Tool Arguments: "
+msgstr "Eszköz paraméterei:"
+
+#: wb_preferences_dialog.py:227
+msgid "Use"
+msgstr "Alkalmazás"
+
+#: wb_preferences_dialog.py:228
+msgid ""
+"%nl for left file name, %nr for right file name,\n"
+"%tl for left title, %tr for right title"
+msgstr ""
+"%nl bal oldali fájlnév, %nr jobb  oldali fájl név,\n"
+"%tl for bal oldali cím, %tr jobb oldali cím"
+
+#: wb_preferences_dialog.py:293
+msgid "Shell"
+msgstr "Keret"
+
+#: wb_preferences_dialog.py:298
+msgid "Terminal Init Command: "
+msgstr "Terminál indító parancs:"
+
+#: wb_preferences_dialog.py:306
+msgid "Terminal Program: "
+msgstr "Terminal program: "
+
+#: wb_preferences_dialog.py:323
+msgid "File Browser Program: "
+msgstr "Fájl kereső program: "
+
+#: wb_preferences_dialog.py:358
+msgid "View"
+msgstr "Nézet"
+
+#: wb_preferences_dialog.py:366
+msgid "Exclude filename"
+msgstr "Kihagyott fájlnév"
+
+#: wb_preferences_dialog.py:372
+msgid " Add "
+msgstr " Hozzáad"
+
+#: wb_preferences_dialog.py:484
+msgid "Columns"
+msgstr "Oszlopok"
+
+#: wb_preferences_dialog.py:492
+#: wb_preferences_dialog.py:499
+msgid "Column"
+msgstr "Oszlop"
+
+#: wb_preferences_dialog.py:494
+#: wb_preferences_dialog.py:501
+msgid "Width"
+msgstr "Szélesség"
+
+#: wb_preferences_dialog.py:519
+#: wb_preferences_dialog.py:818
+msgid " Include --> "
+msgstr "Tartalmaz --> "
+
+#: wb_preferences_dialog.py:521
+#: wb_preferences_dialog.py:820
+msgid " <-- Exclude "
+msgstr " <-- Kihagy"
+
+#: wb_preferences_dialog.py:524
+#: wb_preferences_dialog.py:823
+msgid " Move Up "
+msgstr "Felfelé"
+
+#: wb_preferences_dialog.py:526
+#: wb_preferences_dialog.py:825
+msgid " Move Down "
+msgstr "Lefelé"
+
+#: wb_preferences_dialog.py:571
+#: wb_preferences_dialog.py:629
+#, python-format
+msgid "Width for %(name)s must be an number between %(min)d and %(max)d"
+msgstr "Szélesség értéke %(name)s egy %(min)d és %(max)d közötti szám kell legyen"
+
+#: wb_preferences_dialog.py:582
+#: wb_preferences_dialog.py:642
+#, python-format
+msgid "Width for %(name)s must be between %(min)d and %(max)d"
+msgstr "Szélesség értéke %(name)s %(min)d és %(max)d között kell legyen"
+
+#: wb_preferences_dialog.py:694
+msgid "You must include the Name column"
+msgstr "Szükséges tartalmaznia az oszlop nevét"
+
+#: wb_preferences_dialog.py:705
+#: wb_subversion_history.py:183
+msgid "Log History"
+msgstr "Napló előzmények"
+
+#: wb_preferences_dialog.py:711
+#: wb_subversion_history.py:194
+msgid "Show all entries"
+msgstr "Össze bejegyzés mutatása"
+
+#: wb_preferences_dialog.py:711
+msgid "Show only"
+msgstr "Csak mutassa"
+
+#: wb_preferences_dialog.py:711
+msgid "Show since"
+msgstr "Mutat onnantól"
+
+#: wb_preferences_dialog.py:712
+msgid "Default mode: "
+msgstr "Alaphelyzet:"
+
+#: wb_preferences_dialog.py:716
+msgid "Default limit: "
+msgstr "Alapérték:"
+
+#: wb_preferences_dialog.py:719
+msgid "Default since interval (days): "
+msgstr "Eltelt időtartam napokban:"
+
+#: wb_preferences_dialog.py:722
+msgid "Default Include tags: "
+msgstr "Alapértelmezett tag:"
+
+#: wb_preferences_dialog.py:723
+#: wb_subversion_history.py:222
+msgid "Include tags in log history"
+msgstr "Tagek az előzmények naplóban"
+
+#: wb_preferences_dialog.py:760
+msgid "Limit must be greater then 0"
+msgstr "Nagyobb kell legyen az érték, mint 0"
+
+#: wb_preferences_dialog.py:772
+msgid "Since days must be greater then 0"
+msgstr "Eltelt napok értéke nagyobb, mint 0"
+
+#: wb_preferences_dialog.py:791
+msgid "Toolbar"
+msgstr "Eszköztár"
+
+#: wb_preferences_dialog.py:800
+#: wb_preferences_dialog.py:805
+msgid "Toolbar Group"
+msgstr "Eszköztár csoport"
+
+#: wb_preferences_dialog.py:829
+msgid "Display toolbar: "
+msgstr "Eszköztár megjelenítése:"
+
+#: wb_preferences_dialog.py:830
+msgid "Enabled"
+msgstr "Engedélyezett"
+
+#: wb_preferences_dialog.py:832
+msgid "Orientation: "
+msgstr "Irányultság:"
+
+#: wb_preferences_dialog.py:833
+msgid "Horizontal"
+msgstr "Vízszintes"
+
+#: wb_preferences_dialog.py:833
+msgid "Vertical"
+msgstr "Függőleges"
+
+#: wb_preferences_dialog.py:839
+msgid "Small"
+msgstr "Kicsi"
+
+#: wb_preferences_dialog.py:839
+msgid "Large"
+msgstr "Nagy"
+
+#: wb_preferences_dialog.py:839
+msgid "Huge"
+msgstr "Hatalmas"
+
+#: wb_preferences_dialog.py:841
+msgid "Icon size: "
+msgstr "Ikon mérete:"
+
+#: wb_preferences_dialog.py:967
+msgid "You must include at least one Toolbar group"
+msgstr "Legalább egy eszköztár csoportot kell tartalmazni"
+
+#: wb_preferences_dialog.py:978
+msgid "Advanced"
+msgstr "Haladó"
+
+#: wb_preferences_dialog.py:985
+msgid "Allow arbitrary paths for tag/branch"
+msgstr "Önkényes útvonalak megengedése tag/branch-ért"
+
+#: wb_preferences.py:117
+#, python-format
+msgid "Wrote preferences to %s"
+msgstr "Tulajdonságok írása ide %s"
+
+#: wb_preferences.py:127
+#: wb_preferences.py:130
+#, python-format
+msgid "Reading preferences from %s"
+msgstr "Tulajdonságok kiolvasása innen %s"
+
+#: wb_project_dialogs.py:48
+msgid "Project"
+msgstr "Projekt"
+
+#: wb_project_dialogs.py:52
+msgid "Project Name:"
+msgstr "Projekt neve:"
+
+#: wb_project_dialogs.py:60
+#: wb_project_dialogs.py:475
+#: wb_project_dialogs.py:634
+#: wb_project_dialogs.py:744
+msgid "Working copy Path:"
+msgstr "Munkapéldány útvonal:"
+
+#: wb_project_dialogs.py:67
+msgid "Subversion Trunk URL:"
+msgstr "Subversion törzs URL:"
+
+#: wb_project_dialogs.py:73
+msgid "Subversion Tags URL:"
+msgstr "Subversion tagek URL:"
+
+#: wb_project_dialogs.py:79
+msgid "Subversion Branches URL:"
+msgstr "Subversion branch URL:"
+
+#: wb_project_dialogs.py:85
+msgid "New File Template Folder: "
+msgstr "Új fájl sablon dosszié:"
+
+#: wb_project_dialogs.py:93
+msgid "Background Colour: "
+msgstr "Háttérszín:"
+
+#: wb_project_dialogs.py:94
+msgid "Use custom background colour"
+msgstr "Saját háttérszín használata"
+
+#: wb_project_dialogs.py:95
+msgid "Example"
+msgstr "Például"
+
+#: wb_project_dialogs.py:96
+msgid " Pick Colour... "
+msgstr " Szín kijelölése..."
+
+#: wb_project_dialogs.py:185
+msgid "Enter a project name"
+msgstr "Proekt név megadása"
+
+#: wb_project_dialogs.py:189
+#, python-format
+msgid "Project %s already exist. Choose another name"
+msgstr "Projket %s már létezik. Válaszon másik nevet."
+
+#: wb_project_dialogs.py:195
+msgid "Enter a Subversion trunk URL"
+msgstr "Subversion törzs URL megadása"
+
+#: wb_project_dialogs.py:199
+#, python-format
+msgid "%s is not a valid Subversion trunk URL"
+msgstr "%s nem egy érvényes Subversion törzs URL"
+
+#: wb_project_dialogs.py:205
+#: wb_project_dialogs.py:211
+#, python-format
+msgid "%s is not a valid Subversion tags URL"
+msgstr "%s nem egy érvényes Subversion tag URL"
+
+#: wb_project_dialogs.py:216
+msgid "Enter a Working copy path"
+msgstr "Munkapéldány útvonal megadása"
+
+#: wb_project_dialogs.py:228
+#: wb_project_dialogs.py:538
+#: wb_project_dialogs.py:714
+msgid "Select Working Copy directory"
+msgstr "Munkapéldány könyvtár megadása"
+
+#: wb_project_dialogs.py:247
+msgid "Select New File Template directory"
+msgstr "Új fájl sablon könyvtár kiválasztása"
+
+#: wb_project_dialogs.py:347
+msgid "Add Project"
+msgstr "Projekt hozzáadása"
+
+#: wb_project_dialogs.py:444
+msgid "Working Copy"
+msgstr "Munkapéldány"
+
+#: wb_project_dialogs.py:445
+msgid " Use new working copy directory "
+msgstr " Új munkapéldány könyvtár használata"
+
+#: wb_project_dialogs.py:446
+msgid " Use existing Working copy directory "
+msgstr "  Meglévő munkapéldány könyvtár használata"
+
+#: wb_project_dialogs.py:470
+msgid "Select Working Copy"
+msgstr "Munkapéldány kiválasztása"
+
+#: wb_project_dialogs.py:487
+#: wb_project_dialogs.py:583
+#: wb_project_dialogs.py:646
+#: wb_project_dialogs.py:751
+msgid "Subversion URL:"
+msgstr "Subversion URL:"
+
+#: wb_project_dialogs.py:512
+#, python-format
+msgid ""
+"Path %s\n"
+"Does not exist\n"
+"Choose an existing subversion working copy directory"
+msgstr ""
+"Útvonal %s\n"
+"Nem létezik\n"
+"Válaszon egy létező Subversion munkapéldány könyvtárat"
+
+#: wb_project_dialogs.py:519
+#, python-format
+msgid ""
+"Path %s\n"
+"Is not a directory\n"
+"Choose an existing subversion working copy directory"
+msgstr ""
+"Útvonal %s\n"
+"ez nem egy könyvtár\n"
+"Válaszon egy létező Subversion munkapéldány könyvtárat"
+
+#: wb_project_dialogs.py:526
+#, python-format
+msgid ""
+"Path %s\n"
+"Is not a subversion working copy\n"
+"Choose an existing subversion working copy directory"
+msgstr ""
+"Útvonal %s\n"
+"ez nem egy létező Subversion munkapéldány\n"
+"Válaszon egy létező Subversion munkapéldány könyvtárat"
+
+#: wb_project_dialogs.py:577
+msgid "Select Subversion URL"
+msgstr "Subversion URL választása"
+
+#: wb_project_dialogs.py:603
+msgid "Enter a Subversion URL"
+msgstr "Subversion URL megadása"
+
+#: wb_project_dialogs.py:607
+#, python-format
+msgid "%s is not a valid Subversion URL"
+msgstr "%s nem egy érvényes Subversion URL"
+
+#: wb_project_dialogs.py:615
+#, python-format
+msgid ""
+"%(url)s is not a accessable Subversion URL\n"
+"%(error)s"
+msgstr ""
+"%(url)s nem egy hozzáférhető Subversion URL\n"
+"%(error)s"
+
+#: wb_project_dialogs.py:628
+msgid "Create new Working Copy"
+msgstr "Új munkapéldány készítése"
+
+#: wb_project_dialogs.py:664
+msgid "Choose a directory that is empty and not in used by subversion"
+msgstr "Válasszon egy könyvtárat, amely üres és nem használja a Subversion"
+
+#: wb_project_dialogs.py:670
+#, python-format
+msgid ""
+"Path %s\n"
+"Is not a directory\n"
+"Choose a directory that is empty and not in use by subversion"
+msgstr ""
+"Útvonal %s\n"
+"ez nem egy könyvtár\n"
+"Válasszon egy könyvtárat, amely üres és nem használja a Subversion"
+
+#: wb_project_dialogs.py:678
+#, python-format
+msgid ""
+"Path %s\n"
+"Is a subversion working copy\n"
+"Choose a directory that is empty and not in use by subversion"
+msgstr ""
+"Útvonal %s\n"
+"ez egy Subversion munkapéldány\n"
+"Válasszon egy könyvtárat, amely üres és nem használja a Subversion"
+
+#: wb_project_dialogs.py:691
+#, python-format
+msgid ""
+"Path %s\n"
+"Is not an empty directory\n"
+"Choose a directory that is empty and not in use by subversion"
+msgstr ""
+"Útvonal %s\n"
+"ez nem egy üres könyvtár\n"
+"Válasszon egy könyvtárat, amely üres és nem használja a Subversion"
+
+#: wb_project_dialogs.py:700
+#, python-format
+msgid ""
+"Path %(path)s\n"
+"%(error)s\n"
+"Choose a directory that is empty and not in use by subversion"
+msgstr ""
+"Útvonal %(path)s\n"
+"%(error)s\n"
+"Válasszon egy könyvtárat, amely üres és nem használja a Subversion"
+
+#: wb_project_dialogs.py:727
+msgid "Project Name"
+msgstr "Projekt neve"
+
+#: wb_project_dialogs.py:733
+msgid "Project name:"
+msgstr "Projekt neve"
+
+#: wb_project_dialogs.py:768
+msgid ""
+"Project name is blank.\n"
+"Enter a project name"
+msgstr ""
+"Projekt neve nincs kitöltve.\n"
+"Adja meg a nevet"
+
+#: wb_project_dialogs.py:774
+#, python-format
+msgid ""
+"Project %s already exist.\n"
+"Choose another name"
+msgstr ""
+"Projekt neve %s már létezik.\n"
+"Válasszon másik nevet"
+
+#: wb_shell_macosx_commands.py:58
+#: wb_shell_unix_commands.py:51
+#: wb_shell_win32_commands.py:53
+#, python-format
+msgid "Open %s"
+msgstr "Megnyitás %s"
+
+#: wb_shell_win32_commands.py:61
+#, python-format
+msgid ""
+"Unable to shell open %s\n"
+"Is an application associated with this file type?"
+msgstr ""
+"Terminál nem nyitható meg %s\n"
+"Van egy alkalmazás rendelve ehhez a fájl típushoz?"
+
+#: wb_shell_win32_commands.py:64
+#, python-format
+msgid "Unable to shell open %(filename)s - %(error)s"
+msgstr "Terminál nem nyitható meg %(filename)s - %(error)s"
+
+#: wb_shell_win32_commands.py:122
+#, python-format
+msgid ""
+"Create process failed for command - %(command)s\n"
+"Reason %(reason)s"
+msgstr ""
+"Sikertelen parancs - %(command)s\n"
+"Indok %(reason)s"
+
+#: wb_shell_win32_commands.py:131
+#, python-format
+msgid "Created directory %s"
+msgstr "Könyvtár létrehozása %s"
+
+#: wb_shell_win32_commands.py:134
+#, python-format
+msgid "Create directory %(dir)s - %(error)s"
+msgstr "Könyvtár létrehozása %(dir)s - %(error)s"
+
+#: wb_shell_win32_commands.py:140
+#, python-format
+msgid "%s is not a directory"
+msgstr "%s nem egy könyvtár"
+
+#: wb_subversion_annotate.py:23
+#, python-format
+msgid "Annotation of %s"
+msgstr "Jegyzet %s"
+
+#: wb_subversion_annotate.py:57
+msgid "Line"
+msgstr "Sor"
+
+#: wb_subversion_annotate.py:58
+#: wb_subversion_history.py:502
+msgid "Revision"
+msgstr "Revízió"
+
+#: wb_subversion_annotate.py:60
+#: wb_subversion_history.py:504
+#: wb_subversion_list_handler_common.py:33
+#: wb_subversion_list_handler_common.py:112
+msgid "Date"
+msgstr "Dátum"
+
+#: wb_subversion_annotate.py:61
+msgid "Text"
+msgstr "Szöveg"
+
+#: wb_subversion_checkin.py:33
+#, python-format
+msgid "Check in for %s"
+msgstr "Ellenőrzés itt: %s"
+
+#: wb_subversion_checkin.py:54
+msgid "Select All"
+msgstr "Összes kiválasztása"
+
+#: wb_subversion_checkin.py:54
+msgid "Select ALl"
+msgstr "Összes kiválasztása"
+
+#: wb_subversion_checkin.py:56
+#: wb_subversion_report_updates.py:47
+msgid "Exclude..."
+msgstr "Kihagy..."
+
+#: wb_subversion_checkin.py:56
+#: wb_subversion_checkin.py:97
+#: wb_subversion_report_updates.py:70
+msgid "Exclude from check in"
+msgstr "Kizárva az ellenőrzésből"
+
+#: wb_subversion_checkin.py:57
+#: wb_subversion_report_updates.py:48
+msgid "Include..."
+msgstr "Tartalmaz..."
+
+#: wb_subversion_checkin.py:57
+msgid "Include from check in"
+msgstr "Beleértve az ellenőrzésbe"
+
+#: wb_subversion_checkin.py:72
+#: wb_toolbars.py:98
+msgid "Edit File"
+msgstr "Fájl szerkesztése"
+
+#: wb_subversion_checkin.py:76
+#: wb_toolbars.py:101
+msgid "Open File"
+msgstr "Fájl megnyitása"
+
+#: wb_subversion_checkin.py:80
+#: wb_toolbars.py:104
+msgid "Diff changes against base"
+msgstr "Változások összehasonlítása a bázisban"
+
+#: wb_subversion_checkin.py:83
+#: wb_subversion_report_branch_changes.py:55
+#: wb_subversion_report_lock.py:63
+#: wb_subversion_report_revision_changes.py:70
+#: wb_subversion_report_updates.py:66
+#: wb_toolbars.py:107
+msgid "Show History log"
+msgstr "Előzmények mutatása"
+
+#: wb_subversion_checkin.py:86
+#: wb_subversion_report_branch_changes.py:58
+#: wb_subversion_report_lock.py:66
+#: wb_subversion_report_revision_changes.py:73
+#: wb_toolbars.py:110
+msgid "File Information"
+msgstr "Fájl információ"
+
+#: wb_subversion_checkin.py:89
+#: wb_toolbars.py:113
+msgid "File Properties"
+msgstr "Fájl tulajdonságok"
+
+#: wb_subversion_checkin.py:93
+#: wb_toolbars.py:122
+msgid "Revert selected Files and Folders"
+msgstr "Fájlok és könyvtárak kiválasztásának visszavonása"
+
+#: wb_subversion_checkin.py:100
+#: wb_subversion_report_updates.py:73
+msgid "Include in check in"
+msgstr "Beleértve az ellenőrzésbe"
+
+#: wb_subversion_checkin.py:136
+msgid " Check In "
+msgstr "r"
+
+#: wb_subversion_checkin.py:242
+#, python-format
+msgid "Check in %s..."
+msgstr "Ellenőrzés %s..."
+
+#: wb_subversion_checkin.py:243
+#, python-format
+msgid "Sent %(count)d of %(total)d"
+msgstr "Küldés %(count)d, ennyiből %(total)d"
+
+#: wb_subversion_checkin.py:265
+#, python-format
+msgid "Checkin created revision %d"
+msgstr "Ellenőrzés készített revízió %d"
+
+#: wb_subversion_checkin.py:267
+msgid "No changes to checkin "
+msgstr "Nincsenek cserék az elleőrzéshez"
+
+#: wb_subversion_checkin.py:272
+msgid "Post commit error"
+msgstr "Beküldés utáni hiba"
+
+#: wb_subversion_checkin.py:313
+#: wb_subversion_list_handler.py:223
+#: wb_subversion_tree_handler.py:354
+msgid "There are no changes to check in"
+msgstr "Nincsenek cserék az ellenőrzéshez"
+
+#: wb_subversion_history.py:73
+#: wb_subversion_history.py:377
+#: wb_subversion_history.py:467
+#: wb_subversion_history.py:534
+msgid "Comment"
+msgstr "Megjegyzés"
+
+#: wb_subversion_history.py:75
+#: wb_subversion_history.py:377
+#: wb_subversion_history.py:522
+msgid "Path"
+msgstr "Útvonal"
+
+#: wb_subversion_history.py:200
+msgid "Show only:"
+msgstr "Csak ezt mutassa:"
+
+#: wb_subversion_history.py:211
+msgid "Show since:"
+msgstr "Mutat onnantól:"
+
+#: wb_subversion_history.py:221
+msgid "Include tags: "
+msgstr "Tagek:"
+
+#: wb_subversion_history.py:312
+#: wb_subversion_history.py:331
+#, python-format
+msgid "History of %s"
+msgstr "Előzmények %s"
+
+#: wb_subversion_history.py:505
+msgid "Label"
+msgstr "Címke"
+
+#: wb_subversion_history.py:506
+msgid "Message"
+msgstr "Üzenet"
+
+#: wb_subversion_history.py:521
+msgid "Action"
+msgstr "Művelet"
+
+#: wb_subversion_history.py:523
+msgid "Copied Revision"
+msgstr "Másolva"
+
+#: wb_subversion_history.py:524
+msgid "Copied from"
+msgstr "Másolva"
+
+#: wb_subversion_history.py:536
+msgid "Changed Paths"
+msgstr "Módosított útvonalak"
+
+#: wb_subversion_history.py:623
+msgid "Diff"
+msgstr "Összehasonlítás"
+
+#: wb_subversion_history.py:625
+msgid "Annotate"
+msgstr "Jegyzet"
+
+#: wb_subversion_history.py:627
+msgid "Revision Changes"
+msgstr "Változások reviziója"
+
+#: wb_subversion_history.py:724
+msgid "Log history View not implemented"
+msgstr "Napló előzmény nézete nem megvalósítható"
+
+#: wb_subversion_history.py:906
+#, python-format
+msgid "Revision changes for r%(rev1)d ignored. Its URL \"%(url1)s\" does not match r%(rev2)d URL \"%(url2)s\"."
+msgstr "Revízió cseréje r%(rev1)d mellőzve. Ez az URL \"%(url1)s\" nem párja a r%(rev2)d URL-nek \"%(url2)s\"."
+
+#: wb_subversion_info_dialog.py:25
+msgid "Entry"
+msgstr "Bejegyzés"
+
+#: wb_subversion_info_dialog.py:26
+msgid "Path:"
+msgstr "Útvonal"
+
+#: wb_subversion_info_dialog.py:58
+#: wb_subversion_info_dialog.py:102
+msgid "URL:"
+msgstr "URL:"
+
+#: wb_subversion_info_dialog.py:60
+msgid "Repository:"
+msgstr "Tároló:"
+
+#: wb_subversion_info_dialog.py:62
+#: wb_subversion_info_dialog.py:106
+msgid "Repository UUID:"
+msgstr "Tároló UUID:"
+
+#: wb_subversion_info_dialog.py:66
+#: wb_subversion_info_dialog.py:68
+#: wb_subversion_info_dialog.py:70
+#: wb_subversion_info_dialog.py:72
+#: wb_subversion_info_dialog.py:110
+#: wb_subversion_info_dialog.py:112
+#: wb_subversion_info_dialog.py:114
+#: wb_subversion_info_dialog.py:116
+msgid "Node kind:"
+msgstr "Node fajta:"
+
+#: wb_subversion_info_dialog.py:66
+#: wb_subversion_info_dialog.py:110
+msgid "file"
+msgstr "fájl"
+
+#: wb_subversion_info_dialog.py:68
+#: wb_subversion_info_dialog.py:112
+msgid "directory"
+msgstr "könyvtár"
+
+#: wb_subversion_info_dialog.py:70
+#: wb_subversion_info_dialog.py:114
+msgid "none"
+msgstr "egyik sem"
+
+#: wb_subversion_info_dialog.py:72
+#: wb_subversion_info_dialog.py:116
+msgid "unknown"
+msgstr "ismeretlen"
+
+#: wb_subversion_info_dialog.py:75
+#: wb_subversion_info_dialog.py:77
+#: wb_subversion_info_dialog.py:79
+#: wb_subversion_info_dialog.py:81
+#: wb_subversion_info_dialog.py:143
+#: wb_subversion_info_dialog.py:145
+#: wb_subversion_info_dialog.py:147
+#: wb_subversion_info_dialog.py:149
+#: wb_subversion_info_dialog.py:151
+msgid "Schedule:"
+msgstr "Jegyzék:"
+
+#: wb_subversion_info_dialog.py:75
+#: wb_subversion_info_dialog.py:143
+msgid "normal"
+msgstr "normál"
+
+#: wb_subversion_info_dialog.py:77
+#: wb_subversion_info_dialog.py:145
+msgid "add"
+msgstr "hozzáadás"
+
+#: wb_subversion_info_dialog.py:79
+#: wb_subversion_info_dialog.py:147
+msgid "delete"
+msgstr "törlés"
+
+#: wb_subversion_info_dialog.py:81
+#: wb_subversion_info_dialog.py:149
+msgid "replace"
+msgstr "csere"
+
+#: wb_subversion_info_dialog.py:84
+#: wb_subversion_info_dialog.py:153
+msgid "Copied From URL:"
+msgstr "Másolva erről az URL-ről:"
+
+#: wb_subversion_info_dialog.py:86
+#: wb_subversion_info_dialog.py:155
+msgid "Copied From Revision:"
+msgstr "Másolva ebből a revízióból:"
+
+#: wb_subversion_info_dialog.py:88
+#: wb_subversion_info_dialog.py:119
+msgid "Last Changed Author:"
+msgstr "Szerző utolsó változása:"
+
+#: wb_subversion_info_dialog.py:90
+#: wb_subversion_info_dialog.py:121
+msgid "Last Changed Revision:"
+msgstr "Revízió utolsó változása:"
+
+#: wb_subversion_info_dialog.py:92
+#: wb_subversion_info_dialog.py:123
+msgid "Last Changed Date:"
+msgstr "Dátum utolsó változása:"
+
+#: wb_subversion_info_dialog.py:94
+#: wb_subversion_info_dialog.py:157
+msgid "Text Last Updated:"
+msgstr "Szöveg utolsó változása:"
+
+#: wb_subversion_info_dialog.py:96
+#: wb_subversion_info_dialog.py:159
+msgid "Properties Last Updated:"
+msgstr "Tulajonságok utolsó változása:"
+
+#: wb_subversion_info_dialog.py:98
+#: wb_subversion_info_dialog.py:161
+msgid "Checksum:"
+msgstr "Ellenörző összeg:"
+
+#: wb_subversion_info_dialog.py:104
+msgid "Repository root URL:"
+msgstr "Tároló gyökér URL:"
+
+#: wb_subversion_info_dialog.py:125
+#: wb_subversion_list_handler_common.py:927
+msgid "Lock"
+msgstr "Zárás"
+
+#: wb_subversion_info_dialog.py:128
+msgid "Lock Owner:"
+msgstr "Zárás tulajdonosa:"
+
+#: wb_subversion_info_dialog.py:129
+msgid "Lock Creation Date:"
+msgstr "Zárás készítés dátuma:"
+
+#: wb_subversion_info_dialog.py:131
+msgid "Lock Expiration Date:"
+msgstr "Zárás lejáratának dátuma:"
+
+#: wb_subversion_info_dialog.py:132
+#: wb_subversion_info_dialog.py:135
+msgid "Lock Token:"
+msgstr "Zárás jelölés:"
+
+#: wb_subversion_info_dialog.py:133
+msgid "Lock Comment:"
+msgstr "Zárás megjegyzés:"
+
+#: wb_subversion_info_dialog.py:141
+msgid "Working copy"
+msgstr "Munkapéldány"
+
+#: wb_subversion_list_handler_common.py:32
+#: wb_subversion_list_handler_common.py:111
+#: wb_subversion_report_branch_changes.py:147
+#: wb_subversion_report_lock.py:183
+#: wb_subversion_report_revision_changes.py:266
+#: wb_subversion_report_updates.py:205
+msgid "State"
+msgstr "Állapot"
+
+#: wb_subversion_list_handler_common.py:34
+#: wb_subversion_list_handler_common.py:113
+msgid "Rev"
+msgstr "Rev"
+
+#: wb_subversion_list_handler_common.py:37
+#: wb_subversion_list_handler_common.py:117
+msgid "Mimetype"
+msgstr "Mimetípus"
+
+#: wb_subversion_list_handler_common.py:38
+#: wb_subversion_list_handler_common.py:118
+msgid "EOL"
+msgstr "EOL"
+
+#: wb_subversion_list_handler_common.py:39
+#: wb_subversion_list_handler_common.py:115
+msgid "Type"
+msgstr "Típus"
+
+#: wb_subversion_list_handler_common.py:40
+#: wb_subversion_list_handler_common.py:119
+#: wb_subversion_report_lock.py:183
+msgid "Lock Owner"
+msgstr "Zárás tuljadonosa:"
+
+#: wb_subversion_list_handler_common.py:41
+#: wb_subversion_list_handler_common.py:120
+#: wb_subversion_report_lock.py:183
+msgid "Lock Comment"
+msgstr "Zárás megjegyzés"
+
+#: wb_subversion_list_handler_common.py:116
+msgid "Size"
+msgstr "Méret"
+
+#: wb_subversion_list_handler_common.py:348
+msgid "Use the Checkout command to fetch files"
+msgstr "Használja az Ellenőrzés parancsot a fájlok elhozásához"
+
+#: wb_subversion_list_handler_common.py:350
+msgid "Use the Update command to fetch files"
+msgstr "Használja az Frissít parancsot a fájlok behozásához"
+
+#: wb_subversion_list_handler_common.py:682
+#: wb_subversion_report_revision_changes.py:121
+#, python-format
+msgid "Annotating %(count)d"
+msgstr "Jegyzetelés %(count)d"
+
+#: wb_subversion_list_handler_common.py:684
+#: wb_subversion_report_revision_changes.py:123
+#, python-format
+msgid "Annotate %s..."
+msgstr "Jegyzet %s..."
+
+#: wb_subversion_list_handler_common.py:708
+#: wb_subversion_tree_handler.py:385
+#, python-format
+msgid "Diff BASE %s..."
+msgstr "Összehasonlítás BASE %s..."
+
+#: wb_subversion_list_handler_common.py:743
+#: wb_subversion_tree_handler.py:421
+#, python-format
+msgid "Diff HEAD %s..."
+msgstr "Összehasonlítás HEAD %s..."
+
+#: wb_subversion_list_handler_common.py:776
+#: wb_subversion_list_handler_common.py:824
+msgid "Retrieving branch info..."
+msgstr "Branch információ visszakeresése..."
+
+#: wb_subversion_list_handler_common.py:783
+#: wb_subversion_list_handler_common.py:830
+#: wb_subversion_tree_handler.py:772
+#, python-format
+msgid "\"%s\" is not a branch."
+msgstr "\"%s\" nem egy branch"
+
+#: wb_subversion_list_handler_common.py:783
+#: wb_subversion_list_handler_common.py:830
+#: wb_subversion_tree_handler.py:772
+#: wb_subversion_tree_handler.py:774
+msgid "Error"
+msgstr "Hiba"
+
+#: wb_subversion_list_handler_common.py:791
+#, python-format
+msgid "Diff branch origin BASE %s..."
+msgstr "Összehasonlítás branch eredeti BASE %s..."
+
+#: wb_subversion_list_handler_common.py:838
+#, python-format
+msgid "Diff branch origin HEAD %s..."
+msgstr "Összehasonlítás branch eredeti HEAD %s..."
+
+#: wb_subversion_list_handler_common.py:877
+#: wb_subversion_tree_handler.py:462
+#, python-format
+msgid "Log history %s..."
+msgstr "Előzmények napló %s..."
+
+#: wb_subversion_list_handler_common.py:932
+#, python-format
+msgid "Locking %(count)d"
+msgstr "Zárva %(count)d"
+
+#: wb_subversion_list_handler_common.py:934
+#, python-format
+msgid "Locking %s..."
+msgstr "Zárva %s..."
+
+#: wb_subversion_list_handler_common.py:990
+msgid "Unlock"
+msgstr "Nyitva"
+
+#: wb_subversion_list_handler_common.py:995
+#, python-format
+msgid "Unlocking %(count)d"
+msgstr "Nyitás %(count)d"
+
+#: wb_subversion_list_handler_common.py:997
+#, python-format
+msgid "Unlocking %s..."
+msgstr "Nyitás %s..."
+
+#: wb_subversion_list_handler.py:69
+#: wb_subversion_tree_handler.py:189
+msgid "Update to.."
+msgstr "Frissítés..."
+
+#: wb_subversion_list_handler.py:102
+#, python-format
+msgid "Copied %d files to the Clipboard"
+msgstr "%d fájl másolva a vágólapra"
+
+#: wb_subversion_list_handler.py:107
+#, python-format
+msgid "Cut %d files to the Clipboard"
+msgstr "%d fájlok a vágólapra vágva"
+
+#: wb_subversion_list_handler.py:130
+msgid "Paste Copy"
+msgstr "Másolás ide"
+
+#: wb_subversion_list_handler.py:132
+msgid "Paste Move"
+msgstr "Mozgatás ide"
+
+#: wb_subversion_list_handler.py:148
+msgid "Save As"
+msgstr "Mentés másként"
+
+#: wb_subversion_list_handler.py:158
+#, python-format
+msgid "%(title)s: From %(filename)s"
+msgstr "%(title)s: korábban %(filename)s"
+
+#: wb_subversion_list_handler.py:161
+#, python-format
+msgid "%(title)s:   To %(filename)s"
+msgstr "%(title)s:   lesz %(filename)s"
+
+#: wb_subversion_list_handler.py:242
+msgid "Delete File"
+msgstr "Fájl törlése"
+
+#: wb_subversion_list_handler.py:323
+#: wb_subversion_list_handler.py:353
+#: wb_subversion_list_handler.py:361
+#, python-format
+msgid "Rename %(from)s %(to)s"
+msgstr "Átnevezés %(from)s %(to)s"
+
+#: wb_subversion_list_handler.py:347
+msgid "Failed to create tmp file for rename"
+msgstr "Fájl átnevezésénél hiba a tmp fájlban"
+
+#: wb_subversion_list_handler.py:410
+msgid "Resolved"
+msgstr "Megoldott"
+
+#: wb_subversion_list_handler.py:424
+#: wb_subversion_list_handler.py:477
+#: wb_subversion_report_updates.py:132
+#: wb_subversion_tree_handler.py:828
+#: wb_subversion_tree_handler.py:844
+#, python-format
+msgid "Updated %(count)d"
+msgstr "Frissítve %(count)d"
+
+#: wb_subversion_list_handler.py:429
+#: wb_subversion_list_handler.py:482
+#: wb_subversion_report_updates.py:131
+#: wb_subversion_tree_handler.py:827
+#: wb_subversion_tree_handler.py:843
+#, python-format
+msgid "Update %s..."
+msgstr "Frissítve %s..."
+
+#: wb_subversion_list_handler.py:451
+#: wb_subversion_list_handler.py:504
+#: wb_subversion_report_updates.py:143
+#: wb_subversion_tree_handler.py:876
+#, python-format
+msgid "Updated %(filename)s to revision %(rev)d, no new updates"
+msgstr "Frissítve %(filename)s a revízióra %(rev)d, nincs újabb változat"
+
+#: wb_subversion_list_handler.py:455
+#: wb_subversion_list_handler.py:508
+#: wb_subversion_report_updates.py:147
+#: wb_subversion_tree_handler.py:880
+#, python-format
+msgid "Updated %(filename)s to revision %(rev)d, %(count)d new update"
+msgid_plural "Updated %(filename)s to revision %(rev)d, %(count)d new updates"
+msgstr[0] "Frissítve %(filename)s a revízióra %(rev)d, %(count)d új változat"
+msgstr[1] "Frissítve %(filename)s a revízióra %(rev)d, %(count)d új változatok"
+
+#: wb_subversion_list_handler.py:462
+#: wb_subversion_list_handler.py:515
+#: wb_subversion_tree_handler.py:889
+#, python-format
+msgid "%d file is in conflict"
+msgid_plural "%d files are in conflict"
+msgstr[0] "%d fájlnál konfliktus"
+msgstr[1] "%d fájloknál konfliktus"
+
+#: wb_subversion_list_handler.py:471
+#: wb_subversion_tree_handler.py:837
+msgid "Update to revision"
+msgstr "Revízió frissítése"
+
+#: wb_subversion_project_info.py:244
+msgid "Hostname"
+msgstr "Hostnév"
+
+#: wb_subversion_project_info.py:245
+msgid "Valid From"
+msgstr "Érvényesség kezdete:"
+
+#: wb_subversion_project_info.py:246
+msgid "Valid Until"
+msgstr "Érvényesség vége:"
+
+#: wb_subversion_project_info.py:247
+msgid "Issuer Name"
+msgstr "Egy érték beírása %s"
+
+#: wb_subversion_project_info.py:248
+msgid "Finger Print"
+msgstr "Ujjlenyomat"
+
+#: wb_subversion_properties_dialog.py:92
+#: wb_subversion_properties_dialog.py:113
+#, python-format
+msgid "Enter a value for %s"
+msgstr "Egy érték beírása %s"
+
+#: wb_subversion_report_branch_changes.py:25
+msgid "Branch changes report"
+msgstr "Branch változások jelentés"
+
+#: wb_subversion_report_branch_changes.py:52
+#: wb_subversion_report_lock.py:60
+#: wb_subversion_report_updates.py:63
+msgid "Diff changes against HEAD"
+msgstr "Változások összehasonlítása a HEAD-ben"
+
+#: wb_subversion_report_lock.py:30
+msgid "Repository Lock Report"
+msgstr "Tároló zárási beszámoló"
+
+#: wb_subversion_report_lock.py:32
+msgid "Working Copy Lock Report"
+msgstr "Munkapéldány zárás beszámoló"
+
+#: wb_subversion_report_lock.py:70
+#: wb_toolbars.py:125
+msgid "Lock File"
+msgstr "Fájl zárása"
+
+#: wb_subversion_report_lock.py:73
+#: wb_toolbars.py:128
+msgid "Unlock File"
+msgstr "Fájl nyitása"
+
+#: wb_subversion_report_revision_changes.py:36
+#, python-format
+msgid "Revision changes - r%(rev1)d vs. r%(rev2)d"
+msgstr "Revizió cseréje - r%(rev1)d és r%(rev2)d között"
+
+#: wb_subversion_report_revision_changes.py:44
+#, python-format
+msgid "Diff r%(rev1)d vs. r%(rev1)d..."
+msgstr "Összehasonlítás r%(rev1)d és r%(rev1)d között..."
+
+#: wb_subversion_report_revision_changes.py:159
+#, python-format
+msgid "Diff -r%(rev1)d:%(rev2)d %(url)s..."
+msgstr "Összehasonlítás -r%(rev1)d:%(rev2)d %(url)s..."
+
+#: wb_subversion_report_updates.py:33
+msgid "Updates Report"
+msgstr "Frissítési jelentés"
+
+#: wb_subversion_report_updates.py:47
+msgid "Exclude from update"
+msgstr "Kimaradt a frissítésből"
+
+#: wb_subversion_report_updates.py:48
+msgid "Include in update"
+msgstr "Tartalmazza a frissítés"
+
+#: wb_subversion_report_updates.py:286
+msgid " Update "
+msgstr " Frissítés"
+
+#: wb_subversion_tree_handler.py:208
+#, python-format
+msgid "Creating branch %s"
+msgstr "Branch készítése %s"
+
+#: wb_subversion_tree_handler.py:212
+#, python-format
+msgid "Creating tag %s"
+msgstr "Tag készítése %s"
+
+#: wb_subversion_tree_handler.py:249
+#, python-format
+msgid "Copied folder %s to the Clipboard"
+msgstr "Dosszié %s másolása a vágólapra"
+
+#: wb_subversion_tree_handler.py:254
+#, python-format
+msgid "Cut folder %s to the Clipboard"
+msgstr "Dosszié %s kivágása a vágólapra"
+
+#: wb_subversion_tree_handler.py:262
+msgid "Add Folder"
+msgstr "Dosszié hozzáadása"
+
+#: wb_subversion_tree_handler.py:275
+#: wb_subversion_tree_handler.py:289
+#, python-format
+msgid "Checkout %s..."
+msgstr "Ellenőrzés %s..."
+
+#: wb_subversion_tree_handler.py:286
+msgid "Checkout to revision"
+msgstr "Revízió ellenőrzése"
+
+#: wb_subversion_tree_handler.py:315
+#, python-format
+msgid "Clean up %s..."
+msgstr "Tisztítás %s..."
+
+#: wb_subversion_tree_handler.py:331
+#, python-format
+msgid "Look for changes to check in %s..."
+msgstr "Cserék ellenőrzése itt: %s"
+
+#: wb_subversion_tree_handler.py:374
+msgid "Delete Folder"
+msgstr "Dosszié törlése"
+
+#: wb_subversion_tree_handler.py:513
+msgid "Make directory"
+msgstr "Könyvtár készítése"
+
+#: wb_subversion_tree_handler.py:547
+#, python-format
+msgid "Cannot read template %(filename)s - %(error)s"
+msgstr "Nem olvasható a sablon %(filename)s - %(error)s"
+
+#: wb_subversion_tree_handler.py:559
+#, python-format
+msgid "Cannot create new file %(filename)s - %(error)s"
+msgstr "Nem készíthető új fájl %(filename)s - %(error)s"
+
+#: wb_subversion_tree_handler.py:610
+#, python-format
+msgid "Looking for repository locks in %s..."
+msgstr "Tároló zárások nézése itt %s..."
+
+#: wb_subversion_tree_handler.py:612
+#, python-format
+msgid "Looking for working copy locks in %s..."
+msgstr "Munkapéldány zárások nézése itt %s..."
+
+#: wb_subversion_tree_handler.py:636
+msgid "There are no locked files in the repository"
+msgstr "Nincs zárt fájl a tárolóban"
+
+#: wb_subversion_tree_handler.py:639
+msgid "There are no locked files in the working copy"
+msgstr "Nincs zárt fájl a munkapéldányban"
+
+#: wb_subversion_tree_handler.py:649
+#, python-format
+msgid "Updates %s..."
+msgstr "Frissítés %s..."
+
+#: wb_subversion_tree_handler.py:668
+msgid "All files are up todate"
+msgstr "Minden fájl naprakész"
+
+#: wb_subversion_tree_handler.py:684
+#, python-format
+msgid "Branch changes %s..."
+msgstr "Branch cserék %s..."
+
+#: wb_subversion_tree_handler.py:774
+#, python-format
+msgid "No files changed yet in branch \"%s\"."
+msgstr "Még nincs cserélt fájl a branchban \"%s\"."
+
+#: wb_subversion_tree_handler.py:786
+msgid "Rename Directory"
+msgstr "Könyvtár átnevezése"
+
+#: wb_subversion_tree_handler.py:814
+msgid "There are no changes to revert"
+msgstr "Nem történtek cserék"
+
+#: wb_subversion_tree_handler.py:886
+msgid "Already up to date"
+msgstr "Már naprakész"
+
+#: wb_subversion_tree_handler.py:901
+#, python-format
+msgid "Copied %(from)s to %(to)s"
+msgstr "Másolva %(from)s innen ide %(to)s"
+
+#: wb_subversion_tree_handler.py:913
+#, python-format
+msgid "Moved %(from)s to %(to)s"
+msgstr "Mozgatva innen %(from)s ide %(to)s"
+
+#: wb_toolbars.py:82
+msgid "Cut Files and Folders"
+msgstr "Fájl és dosszié kivágása"
+
+#: wb_toolbars.py:85
+msgid "Copy Files and Folders"
+msgstr "Fájl és dosszié másolása"
+
+#: wb_toolbars.py:88
+msgid "Paste Files and Folders"
+msgstr "Fájl és dosszié beillesztése"
+
+#: wb_toolbars.py:92
+msgid "Start new command shell"
+msgstr "Új terminál indítása"
+
+#: wb_toolbars.py:116
+msgid "Add Files and Folders"
+msgstr "Fájl és dosszié hozzáadása"
+
+#: wb_toolbars.py:119
+msgid "Delete selected Files and Folders"
+msgstr "Kiválasztott fájlok és dossziék törlése"
+
+#: wb_toolbars.py:131
+msgid "Checkin changes"
+msgstr "Cserék ellenőrzése"
+
+#: wb_toolbars.py:134
+msgid "Update working copy"
+msgstr "Munkapéldány frissítése"
+
+#: wb_toolbars.py:137
+msgid "Use recursive (flat) view"
+msgstr "Rekurzív nézet használata"
+
+#: wb_toolbars.py:141
+msgid "Show only changed files"
+msgstr "Csak a változott fájlok mutatása"
+
+#: wb_tree_panel.py:244
+msgid "Projects:"
+msgstr "Projekt:"
+
+#: wb_tree_panel.py:406
+#: wb_tree_panel.py:471
+msgid "Refreshing view..."
+msgstr "Nézet frissítése..."
+
+#: wb_tree_panel.py:997
+msgid "&Add Project"
+msgstr "Projekt hozzáadása"
+
+

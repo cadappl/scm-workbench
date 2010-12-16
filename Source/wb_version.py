@@ -13,5 +13,5 @@
 '''
 major = 1
 minor = 6
-patch = 2
-build = 1283
+patch = 4
+build = 1324

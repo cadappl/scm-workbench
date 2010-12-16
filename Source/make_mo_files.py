@@ -4,7 +4,7 @@ import os
 
 localedir = sys.argv[1]
 
-all_lang = ['en', 'de']
+all_lang = ['en', 'de', 'hu']
 
 for lang in all_lang:
     mo_output_dir = '%s/%s/LC_MESSAGES' % (localedir, lang)
