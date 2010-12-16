@@ -20,6 +20,7 @@ import os
 
 import wb_config
 
+import wb_read_file
 #
 #    Later need to make these dialogs work with the
 #    registered providers to put up provider specific
@@ -82,14 +83,17 @@ class AddProjectDialog:
         self.page_wc_create = WorkingCopyCreatePage( self )
 
         self.page_project_name = ProjectNamePage( self )
+        self.page_new_project = ProjectNamePage( self )
         self.page_cs_choice = TorunProjectSelectionPage( self )
         self.page_directory = DirectoryPage( self )
 
         self.page_wc_choice.SetNext( self.page_project_name )
 
         self.page_wc_exists.SetPrev( self.page_wc_choice )
-        self.page_wc_exists.SetNext( self.page_project_name )
+        #self.page_wc_exists.SetNext( self.page_project_name )
+        self.page_wc_exists.SetNext( self.page_new_project )
 
+        self.page_new_project.SetPrev( self.page_wc_exists )
         self.page_url.SetPrev( self.page_wc_choice )
         self.page_url.SetNext( self.page_wc_create )
 
@@ -98,11 +102,11 @@ class AddProjectDialog:
 
         self.page_project_name.SetPrev( self.page_wc_create )
 
-        self.wizard.FitToPage( self.page_wc_exists )
-
         self.page_cs_choice.SetPrev( self.page_wc_choice )
         self.page_cs_choice.SetNext( self.page_directory )
         self.page_directory.SetPrev( self.page_cs_choice )
+
+        self.wizard.FitToPage( self.page_wc_exists )
         self.wizard.Bind( wx.wizard.EVT_WIZARD_PAGE_CHANGED, self.OnPageChanged )
         self.wizard.Bind( wx.wizard.EVT_WIZARD_PAGE_CHANGING, self.OnPageChanging )
 
@@ -254,6 +258,7 @@ class WorkingCopyExistsPage(TitledPage):
         wx.EVT_BUTTON( self, wc_path_browse_id, self.OnBrowseWorkingCopyDir )
         wx.EVT_TEXT( self, wc_path_text_ctrl_id, self.updateControls )
 
+        self.configspec = None
         self._update_controls_lock = False
 
     def loadState( self, state ):
@@ -261,11 +266,11 @@ class WorkingCopyExistsPage(TitledPage):
         self.updateControls()
 
     def saveState( self, state ):
-        self.parent.setProviderName( 'subversion' )
         # must get the abspath to convert c:/dir1/dir2 to c:\dir1\dir2
         # otherwise all sorts of things break inside workbench
         state.wc_path = os.path.abspath( os.path.expanduser( self.wc_path_ctrl.GetValue().strip() ) )
         state.url_path = self.url_ctrl.GetLabel().strip()
+        state.configspec = self.configspec
 
         if not os.path.exists( state.wc_path ):
             wx.MessageBox( T_('Path %s\n'
@@ -281,7 +286,7 @@ class WorkingCopyExistsPage(TitledPage):
                     % state.wc_path, style=wx.OK|wx.ICON_ERROR );
             return False
 
-        if state.url_path == '':
+        if state.url_path == '' and state.configspec is None:
             wx.MessageBox( T_('Path %s\n'
                     'Is not a subversion working copy\n'
                     'Choose an existing subversion working copy directory')
@@ -311,6 +316,7 @@ class WorkingCopyExistsPage(TitledPage):
             return
         self._update_controls_lock = True
 
+        self.parent.setProviderName( 'subversion' )
         # If the wc_path exists and is a svn wc then disable the url field
         wc_path = self.wc_path_ctrl.GetValue()
         wc_path = os.path.expanduser( wc_path )
@@ -327,6 +333,17 @@ class WorkingCopyExistsPage(TitledPage):
             self.url_ctrl.SetLabel( '' )
         else:
             self.url_ctrl.SetLabel( url )
+
+        if url is None and os.path.exists( wc_path ):
+            p = self.parent.app.prefs.getRepository()
+            cs_file = os.path.join( wc_path, p.repo_configspec )
+            if os.path.exists( cs_file ):
+                configspec = wb_read_file.readFile( cs_file )
+
+                cs_parser = wb_torun_configspec.wb_subversion_configspec( configspec )
+                if not cs_parser.error():
+                    self.configspec = configspec
+                    self.parent.setProviderName( 'torun' )
 
         self._update_controls_lock = False
 
@@ -843,6 +860,12 @@ class ProjectNamePage(TitledPage):
     def loadState( self, state ):
         self.wc_path_ctrl.SetLabel( state.wc_path )
         self.url_ctrl.SetLabel( state.url_path )
+
+        if state.configspec:
+            project_name = state.wc_path.replace( '\\', '/' ).split( '/' )[-1]
+            self.name_ctrl.SetValue( project_name )
+            # set prompt for url
+            self.url_ctrl.SetLabel( T_('<Torun configspec set>') )
 
     def saveState( self, state ):
         state.project_name = self.name_ctrl.GetValue().strip()

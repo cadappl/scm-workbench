@@ -14,6 +14,13 @@
 import locale
 import codecs
 
+def readFile( filename ):
+    f = file( filename, 'r' )
+    contents = f.read()
+    f.close()
+
+    return contents
+
 def writeFileByLine( filename, content ):
     try:
         f = open( filename, 'w' )

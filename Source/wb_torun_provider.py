@@ -26,7 +26,7 @@ class TorunProvider(wb_source_control_providers.Provider):
     def getProjectInfo( self, app, parent=None ):
         return wb_torun_project_info.ProjectInfo( app, parent )
 
-    def UpdateProjectDialog(self, app, parent, project_info):
+    def getUpdateProjectDialog(self, app, parent, project_info):
         return wb_torun_project_info.UpdateProjectDialog(app, parent, project_info )
 
     def getProjectTreeItem( self, app, project_info ):
