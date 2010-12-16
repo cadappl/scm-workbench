@@ -1003,6 +1003,8 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
             # 2.3 create SCIs locally but don't submit
             self.createScisOnLocal( project_info, ident_type, local_dir )
 
+        self.app.refreshFrame()
+
     def Cmd_Torun_ProcDelete( self, project_info ):
         repo_info = self.findRepository( project_info.url )
         if repo_info is None:
@@ -1047,6 +1049,8 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         else:
             self.client_bg.remove( project_info.wc_path )
 
+        self.app.refreshFrame()
+
     def Cmd_Torun_ProcDevel( self, project_info ):
         repo_info = self.findRepository( project_info.url )
         if repo_info is None:
@@ -1080,6 +1084,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         properties['vsnorigin'] = project_info.url
 
         self.readOrWriteSpecifiedProperties( local_ident, properties )
+        self.app.refreshFrame()
 
     def Cmd_Torun_ProcDeliv( self, project_info ):
         repo_info = self.findRepository( project_info.url )
@@ -1119,6 +1124,8 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
             # 5. remove the temporary location
             self.client_bg.remove( ident_url )
 
+        self.app.refreshFrame()
+
     def Cmd_Torun_ProcRevert( self, project_info ):
         repo_info = self.findRepository( project_info.url )
         if repo_info is None:
@@ -1154,6 +1161,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
                                revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
         # 5. remove the temporary location
         self.client_bg.remove( project_info.url )
+        self.app.refreshFrame()
 
     def readOrWriteSpecifiedProperties( self, filename, value_dict=None ):
         ret = dict()
