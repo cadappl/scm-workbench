@@ -13,6 +13,8 @@
 
 import wb_configspec
 import wb_torun_project_info
+import wb_torun_tree_handler
+import wb_torun_list_handler
 import wb_subversion_project_info
 import wb_source_control_providers
 
@@ -30,10 +32,10 @@ class TorunProvider(wb_source_control_providers.Provider):
         return wb_torun_project_info.UpdateProjectDialog(app, parent, project_info )
 
     def getProjectTreeItem( self, app, project_info ):
-        return wb_torun_project_info.TorunProject( app, project_info )
+        return wb_torun_tree_handler.TorunProject( app, project_info )
 
     def getListHandler( self, app, list_panel, project_info ):
-        return wb_torun_project_info.TorunListHandler( app, list_panel, project_info )
+        return wb_torun_list_handler.TorunListHandler( app, list_panel, project_info )
 
     def getAboutString( self ):
         return ('TORUN version: 1.1\n'

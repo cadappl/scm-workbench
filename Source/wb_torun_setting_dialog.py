@@ -114,15 +114,15 @@ class RepoSettingPage(PagePanel):
 
         self.browse_button = wx.Button( self, -1, T_(' Browse... '))
 
-        self.grid_sizer.Add( self.static_text1, 0, wx.EXPAND|wx.ALL, 3 )
-        self.grid_sizer.Add( self.text_ctrl_editor, 1, wx.EXPAND|wx.ALL, 3 )
+        self.grid_sizer.Add( self.static_text1, 0, wx.EXPAND|wx.ALL, 1 )
+        self.grid_sizer.Add( self.text_ctrl_editor, 1, wx.EXPAND|wx.ALL, 1 )
         self.grid_sizer.Add( self.browse_button, 0, wx.EXPAND )
 
         self.static_text2 = wx.StaticText( self, -1, T_('Configspec Name: '), style=wx.ALIGN_RIGHT )
         self.text_ctrl_configspec = wx.TextCtrl( self, -1, p.repo_configspec, wx.DefaultPosition, wx.Size( 300, -1 ) )
 
-        self.grid_sizer.Add( self.static_text2, 0, wx.EXPAND|wx.ALL, 3 )
-        self.grid_sizer.Add( self.text_ctrl_configspec, 1, wx.EXPAND|wx.ALL, 3 )
+        self.grid_sizer.Add( self.static_text2, 0, wx.EXPAND|wx.ALL, 1 )
+        self.grid_sizer.Add( self.text_ctrl_configspec, 1, wx.EXPAND|wx.ALL, 1 )
         self.grid_sizer.Add( (1, 1), 0, wx.EXPAND )
 
         wx.EVT_BUTTON( self, self.browse_button.GetId(), self.OnBrowseExe )
@@ -148,7 +148,7 @@ class RepoListPage(PagePanel):
     class RepoListEditDialog(wx.Dialog):
         def __init__ ( self, parent, title, repo_name='', repo_dir='', edit_mode=False):
             wx.Dialog.__init__(self, parent, -1, title, style=wx.DEFAULT_DIALOG_STYLE)
-            self.static_text1 = wx.StaticText( self, -1, T_('Name'), style=wx.ALIGN_RIGHT )
+            self.static_text1 = wx.StaticText( self, -1, T_('Name:'), style=wx.ALIGN_RIGHT )
 
             self.edit_mode = edit_mode
             if edit_mode:
@@ -156,25 +156,25 @@ class RepoListPage(PagePanel):
             else:
                 self.text_repo = wx.TextCtrl( self, -1, repo_name, wx.DefaultPosition, wx.Size(415, -1) )
 
-            self.static_text2 = wx.StaticText( self, -1, T_('Location'), style=wx.ALIGN_RIGHT )
+            self.static_text2 = wx.StaticText( self, -1, T_('Location:'), style=wx.ALIGN_RIGHT )
             self.text_dir = wx.TextCtrl( self, -1, repo_dir, wx.DefaultPosition, wx.Size(415, -1) )
 
             gsizer = wx.FlexGridSizer( 0, 2, 0, 0 )
             gsizer.AddGrowableCol( 1 )
 
-            gsizer.Add( self.static_text1, 1, wx.EXPAND|wx.ALL, 3 )
+            gsizer.Add( self.static_text1, 1, wx.EXPAND|wx.ALL, 1 )
             if edit_mode:
-                gsizer.Add( self.static_repo, 0, wx.EXPAND|wx.ALL, 5 )
+                gsizer.Add( self.static_repo, 0, wx.EXPAND|wx.ALL, 1 )
             else:
-                gsizer.Add( self.text_repo, 0, wx.EXPAND|wx.ALL, 5 )
-            gsizer.Add( self.static_text2, 1, wx.EXPAND|wx.ALL, 3 )
-            gsizer.Add( self.text_dir, 0, wx.EXPAND|wx.ALL, 5 )
+                gsizer.Add( self.text_repo, 0, wx.EXPAND|wx.ALL, 1 )
+            gsizer.Add( self.static_text2, 1, wx.EXPAND|wx.ALL, 1 )
+            gsizer.Add( self.text_dir, 0, wx.EXPAND|wx.ALL, 1 )
 
             sizer = wx.BoxSizer( wx.VERTICAL )
-            sizer.Add(gsizer)
-            sizer.Add(wx.StaticLine(self, -1, size=(20,-1), style=wx.LI_HORIZONTAL),
-                      0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
-            sizer.Add(self.CreateStdDialogButtonSizer(wx.OK | wx.CANCEL), 0, wx.ALIGN_RIGHT)
+            sizer.Add( gsizer )
+            sizer.Add( wx.StaticLine(self, -1, size=(20,-1), style=wx.LI_HORIZONTAL),
+                       0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 1 )
+            sizer.Add( self.CreateStdDialogButtonSizer(wx.OK | wx.CANCEL), 0, wx.ALL|wx.ALIGN_RIGHT, 1 )
             self.SetSizer(sizer)
             self.Fit()
 
@@ -227,7 +227,7 @@ class RepoListPage(PagePanel):
         self.sizer = wx.FlexGridSizer( 2, 1, 0, 0 )
         self.sizer.AddGrowableRow( 0 )
         self.sizer.AddGrowableCol( 0 )
-        self.sizer.Add ( self.repo_map_list, 1, wx.EXPAND|wx.ALL, 5 )
+        self.sizer.Add ( self.repo_map_list, 1, wx.EXPAND|wx.ALL, 1 )
         self.sizer.Add ( button_sizer, 0, wx.ALIGN_RIGHT )
 
         self.button_add.Bind( wx.EVT_BUTTON, self.OnButtonAdd )
@@ -236,6 +236,7 @@ class RepoListPage(PagePanel):
         self.button_import.Bind( wx.EVT_BUTTON, self.OnButtonImport )
         self.button_export.Bind( wx.EVT_BUTTON, self.OnButtonExport )
 
+        self.repo_map_list.Bind( wx.EVT_LEFT_DCLICK, self.OnButtonEdit )
         self.repo_map_list.Bind( wx.EVT_LIST_ITEM_SELECTED, self.OnRepoListSelected )
         self.repo_map_list.Bind( wx.EVT_LIST_ITEM_DESELECTED, self.OnRepoListDeselected )
 
@@ -414,7 +415,7 @@ class RepoPatternPage(PagePanel):
         self.g_sizer_component_package.Add( self.text_ctrl_component_package, 1, wx.EXPAND|wx.ALL, 1 )
         self.v_sizer_package.Add( self.g_sizer_component_package, 1, wx.EXPAND|wx.ALL, 1 )
 
-        self.v_sizer.Add( self.v_sizer_package, 1, wx.EXPAND|wx.ALL, 3 )
+        self.v_sizer.Add( self.v_sizer_package, 1, wx.EXPAND|wx.ALL )
 
         # Add project info
         self.v_sizer_project = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_('project') ), wx.VERTICAL )
@@ -443,7 +444,7 @@ class RepoPatternPage(PagePanel):
         self.g_sizer_component_project.Add( self.text_ctrl_component_project, 1, wx.EXPAND|wx.ALL, 1 )
         self.v_sizer_project.Add( self.g_sizer_component_project, 1, wx.EXPAND|wx.ALL, 1 )
 
-        self.v_sizer.Add( self.v_sizer_project, 1, wx.EXPAND|wx.ALL, 3 )
+        self.v_sizer.Add( self.v_sizer_project, 1, wx.EXPAND|wx.ALL )
         self.v_sizer.Fit( self )
 
         return self.v_sizer

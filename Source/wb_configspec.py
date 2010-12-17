@@ -11,68 +11,105 @@
 
 '''
 
-__version__ = '1.1'
-
 import os
 
+__version__ = '1.2'
+
+# return the separated words and set the offset in the dictorary 'env'
+def getWordFromLine( context, env=dict(), delimiter=None ):
+    if context is None:
+        return None, None
+
+    if delimiter:
+        words = list()
+        de_str = context.strip()
+        if len( de_str ) > 0 and delimiter.find( de_str[0] ) > -1:
+            # "' fooo ' bar " -> [ "", " fooo ", " bar " ]
+            de_words = de_str.split( de_str[0] )
+            if len( de_words ) > 2:
+                second = de_words[2].lstrip() + delimiter.join( de_words[3:] )
+                words.append( de_words[1] )
+                words.append( second )
+            else:
+                delimiter = None
+        else:
+            delimiter = None
+
+    if delimiter is None:
+        words = context.split( delimiter, 1 )
+
+    if len( words ) > 1:
+        env['offset'] = env.get('offset', 0) + context.find( words[1] )
+
+        return words[0], words[1]
+    else:
+        return words[0], None
+
 class ConfigspecRule:
-  def __init__ ( self, scope, lineno, context, error, slot, opts ):
-      self.scope = scope
-      self.lineno = lineno
-      self.context = context
-      self.error = error
-      self.slot = slot
-      self.opts = opts
+    def __init__ ( self, scope, lineno, context, env=dict(), opts=dict() ):
+        self.scope = scope
+        self.lineno = lineno
+        self.context = context
+        self.env = env
+        self.opts = opts
 
-  def dump(self):
-      return self.context
+    def dump( self ):
+        return self.context
 
-  def filter(self, args):
-      for k in args.keys():
-          v = k
-          ret = True
-          reversed = True
-          if k.startswith('not-'):
-              v = k[4:]
-              reversed = False
+    def filter( self, args ):
+        for k in args.keys():
+            v = k
+            ret = True
+            reversed = True
+            if k.startswith( 'not-' ):
+                v = k[4:]
+                reversed = False
 
-          if self.opts.has_key(v):
-              if isinstance(self.opts[v], (list, tuple)) \
-                      and args[k] in self.opts[v]:
-                  ret = reversed
-              elif self.opts[v].find(args[k]) > -1:
-                  ret = reversed
+            if self.opts.has_key( v ):
+                if isinstance( self.opts[v], ( list, tuple ) ) \
+                and args[k] in self.opts[v]:
+                    ret = reversed
+                elif self.opts[v].find( args[k] ) > -1:
+                    ret = reversed
 
-      # retrun false only
-          if ret == False:
-              return False
+            # retrun false only
+            if ret == False:
+                break
 
-      return True
+        return True
 
-  def match( self, sci_path ):
-      return False
+    def match( self, sci_path ):
+        return False
 
-  def get( self, opt=None ):
-      if isinstance( opt, ( list, tuple ) ):
-          ret = list()
-          for o in opt:
-              ret.append( self.opts.get( o ) )
-          return ret
-      else:
-          return self.opts.get( opt )
+    def get( self, opt=None ):
+        if isinstance( opt, ( list, tuple ) ):
+            ret = list()
+            for o in opt:
+                ret.append( self.opts.get( o ) )
 
-  def set( self, opt, value ):
-      self.opts[opt] = value
-  def getRepository(self):
-      return None
+            return ret
+        else:
+            return self.opts.get( opt )
 
-class Error (ConfigspecRule):
+    def set( self, opt, value ):
+        self.opts[opt] = value
+
+    def getError( self ):
+        return self.env['error']
+
+    def getRepository( self ):
+        return None
+
+class Error( ConfigspecRule ):
     def __init__ ( self, lineno, context ):
-        ConfigspecRule.__init__( self, 'e', lineno, context, 'unknown keyword', 0, dict() )
+        env = dict( { 'error':'unknown keyword' } )
+        ConfigspecRule.__init__( self, '!!ERROR!!', lineno, context, env )
 
+# # comment
 class CommentRule( ConfigspecRule ):
     def __init__( self, lineno, context ):
-        ConfigspecRule.__init__( self, 'C', lineno, context, None, 0, dict() )
+        ConfigspecRule.__init__( self, '#', lineno, context )
+
 #
 # scope pattern version-selector [optional-clause]
 #  - scope
@@ -86,461 +123,513 @@ class CommentRule( ConfigspecRule ):
 #    - time date-time
 
 # selector '-config do-pname [-select do-leaf-pattern] [-ci] isn't support
-class ElementRule(ConfigspecRule):
-  def __init__(self, lineno, rule, branch_name=None, date_time=None):
-    error = None
-    opts = dict({'date-time' : date_time})
-    is_file = is_dir = is_elf = False
-    s = rule.split()
+class ElementRule( ConfigspecRule ):
+    def __init__( self, lineno, context, branch_name=list(), date_time=list() ):
+        env = dict()
+        error = None
+        opts = dict()
 
-    k = 1 # element
-    if k < len(s):
-      opts['-file'] = s[k] == '-file'
-      opts['-dir']  = s[k] == '-directory'
-      is_elf  = s[k] == '-elftype'
-      if opts['-file'] or opts['-dir'] or is_elf: k += 1
-      if is_elf:
-        if k < len(s):
-          opts['-elftype'] = s[k]
-          k += 1
-        else:
-          error = "Parameter of -elftype is missed"
+        # scope
+        if branch_name and len( branch_name ):
+            opts['branch-name'] = branch_name[-1]
 
-    # pattern
-    if k < len(s):
-      opts['pattern'] = s[k].replace('\\', '/')
-      k += 1
-    else:
-      error = 'Pattern is missed'
+        if date_time and len( date_time ):
+            opts['date-time'] = date_time[-1]
 
-    # version-selector
-    if k < len(s):
-      opts['version-selector'] = s[k]
-      # the syntax of -config is verified but not handled
-      if s[k] == '-conifg':
-        k += 2
-        if k < len(s):
-          if s[k] == '-select':
-            k += 2
-            if k >= len(s):
-              error = 'Parameter of -select is missed'
-          if k < len(s):
-            if s[k] == '-ci':
-              k += 1
-        else:
-          error = 'Parameter of -config is missed'
-      else:
-        k += 1
-    else:
-      error = 'Version-selector is missed'
+        word, tails = getWordFromLine( context, env )
+        if word != 'element':
+            error = 'mismatch rule?'
 
-    # optional clause
-    if k < len(s):
-      if s[k] == '-time':
-        k += 1
-        if k < len(s):
-          opts['-time'] = s[k]
-          k += 1
+        if error is None:
+            word, tails = getWordFromLine( tails, env )
 
-    if k < len(s):
-      error = 'Unknown parameter in lineno'
+            opts['-file'] = word == '-file'
+            opts['-directory']  = word == '-directory'
+            iself = word == '-elftype'
+            if iself:
+                word, tails = getWordFromLine( tails, env )
+                if word:
+                    opts['-elftype'] = word
+                    word, tails = getWordFromLine( tails, env )
+                else:
+                    error = "Parameter of -elftype is missed"
 
-    # analyze the pattern and verson selector
-    if error == None:
-      # pattern
-      p = opts['pattern'].split('/')
-      if p[0] == '...':
-        tp = 'l'
-      elif p[-1] == '...':
-        tp = 'r'
-      elif '...' in p:
-        tp = 'm'
-      elif p[0] == '*' and len(p) == 1:
-        tp = 'a'
-      else:
-        tp = 'n'
+        # pattern
+        if error is None:
+            if word:
+                opts['pattern'] = word.replace( '\\', '/' )
+            else:
+                error = 'Pattern is missed'
 
-      opts['_pattern'] = list([tp, p])
+        # version-selector
+        if error is None:
+            word, tails = getWordFromLine( tails, env, "'" )
+            if word:
+                opts['version-selector'] = word
+                if word == '-conifg':
+                    word, tails = getWordFromLine( tails, env )
+                    if word:
+                        opts['-config'] = word
+                    else:
+                        error = 'Parameter of -config is missed'
 
-    ConfigspecRule.__init__(self, 'E', lineno, rule, error, k, opts)
+                    if error is None:
+                        word, tails = getWordFromLine( tails, env )
+                        if word == '-select':
+                            word, tails = getWordFromLine( tails, env )
+                            if word:
+                                opts['-select'] = word
+                            else:
+                                error = 'Parameter of -select is missed'
+                        elif word == '-ci':
+                            opts['-ci'] = True
+                else:
+                    word, tails = getWordFromLine( tails, env )
+            else:
+                error = 'Version-selector is missed'
 
-  def match(self, sci):
-    r = True
-    s = sci.split('/')
-    tp, p = self.opts['_pattern']
+        # optional clause
+        if error is None:
+            if word == '-time':
+                word, tails = getWordFromLine( tails, env )
+                if word:
+                    opts['-time'] = word
+                else:
+                    error = 'Parameter of -time is missed'
 
-    lx = min(len(s), len(p))
-    if tp == 'l':
-      for k in range(lx):
-        if p[-k] == '...':
-          pass
-        elif p[-k] != s[-k]:
-          r = False
-          break
-    elif tp == 'm':
-      # find the first three-dot, and start the 2nd loop, in which, the
-      # three-dots will be ignored
-      k = 0
-      for k in range(lx):
-        if p[k] == '...':
-          break
-        elif p[k] != s[k]:
-          r = False
-          break
+        # analyze the pattern and verson selector
+        if error is None:
+            # pattern
+            p = opts['pattern'].split( '/' )
+            if p[0] == '...':
+                tp = 'l'
+            elif p[-1] == '...':
+                tp = 'r'
+            elif '...' in p:
+                tp = 'm'
+            elif p[0] == '*' and len( p ) == 1:
+                tp = 'a'
+            else:
+                tp = 'n'
 
-      if r:
-        o = x = 0
-        while o >= 0 and x < lx -k:
-          if o < 0:
+            opts['_pattern'] = list( [tp, p] )
+
+        env['error'] = error
+        ConfigspecRule.__init__( self, 'element', lineno, context, env, opts )
+
+    def match( self, sci ):
+        r = True
+        s = sci.split( '/' )
+        tp, p = self.opts['_pattern']
+
+        lx = min( len( s ), len( p ) )
+        if tp == 'l':
+            for k in range( lx ):
+                if p[-k] == '...':
+                    pass
+                elif p[-k] != s[-k]:
+                    r = False
+                    break
+        elif tp == 'm':
+            # find the first three-dot, and start the 2nd loop, in which, the
+            # three-dots will be ignored
+            k = 0
+            for k in range( lx ):
+                if p[k] == '...':
+                    break
+                elif p[k] != s[k]:
+                    r = False
+                    break
+
+            if r:
+                o = x = 0
+                while o >= 0 and x < lx -k:
+                    if o < 0:
+                        r = False
+                        break
+                    if p[-( x + o )] == '...':
+                        o += 1
+                    elif p[-( x + o )] != s[-x]:
+                        o -= 1
+                    else:
+                        x += 1
+        elif tp == 'r':
+          # SCI should be longer than pattern
+  #        print 'l_s=%d,l_p=%d' % (len(s),len(p))
+          if len( s ) + 1 < len( p ):
             r = False
-            break
-          if p[-(x + o)] == '...':
-            o += 1
-          elif p[-(x + o)] != s[-x]:
-            o -= 1
           else:
-            x += 1
-    elif tp == 'r':
-      # SCI should be longer than pattern
-#      print 'l_s=%d,l_p=%d' % (len(s),len(p))
-      if len(s) + 1 < len(p):
-        r = False
-      else:
-        for k in range(lx):
-          if p[k] == '...':
-            pass
-          elif p[k] != s[k]:
-            r = False
-            break
-    elif tp == 'n':
-      if len(s) == len(p):
-        for k in range(lx):
-          if p[k] != s[k]:
-            r = False
-            break
+            for k in range( lx ):
+              if p[k] == '...':
+                pass
+              elif p[k] != s[k]:
+                r = False
+                break
+        elif tp == 'n':
+          if len( s ) == len( p ):
+              for k in range( lx ):
+                  if p[k] != s[k]:
+                      r = False
+                      break
 
-    return r
+        return r
 
-  def set(self, selector=None, optional=None):
-    if selector:
-      self.opts['version-selector'] = selector
+    def set( self, selector=None, optional=None ):
+      if selector:
+          self.opts['version-selector'] = selector
 
-    if optional:
-      self.opts['optional-clause'] = optional
+      if optional:
+          self.opts['optional-clause'] = optional
 
-  def dump(self):
-    li = 'element'
-    # scope
-    if self.opts['-file']:
-      li += ' -file'
-    elif self.opts['-dir']:
-      li += ' -directory'
-    elif self.opts.has_key('-elftype'):
-      li += ' -elf ' + self.opts['-elftype']
-    # pattern
-    li += ' ' + self.opts.get('pattern', '')
-    # version-selector
-    li += ' ' + self.opts.get('version-selector', '')
-    # optional clause
-    li += ' ' + self.opts.get('-time', '')
-    li += ' ' + self.opts.get('optional-clause', '')
+    def dump( self  ):
+        listp = list()
 
-    li = li.replace('   ', ' ')
-    li = li.replace('  ', ' ')
-    li = li.rstrip()
+        # scope
+        listp.append( self.scope )
+        if self.opts.get( '-file', False ):
+            listp.append( '-file' )
+        elif self.opts.get( '-directory', False ):
+            listp.append( '-directory' )
+        elif self.opts.has_key(' -elftype' ):
+            listp.append( '-elftype %s' % self.opts['-elftype'] )
 
-    return li
+        # pattern
+        listp.append( self.opts.get( 'pattern', '' ) )
+        # version-selector
+        listp.append( self.opts.get( 'version-selector', '' ) )
+        # optional clause
+        listp.append( self.opts.get( '-time', '' ) )
 
-  def getRepository(self):
-    return self.opts.get('pattern', None)
+        return ' '.join( ' '.join( listp ).split() )
+
+    def getRepository(self):
+        return self.opts.get( 'pattern', None )
 
 # mkbranch branch-type-name [-override]
-class MkBranchRule(ConfigspecRule):
-  def __init__(self, lineno, rule, branch_name):
-    error = None
-    opts = dict({'-override' : False})
-    s = rule.split()
+class MkBranchRule( ConfigspecRule ):
+    def __init__( self, lineno, rule, branch_name ):
+        error = None
+        env = dict()
+        opts = dict( {'-override' : False} )
 
-    k = 1 # mkbranch
-    if k < len(s):
-      opts['branch-type-name'] = s[k]
-      k += 1
-    else:
-      error = 'branch-type-name is missed'
+        word, tails = getWordFromLine( context, env )
+        if word != 'mkbranch':
+            error = 'mismatch rule?'
 
-    if k < len(s):
-      if s[k] == '-override':
-        opts['-override'] = True
-        k += 1
+        if error is None:
+            word, tails = getWordFromLine( tails, env )
+            if word:
+                opts['branch-type-name'] = word
+            else:
+                error = 'branch-type-name is missed'
 
-    if k < len(s):
-      error = 'Unknown parameter in lineno'
-    else:
-      branch_name.append(s[k], opts['-override'])
+        if error is None:
+            word, tails = getWordFromLine( tails, env )
+            if word == '-override':
+                opts['-override'] = True
 
-    ConfigspecRule.__init__(self, 'B', lineno, rule, error, k, opts)
+        if k < len(s):
+            error = 'Unknown parameter in lineno'
+        else:
+            branch_name.append( s[k], opts['-override'] )
 
-  def dump(self):
-    li = 'mkbranch'
-    li += ' ' + self.opts.get('branch-type-name', '')
-    li += ' ' + self.opts.get('-override')
+        env['error'] = error
+        ConfigspecRule.__init__( self, 'mkbranch', lineno, context, env, opts )
 
-    li = li.replace('  ', ' ')
-    li = li.rstrip()
+    def dump(self):
+        listp = list()
 
-    return li
+        listp.append( self.scope )
+        if len( self.opts.get( 'branch-type-name', '' ).split() ) > 1:
+            listp.append( "'%s'" % self.opts['branch-type-name'] )
+        else:
+            listp.append( self.opts['branch-type-name'] )
+
+        if self.opts.get( '-override', False ):
+            listp.append( '-override' )
+
+        return ' '.join( listp )
 
 # end mkbranch mkbranch-type-name
-class EndMkbranchRule(ConfigspecRule):
-  def __init__(self, lineno, rule, branch_name):
-    error = None
-    opts = dict()
-    s = rule.split()
+class EndMkbranchRule( ConfigspecRule ):
+    def __init__( self, lineno, context, branch_name ):
+        env = dict()
+        error = None
+        opts = dict()
 
-    k = 2 # end branch
-    if len(branch_name) == 0:
-      error = 'no mkbranch defined before'
-    elif k < len(s):
-      opts['branch-type-name'] = s[k]
-      if s[k] != branch_name[-1][0]:
-        error = 'branch-type-name "%s" mismatch last branch "%s"' % (s[k], branch_name[-1][0])
-      else:
-        branch_name.pop(-1)
-      k += 1
+        word, tails = getWordFromLine( context, env )
+        if word != 'end':
+            error = 'mismatch rule?'
+        if error is None:
+            word, tails = getWordFromLine( tails, env )
+            if word != 'branch':
+                error = 'mismatch rule for?'
 
-    if k < len(s):
-      error = 'Unknown parameter in lineno'
+        if len( branch_name ) == 0:
+            error = 'no branch-name defined'
 
-    ConfigspecRule.__init__(self, 'b', lineno, rule, error, k, opts)
+        if error is None:
+            word, tails = getWordFromLine( tails, env )
+            if word:
+                opts['branch-type-name'] = word
+                if word != branch_name[-1]:
+                    error = 'branch-type-name "%s" mismatch last branch "%s"' % ( word, branch_name[-1] )
+                else:
+                    branch_name.pop( -1 )
+            else:
+                error = 'Branch-type-name is missed'
 
-def dump(self):
-  li = 'end mkbranch'
-  li += ' ' + self.opts.get('branch-type-name', '')
-  li = li.rstrip()
+        env['error'] = error
+        ConfigspecRule.__init__( self, 'end branch', lineno, context, env, opts )
 
-  return li
+    def dump(self):
+        listp = list()
+        listp.append( self.scope )
+        listp.append( self.opts.get( 'branch-type-name', '') )
+
+        return ' '.join( listp )
 
 # time date-time
-class TimeRule(ConfigspecRule):
-  def __init__(self, lineno, rule, date_time):
-    error = None
-    opts = dict()
-    is_file = is_dir = is_elf = False
-    s = rule.split()
+class TimeRule( ConfigspecRule ):
+    def __init__( self, lineno, rule, date_time ):
+        error = None
+        env = dict()
+        opts = dict()
 
-    k = 1 # time
-    if k < len(s):
-      opts['date-time'] = s[k]
-      date_time.append(s[k])
-      k += 1
-    else:
-      error = 'date-time is missed'
+        word, tails = getWordFromLine( context, env )
+        if word != 'time':
+            error = 'mismatch rule?'
 
-    if k < len(s):
-      error = 'Unknown parameter in lineno'
+        if error is None:
+            word, tails = getWordFromLine( tails, env )
+            if word:
+                opts['date-time'] = word
+                date_time.append( word )
+            else:
+                error = 'date-time is missed'
 
-    ConfigspecRule.__init__(self, 'T', lineno, rule, error, k, opts)
+        env['error'] = error
+        ConfigspecRule.__init__( self, 'time', lineno, context, env, opts )
 
-  def dump(self):
-    li = 'time'
-    li += ' ' + self.opts.get('date-time', '')
-    li = li.rstrip()
+    def dump( self ):
+        listp = list()
+        listp.append( self.scope )
+        listp.append( self.opts.get( 'date-time', '') )
 
-    return li
+        return ' '.join( listp )
 
 # end time [date-time]
-class EndTimeRule(ConfigspecRule):
-  def __init__(self, lineno, rule, date_time):
-    error = None
-    opts = dict()
-    s = rule.split()
+class EndTimeRule( ConfigspecRule ):
+    def __init__( self, lineno, rule, date_time ):
+        env = dict()
+        error = None
+        opts = dict()
 
-    k = 2 # end time
-    if len(date_time) == 0:
-      error = 'no time rule used before'
-    elif k < len(s):
-      opts['date-time'] = s[k]
-      if s[k] != date_time[-1]:
-        error = 'date-time "%s" mismatch last time "%s"' % (s[k], date_time[-1])
-      else:
-        date_time.pop(-1)
-      k += 1
+        word, tails = getWordFromLine( context, env )
+        if word != 'end':
+            error = 'mismatch rule?'
+        if error is None:
+            word, tails = getWordFromLine( tails, env )
+            if word != 'time':
+                error = 'mismatch rule for?'
 
-    if k < len(s):
-      error = 'Unknown parameter in lineno'
+        if len( date_time ) == 0:
+            error = 'no date-time defined'
 
-    ConfigspecRule.__init__(self, 't', lineno, rule, error, k, opts)
+        if error is None:
+            word, tails = getWordFromLine( tails, env )
+            if word:
+                opts['date-time'] = word
+                if word != date_time[-1]:
+                    error = 'branch-type-name "%s" mismatch last branch "%s"' % ( word, date_time[-1] )
+                else:
+                    date_time.pop( -1 )
+            else:
+                error = 'Branch-type-name is missed'
 
-  def dump(self):
-    li = 'end time'
-    li += ' ' + self.opts.get('date-time', '')
-    li = li.rstrip()
+        env['error'] = error
+        ConfigspecRule.__init__( self, 'end', lineno, rule, env, opts )
 
-    return li
+    def dump( self ):
+        listp = list()
+        listp.append( self.scope )
+        listp.append( self.opts.get( 'date-time', '') )
+
+        return ' '.join( listp )
 
 # include config-spec-pname
-class IncludeRule(ConfigspecRule):
-  def __init__(self, lineno, rule, branch_name, date_time):
-    error = None
-    opts = dict()
-    s = rule.split()
+class IncludeRule( ConfigspecRule ):
+    def __init__( self, lineno, rule, branch_name, date_time ):
+        error = None
+        env = dict()
+        opts = dict()
 
-    k = 1 # include
-    if k < len(s):
-      opts['config-spec-pname'] = s[k]
-      k += 1
+        word, tails = getWordFromLine( context, env )
+        if word != 'include':
+            error = 'mismatch rule?'
 
-    if k < len(s):
-      error = 'Unknown parameter in lineno'
+        if error is None:
+            word, tails = getWordFromLine( tails, env, "'" )
+            if word:
+                opts['config-spec-pname'] = s[k]
+            else:
+                error = 'Config-spec-pname missed'
 
-    # FIXME: implement the include rule here ...
-    ConfigspecRule.__init__(self, 'I', lineno, rule, error, k, opts)
+        # FIXME: implement the include rule here ...
+        env['error'] = error
+        ConfigspecRule.__init__( self, 'include', lineno, rule, env, opts )
 
-  def dump(self):
-    li = 'include'
-    li += ' ' + self.opts.get('config-spec-pname', '')
-    li = li.rstrip()
+    def dump( self ):
+        listp = list()
+        listp.append( self.scope )
+        listp.append( self.opts.get( 'config-spec-pname', '') )
 
-    return li
+        return ' '.join( listp )
 
 # load pname
-class LoadRule(ConfigspecRule):
-  def __init__(self, lineno, rule):
-    error = None
-    opts = dict()
-    s = rule.split()
+class LoadRule( ConfigspecRule ):
+    def __init__( self, lineno, rule ):
+        error = None
+        env = dict()
+        opts = dict()
 
-    k = 1 # load
-    if k < len(s):
-      opts['pname'] = s[k]
-      k += 1
+        word, tails = getWordFromLine( context, env )
+        if word != 'load':
+            error = 'mismatch rule?'
 
-    if k < len(s):
-      error = 'Unknown parameter in lineno'
+        if error is None:
+            word, tails = getWordFromLine( tails, env, '\'"' )
+            if word:
+                opts['pname'] = s[k]
+            else:
+                error = 'pname missed'
 
-    ConfigspecRule.__init__(self, 'L', lineno, rule, error, k, opts)
+        env['error'] = error
+        ConfigspecRule.__init__( self, 'load', lineno, rule, env, opts )
 
-  def dump(self):
-    li = 'load'
-    li += ' ' + self.opts.get('pname', '')
-    li = li.rstrip()
+    def dump( self ):
+        listp = list()
+        listp.append( self.scope )
+        listp.append( self.opts.get( 'pname', '') )
 
-    return li
+        return ' '.join( listp )
 
-  def getRepository(self):
-    return self.opts.get('pname', None)
+    def getRepository( self ):
+        return self.opts.get( 'pname', None )
 
 class Configspec:
-  def __init__ (self, configspec='', configspec_file=''):
-    self.configspec = configspec
-    self.configspec_file = configspec_file
-    linenos = configspec.split('\n')
-    self.err = self.parse(linenos)
+    def __init__ ( self, configspec='', configspec_file='' ):
+        self.configspec = configspec
 
-  def error (self):
-    return self.err
+        lines = configspec.split( '\n' )
+        self.perror = self.parse( lines )
 
-  def parse (self, linenos):
-    date_time = list()
-    branch_name = list()
+    def error ( self ):
+        return self.perror
 
-    self.parsed_linenos = list()
-    for k, lo in enumerate(linenos):
-      #print "Line %d: %s" % (k, lo)
-      off_hash = lo.find( '#' )
-      if off_hash > -1:
-          rp = CommentRule(k, lo[off_hash:])
-          self.parsed_linenos.append(rp)
-          lo = lo[:off_hash]
+    def parse ( self, lines ):
+        date_time = list()
+        branch_name = list()
 
-      for li in lo.split(';'):
-        li = li.strip()
+        self.parsed_lines = list()
+        for k, lo in enumerate( lines ):
+            #print "Line %d: %s" % (k, lo)
+            off_hash = lo.find( '#' )
+            if off_hash > -1:
+                rp = CommentRule( k, lo[off_hash:] )
+                self.parsed_lines.append( rp )
+                lo = lo[:off_hash]
 
-        if len(li) == 0 or li.startswith('#'):
-          continue
+            for li in lo.split( ';' ):
+                li = li.strip()
 
-        lz = li.replace('\t', ' ').split()
-        #print 'lz=', lz, 'li=', li
-        #= element
-        if lz[0] == 'element':
-          rp = ElementRule(k, lo, branch_name, date_time)
-        #= load pname (for snapshot views)
-        elif lz[0] == 'load':
-          rp = LoadRule(k, lo)
-        #= mkbranch branch-type-name [-override]
-        elif lz[0] == 'mkbranch':
-          rp = MkBranchRule(k, lo, branch_name)
-        #= time date-time
-        elif lz[0] == 'time':
-          rp = TimeRule(k, lo, date_time)
-        #= end time [date-time]
-        elif len(lz) > 1 and lz[0] == 'end' and lz[1] == 'time':
-          rp = EndTimeRule(k, lo, date_time)
-        #= end mkbranch [branch-type-name]
-        elif len(lz) > 1 and lz[0] == 'end' and lz[1] == 'branch':
-          rp = MkBranchRule(k, lo, branch_name)
-        #= include config-spec-pname
-        elif lz[0] == 'include':
-          rp = IncludeRule(k, lo, branch_name, date_time)
+                if len( li ) == 0 or li.startswith( '#' ):
+                    continue
+
+                lz = li.split()
+                #print 'lz=', lz, 'li=', li
+                #= element
+                if lz[0] == 'element':
+                    rp = ElementRule( k, lo, branch_name, date_time )
+                #= load pname (for snapshot views)
+                elif lz[0] == 'load':
+                    rp = LoadRule( k, lo )
+                #= mkbranch branch-type-name [-override]
+                elif lz[0] == 'mkbranch':
+                    rp = MkBranchRule( k, lo, branch_name )
+                #= time date-time
+                elif lz[0] == 'time':
+                    rp = TimeRule( k, lo, date_time )
+                #= end time [date-time]
+                elif len(lz) > 1 and lz[0] == 'end' and lz[1] == 'time':
+                    rp = EndTimeRule( k, lo, date_time )
+                #= end mkbranch [branch-type-name]
+                elif len(lz) > 1 and lz[0] == 'end' and lz[1] == 'branch':
+                    rp = MkBranchRule( k, lo, branch_name )
+                #= include config-spec-pname
+                elif lz[0] == 'include':
+                    rp = IncludeRule( k, lo, branch_name, date_time )
+                else:
+                    rp = Error( k, lo )
+
+                if rp.getError() is not None:
+                    return 'Line %d: Error - %s' % ( rp.lineno, rp.getError() )
+
+                self.parsed_lines.append( rp )
+
+        return None
+
+    def match( self, root, sci, prefix ):
+        ret = list()
+
+        if root.endswith( '/' ):
+            root = root[:-1]
+        if prefix.endswith( '/' ):
+            prefix = prefix[:-1]
+
+        sci = sci.replace( root, prefix ).replace( '\\', '/' )
+        for item in self.parsed_lines:
+            if item.match( sci ):
+              ret.append( item )
+
+        if len(ret):
+            return ret
         else:
-          rp = Error(k, lo)
+            return None
 
-        if rp.error:
-          return 'Line %d: Error - %s' % (rp.lineno, rp.error)
+    def get( self, c, opt ):
+          return c.get( opt )
 
-        self.parsed_linenos.append(rp)
+    def set( self, c, opt, value ):
+          return c.set( opt, value )
 
-    return None
+    def getRepositories( self ):
+        pnames = list()
 
-  def match(self, root, sci, prefix):
-    ret = list()
+        for item in self.parsed_lines:
+            repo = item.getRepository()
+            if repo and ( repo not in pnames ):
+                pnames.append(repo)
 
-    if root.endswith('/'):
-      root = root[:-1]
+        return pnames
 
-    sci = sci.replace(root, prefix).replace('\\', '/')
-    for item in self.parsed_linenos:
-      if item.match(sci):
-        ret.append(item)
+    def dump( self ):
+        lines = list()
+        for rule in self.parsed_lines:
+            lines.append( rule.dump() )
 
-    if len(ret):
-      return ret
-    else:
-      return None
-
-  def get(self, c, opt):
-      return c.get( opt )
-
-  def set( self, c, opt, value ):
-      return c.set( opt, value )
-
-  def getRepositories(self):
-    pnames = list()
-
-    for item in self.parsed_linenos:
-        repo = item.getRepository()
-        if repo and (repo not in pnames):
-            pnames.append(repo)
-
-    return pnames
-
-  def dump( self ):
-    linenos = list()
-    for rule in self.parsed_linenos:
-        linenos.append( rule.dump() )
-
-    return os.linenosep.join( linenos )
+        return os.linesep.join( lines )
 
 if __name__ == '__main__':
-  cs = '''
+    cs = '''
 element * CHECKEDOUT
 element /vobs/package214/integration/... INTEGRATION-1.0
 element /vobs/project183/vyp633/...      VYP633-1.0
 element * /main/LATEST'''
 
-  pcs = Configspec(cs)
-  mlist = pcs.match('E:\z_vyp623_dev', 'E:\z_vyp623_dev/project183', '/vobs')
-  print "OUTPUT (%d) RULES: " % len(mlist)
-  print "--------------------------"
-  for rule in mlist:
-      print rule.dump()
+    pcs = Configspec(cs)
+    mlist = pcs.match('E:\z_vyp623_dev', 'E:\z_vyp623_dev/project183/vyp633', '/vobs')
+    print "OUTPUT (%d) RULES: " % len(mlist)
+    print "--------------------------"
+    for rule in mlist:
+        print rule.dump()

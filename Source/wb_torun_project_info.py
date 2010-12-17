@@ -394,9 +394,9 @@ class SubversionClient:
 
         #==== add functions except checkout and update
         for func in ('add', 'cat', 'checkin', 'copy', 'copy2',
-                     'diff', 'info', 'info2', 'list', 'log', 'ls', 'mkdir',
-                     'move', 'remove', 'propget', 'propset', 'proplist', 'status',
-                     'switch'):
+                      'diff', 'info', 'info2', 'list', 'log', 'ls', 'mkdir',
+                      'move', 'remove', 'propget', 'propset', 'proplist',
+                      'root_url_from_path', 'status', 'switch' ):
             self.__dict__[func] = getattr( self.client, func )
 
     def getLogMessage( self ):
@@ -1039,7 +1039,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
                                    revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
             # 1.5 setup the properties
             properties['status'] = 'EXPERIMENTAL'
-            properties['vsnorigin'] = project_info.url
+            properties['vsnorigin'] = self.relativePath( project_info.url )
 
             self.readOrWriteSpecifiedProperties( local_ident, properties )
             # 1.6 create SCIs locally and don't submit
@@ -1081,7 +1081,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
                                revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
         # 3. update the properties
         properties['status'] = 'EXPERIMENTAL'
-        properties['vsnorigin'] = project_info.url
+        properties['vsnorigin'] = self.relativePath( project_info.url )
 
         self.readOrWriteSpecifiedProperties( local_ident, properties )
         self.app.refreshFrame()
@@ -1113,7 +1113,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
             # 2. update and submit the properties
             properties['status'] = 'CONFIDENTIAL'
             properties['vsnnumber'] = tag
-            properties['vsnorigin'] = project_info.url
+            properties['vsnorigin'] = self.relativePath( project_info.url )
             self.readOrWriteSpecifiedProperties( local_ident, properties )
             self.client_bg.checkin( local_ident, 'Torun Deliv', recurse=True )
             # 3. copy and switch to the new tag location
@@ -1141,12 +1141,14 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
 
         properties = self.readOrWriteSpecifiedProperties( local_ident )
         orginal_url = properties.get( 'vsnorigin' )
-        if not ( orginal_url and self.client_bg.exists( orginal_url ) ):
-            if orginal_url:
-                MessageBox( T_("vsnorigin '%s' is not existent" % orginal_urld), style=wx.OK|wx.ICON_ERROR )
-            else:
-                MessageBox( T_("'vsnorigin' is not defined"), style=wx.OK|wx.ICON_ERROR )
+        if orginal_url is None:
+            MessageBox( T_("vsnorigin '%s' is not existent" % orginal_urld), style=wx.OK|wx.ICON_ERROR )
             return
+        else:
+            orginal_url = self.client_bg.root_url_from_path( project_info.url ) + orginal_url
+            if not self.client_bg.exists( orginal_url ):
+                MessageBox( T_("'vsnorigin' is not defined"), style=wx.OK|wx.ICON_ERROR )
+                return
 
         dir_name = os.path.basename( project_info.wc_path )
         ident_url, tailing_dir, local_ident = self.splitDirectory( repo_info, project_info )
@@ -1156,10 +1158,12 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
             MessageBox( T_("'vsnorigin' is equal with current url"), style=wx.OK|wx.ICON_ERROR )
             return
 
-        # 4. create the new identifier in the repository directly
+        # 1. revert the modfication if possible
+        self.client_bg.revert( local_ident, recurse=True )
+        # 2. create the new identifier in the repository directly
         self.client_bg.switch( local_ident, orginal_url, depth=pysvn.depth.infinity,
                                revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
-        # 5. remove the temporary location
+        # 3. remove the temporary location
         self.client_bg.remove( project_info.url )
         self.app.refreshFrame()
 
@@ -1190,6 +1194,15 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         dir_name = directory.split( '/' )[-1]
 
         return '%s/SvnCM/%s/%s' % ( project_info.branches_url, project_name, dir_name )
+
+    def relativePath( self, url ):
+        try:
+            root_dir = self.client_bg.root_url_from_path( url )
+            new_path = url[len( root_dir ):]
+        except:
+            new_path = url
+
+        return new_path
 
     def createScisOnLocal( self, repo_info, ident_type, new_dir ):
         p = self.app.prefs.getRepository()
@@ -1301,52 +1314,6 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
             return [ file_list ]
         else:
             return [ (file_list, ) ]
-
-class TorunProject(wb_subversion_tree_handler.SubversionProject):
-    def __init__( self, app, project_info ):
-        wb_subversion_tree_handler.SubversionProject.__init__( self, app, project_info )
-
-    def getContextMenu( self, state ):
-        menu_item =[('', wb_ids.id_Command_Shell, T_('&Command Shell') )
-            ,('', wb_ids.id_File_Browser, T_('&File Browser') )
-            ,('-', 0, 0 )]
-
-        if self.project_info.need_checkout:
-            menu_item += [('', wb_ids.id_SP_Checkout, T_('Checkout') )]
-        if self.project_info.need_update or (not self.project_info.need_checkout):
-            menu_item += [('', wb_ids.id_SP_Update, T_('Update') )]
-
-        return wb_subversion_utils.populateMenu( wx.Menu(), menu_item )
-
-    def getExpansion( self ):
-        project_info_list = []
-
-        for file in self.project_info.getTreeFilesStatus():
-
-            if( (file.entry is None and os.path.isdir( file.path ))
-            or (file.entry is not None and file.entry.kind == pysvn.node_kind.dir) ):
-                pi = wb_subversion_project_info.ProjectInfo( self.app, self.project_info )
-                name = os.path.basename( file.path )
-                if file.entry is None or file.entry.url is None:
-                    url = '%s/%s' % (self.project_info.url, name )
-                else:
-                    url = file.entry.url
-
-                # use default subversion clients instead of the ones in ProjectInfo for Torun
-                pi.init( name, url=url, wc_path=file.path, menu_info=self.project_info.menu_info)
-                project_info_list.append( pi )
-
-        return project_info_list
-
-    def getTreeNodeColour( self ):
-        if self.project_info.need_checkout:
-            return wb_config.colour_status_need_checkout
-        else:
-            return wb_config.colour_status_normal
-
-class TorunListHandler(wb_subversion_list_handler.SubversionListHandler):
-    def __init__( self, app, list_panel, project_info ):
-        wb_subversion_list_handler.SubversionListHandler.__init__( self, app, list_panel, project_info )
 
 #
 #    Used to allow a call to function on the background thread

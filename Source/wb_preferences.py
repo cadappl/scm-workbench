@@ -905,17 +905,17 @@ class RepositoryPreferences(PreferenceSection):
         self.info_module = dict( {
             'parent'    : '.+modules$',
             'pattern'   : '%D/%F.ident',
-            'component' : 'config comfirm incl srce %F.ident'
+            'component' : 'config confm incl srce %F.ident'
           } )
         self.info_package = dict( {
             'parent'    : '.+package\d*$',
             'pattern'   : '%D/%F.package',
-            'component' : 'config confirm env incl modules srce %F.package'
+            'component' : 'config confm env incl modules srce %F.package'
           } )
         self.info_project = dict( {
             'parent'    : '.+project\d*$',
             'pattern'   : '%D/%F.project',
-            'component' : 'config confirm doc env incl input packages output srce %F.project'
+            'component' : 'config confm doc env incl input packages output srce %F.project'
           } )
 
         self.repo_map_list = dict()

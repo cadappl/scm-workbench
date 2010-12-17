@@ -341,7 +341,7 @@ class WorkingCopyExistsPage(TitledPage):
                 configspec = wb_read_file.readFile( cs_file )
 
                 cs_parser = wb_torun_configspec.wb_subversion_configspec( configspec )
-                if not cs_parser.error():
+                if cs_parser.error() is None:
                     self.configspec = configspec
                     self.parent.setProviderName( 'torun' )
 
@@ -410,29 +410,31 @@ class TorunProjectSelectionPage(TitledPage):
         self.client.exception_style = 1
 
         # choose for creation type
-        typeList = ['Create with Configspec', 'Create with Baseline info']
-        type_box = wx.RadioBox( self, -1, "Creation Type", wx.DefaultPosition,
-                          wx.DefaultSize, typeList, 2, wx.RA_SPECIFY_COLS )
+        radiobox_type = wx.RadioBox( self, -1, "Creation Type", wx.DefaultPosition, wx.DefaultSize,
+                                     ['Create with Configspec', 'Create with Baseline info'],
+                                     2, wx.RA_SPECIFY_COLS )
 
-        type_box.Bind( wx.EVT_RADIOBOX, self.OnChangeConfigspecCategory)
+        radiobox_type.Bind( wx.EVT_RADIOBOX, self.OnChangeConfigspecCategory)
+        self.sizer.Add( radiobox_type, 0, wx.EXPAND|wx.ALL, 5 )
 
-        self.label_id = wx.StaticBox( self, -1, T_("Project ID") )
+        text_proj_id = wx.StaticText( self, -1, T_("Project ID ") )
         self.project_id = wx.ComboBox( self, -1, style=wx.CB_READONLY|wx.CB_SORT )
-        self.label_lbl = wx.StaticBox( self, -1, T_("Project Label") )
+        text_proj_label = wx.StaticText( self, -1, T_("Project Label ") )
         self.project_label = wx.ComboBox( self, -1, style=wx.CB_READONLY|wx.CB_SORT )
         self.extend_proj = wx.CheckBox( self, -1, T_("Include Extended Projects") )
 
         info_sizer = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_( "Baseline Info" ) ), wx.VERTICAL )
-        prj_size = wx.FlexGridSizer( 0, 4, 2, 2 )
-        prj_size.AddGrowableCol( 1 )
-        prj_size.AddGrowableCol( 3 )
-        prj_size.AddMany([ ( self.label_id, 0 ),
-                           ( self.project_id, 0, wx.EXPAND|wx.ALL ),
-                           ( self.label_lbl, 0 ),
-                           ( self.project_label, 0, wx.EXPAND|wx.ALL ) ])
+        prj_sizer = wx.FlexGridSizer( 0, 4, 0, 0 )
+        prj_sizer.AddGrowableCol( 1 )
+        prj_sizer.AddGrowableCol( 3 )
+        prj_sizer.Add( text_proj_id, 0, wx.EXPAND|wx.ALL, 1 )
+        prj_sizer.Add( self.project_id, 0, wx.EXPAND|wx.ALL, 1 )
+        prj_sizer.Add( text_proj_label, 0, wx.EXPAND|wx.ALL, 1 )
+        prj_sizer.Add( self.project_label, 0, wx.EXPAND|wx.ALL, 1 )
 
-        info_sizer.Add( prj_size, 0, wx.EXPAND|wx.ALL, 5 )
+        info_sizer.Add( prj_sizer, 0, wx.EXPAND|wx.ALL, 5 )
         info_sizer.Add( self.extend_proj, 0, wx.ALL, 5 )
+        self.sizer.Add( info_sizer, 0, wx.EXPAND|wx.ALL, 5 )
 
         spec = wx.StaticBox( self, -1, T_("Configspec") )
         spec_sizer = wx.StaticBoxSizer( spec, wx.HORIZONTAL )
@@ -441,9 +443,6 @@ class TorunProjectSelectionPage(TitledPage):
 
         spec_sizer.Add( spec_text, 0, wx.EXPAND|wx.ALL, 5 )
         spec_sizer.Add( self.spec_button, 0, wx.ALIGN_RIGHT|wx.ALL|wx.EXPAND, 5 )
-
-        self.sizer.Add( type_box, 0, wx.EXPAND|wx.ALL, 5 )
-        self.sizer.Add( info_sizer, 0, wx.EXPAND|wx.ALL, 5 )
         self.sizer.Add( spec_sizer, 0, wx.EXPAND|wx.ALL, 5 )
 
         self.extend_proj.Bind( wx.EVT_CHECKBOX, self.OnSelectExtendedProject )
