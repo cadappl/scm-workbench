@@ -359,61 +359,91 @@ class RepoPatternPage(PagePanel):
         self.v_sizer = wx.BoxSizer( wx.VERTICAL )
 
         # Add module info
-        self.v_sizer1 = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_('Module') ), wx.VERTICAL )
+        self.v_sizer_module = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_('Module') ), wx.VERTICAL )
 
-        self.g_sizer1 = wx.FlexGridSizer( 0, 2, 0, 0 )
-        self.g_sizer1.AddGrowableCol( 1 )
+        self.g_sizer_pattern_module = wx.FlexGridSizer( 0, 4, 0, 0 )
+        self.g_sizer_pattern_module.AddGrowableCol( 1 )
+        self.g_sizer_pattern_module.AddGrowableCol( 3 )
 
-        self.static_text1 = wx.StaticText( self, -1, T_('Pattern: '), style=wx.ALIGN_RIGHT )
-        self.text_ctrl_pattern_module = wx.TextCtrl( self, -1, p.info_module.get( 'pattern', ''), size=(400, -1) )
-        self.static_text2 = wx.StaticText( self, -1, T_('Components: '), style=wx.ALIGN_RIGHT )
-        self.text_ctrl_component_module = wx.TextCtrl( self, -1, p.info_module.get( 'component', ''), size=(400, -1) )
+        self.text_pattern_module = wx.StaticText( self, -1, T_('Pattern: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_pattern_module = wx.TextCtrl( self, -1, p.info_module.get( 'pattern', '') )
+        self.text_parent_module = wx.StaticText( self, -1, T_('Parent Pattern: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_parent_module = wx.TextCtrl( self, -1, p.info_module.get( 'parent', '') )
 
-        self.g_sizer1.Add( self.static_text1, 0, wx.EXPAND|wx.ALL, 3 )
-        self.g_sizer1.Add( self.text_ctrl_pattern_module, 1, wx.EXPAND|wx.ALL, 3 )
-        self.g_sizer1.Add( self.static_text2, 0, wx.EXPAND|wx.ALL, 3 )
-        self.g_sizer1.Add( self.text_ctrl_component_module, 1, wx.EXPAND|wx.ALL, 3 )
-        self.v_sizer1.Add( self.g_sizer1 )
+        self.g_sizer_pattern_module.Add( self.text_pattern_module, 0, wx.EXPAND|wx.ALL, 1 )
+        self.g_sizer_pattern_module.Add( self.text_ctrl_pattern_module, 1, wx.EXPAND|wx.ALL, 1 )
+        self.g_sizer_pattern_module.Add( self.text_parent_module, 0, wx.EXPAND|wx.ALL, 1 )
+        self.g_sizer_pattern_module.Add( self.text_ctrl_parent_module, 1, wx.EXPAND|wx.ALL, 1 )
+        self.v_sizer_module.Add( self.g_sizer_pattern_module, 1, wx.EXPAND|wx.ALL, 3 )
 
-        self.v_sizer.Add( self.v_sizer1, 1, wx.EXPAND|wx.ALL, 3 )
+        self.g_sizer_component_module = wx.FlexGridSizer( 0, 2, 0, 0 )
+        self.g_sizer_component_module.AddGrowableCol( 1 )
+        self.text_component_module = wx.StaticText( self, -1, T_('Components: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_component_module = wx.TextCtrl( self, -1, p.info_module.get( 'component', '') )
+
+        self.g_sizer_component_module.Add( self.text_component_module, 0, wx.EXPAND|wx.ALL, 1 )
+        self.g_sizer_component_module.Add( self.text_ctrl_component_module, 1, wx.EXPAND|wx.ALL, 1 )
+        self.v_sizer_module.Add( self.g_sizer_component_module, 1, wx.EXPAND|wx.ALL, 3 )
+
+        self.v_sizer.Add( self.v_sizer_module, 1, wx.EXPAND|wx.ALL )
 
         # Add package info
-        self.v_sizer2 = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_('Package') ), wx.VERTICAL )
+        self.v_sizer_package = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_('package') ), wx.VERTICAL )
 
-        self.g_sizer2 = wx.FlexGridSizer( 0, 2, 0, 0 )
-        self.g_sizer2.AddGrowableCol( 1 )
+        self.g_sizer_pattern_package = wx.FlexGridSizer( 0, 4, 0, 0 )
+        self.g_sizer_pattern_package.AddGrowableCol( 1 )
+        self.g_sizer_pattern_package.AddGrowableCol( 3 )
 
-        self.static_text3 = wx.StaticText( self, -1, T_('Pattern: '), style=wx.ALIGN_RIGHT )
-        self.text_ctrl_pattern_package = wx.TextCtrl( self, -1, p.info_package.get( 'pattern', ''), size=(400, -1) )
-        self.static_text4 = wx.StaticText( self, -1, T_('Components: '), style=wx.ALIGN_RIGHT )
-        self.text_ctrl_component_package = wx.TextCtrl( self, -1, p.info_package.get( 'component', ''), size=(400, -1) )
+        self.text_pattern_package = wx.StaticText( self, -1, T_('Pattern: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_pattern_package = wx.TextCtrl( self, -1, p.info_package.get( 'pattern', '') )
+        self.text_parent_package = wx.StaticText( self, -1, T_('Parent Pattern: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_parent_package = wx.TextCtrl( self, -1, p.info_package.get( 'parent', '') )
 
-        self.g_sizer2.Add( self.static_text3, 0, wx.EXPAND|wx.ALL, 3 )
-        self.g_sizer2.Add( self.text_ctrl_pattern_package, 1, wx.EXPAND|wx.ALL, 3 )
-        self.g_sizer2.Add( self.static_text4, 0, wx.EXPAND|wx.ALL, 3 )
-        self.g_sizer2.Add( self.text_ctrl_component_package, 1, wx.EXPAND|wx.ALL, 3 )
-        self.v_sizer2.Add( self.g_sizer2 )
+        self.g_sizer_pattern_package.Add( self.text_pattern_package, 0, wx.EXPAND|wx.ALL, 1 )
+        self.g_sizer_pattern_package.Add( self.text_ctrl_pattern_package, 1, wx.EXPAND|wx.ALL, 1 )
+        self.g_sizer_pattern_package.Add( self.text_parent_package, 0, wx.EXPAND|wx.ALL, 1 )
+        self.g_sizer_pattern_package.Add( self.text_ctrl_parent_package, 1, wx.EXPAND|wx.ALL, 1 )
+        self.v_sizer_package.Add( self.g_sizer_pattern_package, 1, wx.EXPAND|wx.ALL, 1 )
 
-        self.v_sizer.Add( self.v_sizer2, 1, wx.EXPAND|wx.ALL, 3 )
+        self.g_sizer_component_package = wx.FlexGridSizer( 0, 2, 0, 0 )
+        self.g_sizer_component_package.AddGrowableCol( 1 )
+        self.text_component_package = wx.StaticText( self, -1, T_('Components: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_component_package = wx.TextCtrl( self, -1, p.info_package.get( 'component', '') )
+
+        self.g_sizer_component_package.Add( self.text_component_package, 0, wx.EXPAND|wx.ALL, 1 )
+        self.g_sizer_component_package.Add( self.text_ctrl_component_package, 1, wx.EXPAND|wx.ALL, 1 )
+        self.v_sizer_package.Add( self.g_sizer_component_package, 1, wx.EXPAND|wx.ALL, 1 )
+
+        self.v_sizer.Add( self.v_sizer_package, 1, wx.EXPAND|wx.ALL, 3 )
 
         # Add project info
-        self.v_sizer3 = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_('Package') ), wx.VERTICAL )
+        self.v_sizer_project = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_('project') ), wx.VERTICAL )
 
-        self.g_sizer3 = wx.FlexGridSizer( 0, 2, 0, 0 )
-        self.g_sizer3.AddGrowableCol( 1 )
+        self.g_sizer_pattern_project = wx.FlexGridSizer( 0, 4, 0, 0 )
+        self.g_sizer_pattern_project.AddGrowableCol( 1 )
+        self.g_sizer_pattern_project.AddGrowableCol( 3 )
 
-        self.static_text5 = wx.StaticText( self, -1, T_('Pattern: '), style=wx.ALIGN_RIGHT )
-        self.text_ctrl_pattern_project = wx.TextCtrl( self, -1, p.info_project.get( 'pattern', ''), size=(400, -1) )
-        self.static_text6 = wx.StaticText( self, -1, T_('Components: '), style=wx.ALIGN_RIGHT )
-        self.text_ctrl_component_project = wx.TextCtrl( self, -1, p.info_project.get( 'component', ''), size=(400, -1) )
+        self.text_pattern_project = wx.StaticText( self, -1, T_('Pattern: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_pattern_project = wx.TextCtrl( self, -1, p.info_project.get( 'pattern', '') )
+        self.text_parent_project = wx.StaticText( self, -1, T_('Parent Pattern: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_parent_project = wx.TextCtrl( self, -1, p.info_project.get( 'parent', '') )
 
-        self.g_sizer3.Add( self.static_text5, 0, wx.EXPAND|wx.ALL, 3 )
-        self.g_sizer3.Add( self.text_ctrl_pattern_project, 1, wx.EXPAND|wx.ALL, 3 )
-        self.g_sizer3.Add( self.static_text6, 0, wx.EXPAND|wx.ALL, 3 )
-        self.g_sizer3.Add( self.text_ctrl_component_project, 1, wx.EXPAND|wx.ALL, 3 )
-        self.v_sizer3.Add( self.g_sizer3 )
+        self.g_sizer_pattern_project.Add( self.text_pattern_project, 0, wx.EXPAND|wx.ALL, 1 )
+        self.g_sizer_pattern_project.Add( self.text_ctrl_pattern_project, 1, wx.EXPAND|wx.ALL, 1 )
+        self.g_sizer_pattern_project.Add( self.text_parent_project, 0, wx.EXPAND|wx.ALL, 1 )
+        self.g_sizer_pattern_project.Add( self.text_ctrl_parent_project, 1, wx.EXPAND|wx.ALL, 1 )
+        self.v_sizer_project.Add( self.g_sizer_pattern_project, 1, wx.EXPAND|wx.ALL, 1 )
 
-        self.v_sizer.Add( self.v_sizer3, 1, wx.EXPAND|wx.ALL, 3 )
+        self.g_sizer_component_project = wx.FlexGridSizer( 0, 2, 0, 0 )
+        self.g_sizer_component_project.AddGrowableCol( 1 )
+        self.text_component_project = wx.StaticText( self, -1, T_('Components: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_component_project = wx.TextCtrl( self, -1, p.info_project.get( 'component', '') )
+
+        self.g_sizer_component_project.Add( self.text_component_project, 0, wx.EXPAND|wx.ALL, 1 )
+        self.g_sizer_component_project.Add( self.text_ctrl_component_project, 1, wx.EXPAND|wx.ALL, 1 )
+        self.v_sizer_project.Add( self.g_sizer_component_project, 1, wx.EXPAND|wx.ALL, 1 )
+
+        self.v_sizer.Add( self.v_sizer_project, 1, wx.EXPAND|wx.ALL, 3 )
         self.v_sizer.Fit( self )
 
         return self.v_sizer
@@ -421,12 +451,14 @@ class RepoPatternPage(PagePanel):
     def savePreferences( self ):
         p = self.app.prefs.getRepository()
 
+        p.info_module['parent'] = self.text_ctrl_parent_module.GetValue().strip()
         p.info_module['pattern'] = self.text_ctrl_pattern_module.GetValue().strip()
         p.info_module['component'] = self.text_ctrl_component_module.GetValue().strip()
 
+        p.info_package['parent'] = self.text_ctrl_parent_package.GetValue().strip()
         p.info_package['pattern'] = self.text_ctrl_pattern_package.GetValue().strip()
         p.info_package['component'] = self.text_ctrl_component_package.GetValue().strip()
 
+        p.info_project['parent'] = self.text_ctrl_parent_project.GetValue().strip()
         p.info_project['pattern'] = self.text_ctrl_pattern_project.GetValue().strip()
         p.info_project['component'] = self.text_ctrl_component_project.GetValue().strip()
-

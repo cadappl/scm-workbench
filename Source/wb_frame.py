@@ -159,7 +159,7 @@ class WbFrame(wx.Frame):
         self.menu_bookmarks = wx.Menu()
         self.menu_bookmarks.Append( wb_ids.id_Bookmark_Add, T_('Add'), T_('Add Bookmark') )
         self.menu_bookmarks.Append( wb_ids.id_Bookmark_Manage, T_('Manage...'), T_('Manage Bookmarks') )
-        self.menu_bookmarks.AppendSeparator()
+        # self.menu_bookmarks.AppendSeparator()
 
         self.__bookmarkMenuReorder()
 
@@ -1343,6 +1343,10 @@ class BookmarkMenu:
         self.parent_menu = parent_menu
 
         self.menu_items.sort( key=_keyMenuItem )
+
+        if len( self.menu_items ):
+            item = parent_menu.AppendSeparator()
+            self.all_menu_ids.append ( item.GetId() )
 
         for name_or_menu, pi in self.menu_items:
             if isinstance( name_or_menu, BookmarkMenu ):
