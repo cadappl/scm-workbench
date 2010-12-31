@@ -924,11 +924,14 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
         self.app.refreshFrame()
 
     def Cmd_Dir_Switch ( self ):
-        dialog = wb_dialogs.Switch( self.app.frame.tree_panel.tree_ctrl, self.app, self.project_info.wc_path, T_('Switch to Branch/Tag') )
+        dialog = wb_dialogs.Switch( self.app.frame.tree_panel.tree_ctrl,
+                                    self.app, self.project_info.wc_path,
+                                    T_('Switch to Branch/Tag'),
+                                    self.project_info.url )
         if dialog.ShowModal() != wx.ID_OK:
             return
 
-        to_url, recurse, svndepth = dialog.getValues()
+        to_url, svndepth = dialog.getValues()
 
         self.app.setAction( T_('Switch %s...') % self.project_info.wc_path )
         self.app.setProgress( T_('Switch %(count)d'), 0 )
@@ -936,12 +939,12 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
         yield self.app.backgroundProcess
 
         try:
-            if recurse:
-                self.project_info.client_fg.switch( self.project_info.wc_path, to_url, depth=svndepth,
-                                    revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
-            else:
+            if dialog.getRecursive():
                 self.project_info.client_fg.switch( self.project_info.wc_path, to_url, recurse=True,
-                                    revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+                                    revision=dialog.getRevision() )
+            else:
+                self.project_info.client_fg.switch( self.project_info.wc_path, to_url, depth=svndepth,
+                                    revision=dialog.getRevision() )
         except pysvn.ClientError, e:
             self.app.log_client_error( e )
 

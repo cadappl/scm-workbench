@@ -254,7 +254,9 @@ def populateMenu( menu, contents ):
 def by_path( a, b ):
     return cmp( a.path, b.path )
 
-def compare ( x, y ):
+def by_list_path( a, b ):
+    return cmp( a[0].path, b[0].path )
+
 def handleMenuInfo( project_info, start=0 ):
     menu_context = list()
 

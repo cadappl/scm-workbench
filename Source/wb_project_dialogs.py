@@ -44,13 +44,14 @@ class _TinyEditor(wx.Dialog):
                         size=(500, 400),
                         style=wx.HSCROLL|wx.TE_MULTILINE|wx.TE_RICH2)
         # FIXME: fix the referrence in wb_diff_frame
-        self.textctrl.SetFont(wx.Font(wb_config.point_size, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, wb_config.face))
+        self.textctrl.SetFont( wx.Font( wb_config.point_size, wx.DEFAULT,
+                                        wx.NORMAL, wx.NORMAL, False, wb_config.face ) )
+
         sizer.Add(self.textctrl, 1, wx.ALL|wx.EXPAND, 5)
-        sizer.Add(wx.StaticLine(self, -1, size=(20,-1),
-                  style=wx.LI_HORIZONTAL),
-                  0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_BOTTOM|wx.ALL, 5)
+        sizer.Add( wx.StaticLine( self, -1, size=( 20,-1 ), style=wx.LI_HORIZONTAL ),
+                   0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_BOTTOM|wx.ALL, 5 )
         sizer.Add(self.CreateStdDialogButtonSizer(wx.OK | wx.CANCEL),
-                  0, wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM)
+                   0, wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM|wx.ALL, 5 )
 
         self.SetSizer(sizer)
         self.Fit()
@@ -358,16 +359,25 @@ class SubversionUrlPage(TitledPage):
 
         self.url_path_label = wx.StaticText(self, -1, T_('Subversion URL:'), style=wx.ALIGN_RIGHT )
         self.url_path_ctrl = wx.TextCtrl(self, url_trunk_path_text_ctrl_id, '' )
+        self.url_repo_button = wx.Button( self, -1, T_('...') )
 
         self.g_sizer.Add( self.url_path_label, 1, wx.EXPAND|wx.ALL|wx.ALIGN_RIGHT, 5 )
         self.g_sizer.Add( self.url_path_ctrl, 0, wx.EXPAND|wx.ALL, 3 )
-        self.g_sizer.Add( (1, 1), 0, wx.EXPAND )
+#        self.g_sizer.Add( (1, 1), 0, wx.EXPAND )
+        self.g_sizer.Add( self.url_repo_button, 0 )
 
         self.g_sizer.Add( (10,10) )
         self.g_sizer.Add( (400,10) )
         self.g_sizer.Add( (10,10) )
 
+        wx.EVT_BUTTON( self, self.url_repo_button.GetId(), self.OnEventRepoButton )
         self.sizer.Add( self.g_sizer, 0, wx.ALL, 5 )
+
+    def OnEventRepoButton( self, event ):
+        new_url = self.parent.app.getRepositoryPath( self.parent.wizard,
+                                                     self.url_path_ctrl.GetValue() )
+        if new_url:
+            self.url_path_ctrl.SetValue( new_url )
 
     def loadState( self, state ):
         self.url_path_ctrl.SetValue( state.wc_path )
@@ -418,9 +428,9 @@ class TorunProjectSelectionPage(TitledPage):
         self.sizer.Add( radiobox_type, 0, wx.EXPAND|wx.ALL, 5 )
 
         text_proj_id = wx.StaticText( self, -1, T_("Project ID ") )
-        self.project_id = wx.ComboBox( self, -1, style=wx.CB_READONLY|wx.CB_SORT )
+        self.project_id = wx.ComboBox( self, -1, style=wx.CB_READONLY )
         text_proj_label = wx.StaticText( self, -1, T_("Project Label ") )
-        self.project_label = wx.ComboBox( self, -1, style=wx.CB_READONLY|wx.CB_SORT )
+        self.project_label = wx.ComboBox( self, -1, style=wx.CB_READONLY )
         self.extend_proj = wx.CheckBox( self, -1, T_("Include Extended Projects") )
 
         info_sizer = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_( "Baseline Info" ) ), wx.VERTICAL )
@@ -493,7 +503,7 @@ class TorunProjectSelectionPage(TitledPage):
 
         # FIXME: handle the prefix '/vobs'
         prefix = '/vobs/'
-        dir_list = dict()
+        dir_maps = dict()
 
         repo_name = (project_location.split('/'))[2]
         repo_location = self.repo_map.get(repo_name)
@@ -516,7 +526,7 @@ class TorunProjectSelectionPage(TitledPage):
             for item in dirs:
                 if item.name.rfind('/tags/%s-' % uproject) > 0:
                     label = item.name.split('/')[-1]
-                    dir_list[ label ] = item.name
+                    dir_maps[ label ] = item.name
         except:
             # ignore the exception
             pass
@@ -531,15 +541,17 @@ class TorunProjectSelectionPage(TitledPage):
 
             for item in dirs:
                 label = '%s-%s' % ( uproject, item.name.split('/')[-1] )
-                dir_list[ label ] = item.name
+                dir_maps[ label ] = item.name
         except:
             # ignore the exception
             pass
 
         self.project_label.Clear()
-        if len( dir_list ) > 0:
-            for item in dir_list.keys():
-                self.project_label.Append( item, dir_list[item] )
+        if len( dir_maps ) > 0:
+            dir_list = dir_maps.keys()
+            dir_list.sort()
+            for item in dir_list:
+                self.project_label.Append( item, dir_maps[item] )
 
             self.project_label.SetSelection( 0 )
             self.OnProjectLabelChange( None )
@@ -568,7 +580,7 @@ class TorunProjectSelectionPage(TitledPage):
 %s
 #===+PROJECT
 element %s/%s/... %s
-""" % ( name, text, self.repo_list[project], project, self.project_label.GetValue() )
+""" % ( name, text.strip(), self.repo_list[project], project, self.project_label.GetValue() )
 
                 break
             except:
@@ -596,12 +608,22 @@ element %s/%s/... %s
 
         if is_torun_p:
             self.project_id.Clear()
+
+            # sort the project list without CB_SORT
+            def cmp_by_name( a, b ):
+                return cmp( a[0], b[0] )
+
+            item_list = list()
             for item in self.repo_list.keys():
                 if item.startswith( 'vy' ):
                     value = item.replace( 'vy', 'VY' )
                 else:
                     value = item
 
+                item_list.append( ( value, item ) )
+
+            item_list.sort( cmp_by_name )
+            for value, item in item_list:
                 if self.extend_proj.IsChecked():
                     self.project_id.Append( value, item )
                 # only the project leading with VY are standard SiG project

@@ -43,6 +43,7 @@ import wb_diff_frame
 import wb_dialogs
 import wb_background_thread
 import wb_shell_commands
+import wb_repo_browser_frame
 import wb_subversion_report_revision_changes
 import wb_subversion_utils
 
@@ -468,6 +469,14 @@ class WbApp(wx.App):
                 return True, dialog.getDirName(), dialog.getTagName()
             else:
                 return False, '', ''
+
+    def getRepositoryPath( self, parent, url='' ):
+        dialog = wb_repo_browser_frame.RepoBrowserDialog( parent, self, url )
+        result = dialog.ShowModal()
+        if result == wx.ID_OK:
+            return dialog.getUrl()
+        else:
+            return ''
 
     def savePreferences( self ):
         self.prefs.writePreferences()

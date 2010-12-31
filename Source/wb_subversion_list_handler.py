@@ -524,7 +524,10 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
         self.app.refreshFrame()
 
     def Cmd_File_Switch ( self ):
-        dialog = wb_dialogs.Switch( self.app.frame.tree_panel.tree_ctrl, self.app, self.project_info.wc_path, T_('Switch to Branch/Tag') )
+        dialog = wb_dialogs.Switch( self.app.frame.tree_panel.tree_ctrl,
+                                    self.app, self.project_info.wc_path,
+                                    T_('Switch to Branch/Tag'),
+                                    self.project_info.url )
         if dialog.ShowModal() != wx.ID_OK:
             return
 

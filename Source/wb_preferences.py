@@ -66,6 +66,7 @@ class Preferences:
         self.pref_handlers['Toolbar'] = ToolbarPreferences( self.app )
         self.pref_handlers['Advanced'] = AdvancedPreferences( self.app )
         self.pref_handlers['Repository'] = RepositoryPreferences( self.app )
+        self.pref_handlers['RepoBrowser'] = RepoBrowserPreferences( self.app )
 
         # read preferences into the handlers
         self.readPreferences()
@@ -619,8 +620,8 @@ class WindowPreferences(PreferenceSection):
     def setFrameSize( self, size ):
         self.__frame_size = size
 
-class DiffWindowPreferences(PreferenceSection):
-    def __init__( self, app ):
+class NamedWindowPreferences(PreferenceSection):
+    def __init__( self, app, title ):
         PreferenceSection.__init__( self, 'DiffWindow' )
         self.app = app
 
@@ -663,6 +664,14 @@ class DiffWindowPreferences(PreferenceSection):
 
     def setFrameSize( self, size ):
         self.__frame_size = size
+
+class DiffWindowPreferences(WindowPreferences):
+    def __init( self, app ):
+        NamedWindowPreferences.__init__( self, 'DiffWindow' )
+
+class RepoBrowserPreferences(WindowPreferences):
+     def __init( self, app ):
+        NamedWindowPreferences.__init__( self, 'RepoBrowser' )
 
 class ViewPreferences(PreferenceSection):
     def __init__( self, app ):

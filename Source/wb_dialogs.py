@@ -798,8 +798,11 @@ class CreateBranch(CopyUrl):
         CopyUrl.__init__( self, parent, app, T_('Create Branch'), copy_from_url, copy_to_url )
 
 class Switch(wx.Dialog):
-    def __init__( self, parent, app, wc_path, title ):
+    def __init__( self, parent, app, wc_path, title, curr_url='' ):
         wx.Dialog.__init__( self, parent, -1, title )
+
+        self.app = app
+        self.parent = parent
 
         self.all_depth_types =  [(pysvn.depth.empty,        T_('Empty directory'))
                                #,(pysvn.depth.exclude,      T_('Exclude (not used yet)'))
@@ -818,9 +821,15 @@ class Switch(wx.Dialog):
         self.v_sizer.Add( wx.StaticText( self, -1 ))
 
         # Line 2: ToURL
-        self.tourl_ctrl = wx.TextCtrl( self, -1 )
+        self.tourl_ctrl = wx.TextCtrl( self, -1, curr_url )
+        self.tourl_button = wx.Button( self, -1, '...' )
         self.v_sizer.Add( wx.StaticText( self, -1, T_('To URL') ), 0, wx.EXPAND|wx.ALL, 5 )
-        self.v_sizer.Add( self.tourl_ctrl, 1, wx.EXPAND|wx.ALL, 5 )
+
+        g_sizer = wx.FlexGridSizer( 0, 2, 0, 0 )
+        g_sizer.AddGrowableCol( 0 )
+        g_sizer.Add( self.tourl_ctrl, 1, wx.EXPAND|wx.ALL )
+        g_sizer.Add( self.tourl_button, 0, wx.ALIGN_RIGHT )
+        self.v_sizer.Add( g_sizer, 1, wx.EXPAND|wx.ALL, 5 )
 
         self.revision_border = wx.StaticBox( self, -1, T_('Revision') )
         self.revision_box = wx.StaticBoxSizer( self.revision_border, wx.VERTICAL )
@@ -838,7 +847,7 @@ class Switch(wx.Dialog):
         self.revision_box.Add( self.g_sizer, 0, wx.EXPAND )
 
         self.revision_text = wx.StaticText( self, -1, T_('Revision:') )
-        self.revision_ctrl = wx.TextCtrl( self, -1, '' )
+        self.revision_ctrl = wx.TextCtrl( self, -1 )
         self.revision_ctrl.SetSelection( -1, -1 )
         self.revision_ctrl.Enable( False )
 
@@ -893,12 +902,18 @@ class Switch(wx.Dialog):
         # Catch button events
         wx.EVT_BUTTON( self, wx.ID_OK, self.OnOk )
         wx.EVT_BUTTON( self, wx.ID_CANCEL, self.OnCancel )
+        wx.EVT_BUTTON( self, self.tourl_button.GetId(), self.OnEventTourlButton )
 
         # Catch checkbox events
         wx.EVT_CHECKBOX ( self, self.head_checkbox_ctrl.GetId(), self.onHeadRevisionClicked )
         if self.depth_enabled:
             wx.EVT_CHECKBOX ( self, self.recursive_checkbox_ctrl.GetId(), self.recursiveClicked )
 
+    def OnEventTourlButton( self, event ):
+        new_url = self.parent.app.getRepositoryPath( self.parent,
+                                                     self.tourl_ctrl.GetValue() )
+        if new_url:
+            self.tourl_ctrl.SetValue( new_url )
 
     def OnOk( self, event ):
         if not self.tourl_ctrl.GetValue():
@@ -937,12 +952,12 @@ class Switch(wx.Dialog):
 
     def getSvnDepth( self ):
         if self.depth_enabled:
-            return (self.getRecursive(), self.getDepth( pysvn.depth.unknown ))
+            return self.getRecursive(), self.getDepth( pysvn.depth.unknown )
         else:
-            return (True, None)
+            return True, None
 
     def getValues( self ):
-        return (self.tourl_ctrl.GetValue().strip(), self.getSvnDepth())
+        return self.tourl_ctrl.GetValue().strip(), self.getSvnDepth()
 
     def recursiveClicked( self, event ):
         self.depth_ctrl.Enable( not self.recursive_checkbox_ctrl.GetValue() )
