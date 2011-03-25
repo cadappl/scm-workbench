@@ -917,7 +917,7 @@ class RepositoryPreferences(PreferenceSection):
             'component' : 'config confm incl srce %F.ident'
           } )
         self.info_package = dict( {
-            'parent'    : '.+package\d*$',
+            'parent'    : '.+[package|output]\d*$',
             'pattern'   : '%D/%F.package',
             'component' : 'config confm env incl modules srce %F.package'
           } )
