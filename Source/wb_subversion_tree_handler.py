@@ -277,7 +277,12 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
         self.app.refreshFrame()
 
     def Cmd_Dir_Checkout( self ):
-        self.app.setAction( T_('Checkout %s...') % self.project_info.url )
+        if self.project_info.url is None:
+            # Torun project doesn't have project url
+            project_name = os.path.basename( self.project_info.wc_path )
+            self.app.setAction( T_('Checkout %s...') % project_name )
+        else:
+            self.app.setAction( T_('Checkout %s...') % self.project_info.url )
 
         yield self.app.backgroundProcess
         self.__checkoutToRevision( pysvn.Revision( pysvn.opt_revision_kind.head ), True, None )

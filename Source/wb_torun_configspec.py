@@ -46,6 +46,13 @@ class wb_subversion_configspec( wb_configspec.Configspec ):
     self.prefix = remove_tail_slash( prefix )
     self.rootdir = remove_tail_slash( rootdir )
 
+  def __buildupPath( self, fmt, listp ):
+      ret = fmt % listp
+      if len( ret ) and ret[-1] == '/':
+          ret = ret[:-1]
+
+      return ret
+
   def replacePrefix( self, file_path ):
       new_path = file_path.replace( root, prefix ).replace( '\\', '/' )
 
@@ -97,8 +104,8 @@ class wb_subversion_configspec( wb_configspec.Configspec ):
 #                 print 'tri_dots:%d,pattern_=%s' % (tri_dots, pattern[:tri_dots - 1])
 #                 print 'rp_path=%s, pattern=%s,post_path=%s,last_dir=%s' % (rp_path, pattern, post_path, last_dir)
                   # two solutions referring to VYCdoc30091
-                  ra = '%s/%s/%s' % ( selector, last_dir, post_path )
-                  rb = '%s/%s/%s/%s' % ( label, version, last_dir, post_path )
+                  ra = self.__buildupPath( '%s/%s/%s', ( selector, last_dir, post_path ) )
+                  rb = self.__buildupPath( '%s/%s/%s/%s', ( label, version, last_dir, post_path ) )
                   ret.append( '%s/tags/%s' % ( repo_path, ra.replace( '//', '/' ) ) )
                   ret.append( '%s/tags/%s' % ( repo_path, rb.replace( '//', '/' ) ) )
           else:
@@ -178,7 +185,7 @@ class wb_subversion_configspec_editor(wb_subversion_configspec):
 
         for k, item in enumerate( self.parsed_lines ):
             if isinstance( item, wb_configspec.CommentRule ):
-                m = re.match('#(.)===(.+)$', item.context)
+                m = re.match('#(.)={3,5}(.+)$', item.context)
                 if m:
                     print '>>', m
                 if m and slots.has_key(m[1]):

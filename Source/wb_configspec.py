@@ -629,7 +629,9 @@ element * /main/LATEST'''
 
     pcs = Configspec(cs)
     mlist = pcs.match('E:\z_vyp623_dev', 'E:\z_vyp623_dev/project183/vyp633', '/vobs')
-    print "OUTPUT (%d) RULES: " % len(mlist)
-    print "--------------------------"
-    for rule in mlist:
-        print rule.dump()
+    if mlist is not None:
+        print "OUTPUT (%d) RULES: " % len(mlist)
+        print "--------------------------"
+
+        for rule in mlist:
+            print rule.dump()

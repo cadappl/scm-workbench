@@ -162,20 +162,20 @@ class RepoListPage(PagePanel):
             gsizer = wx.FlexGridSizer( 0, 2, 0, 0 )
             gsizer.AddGrowableCol( 1 )
 
-            gsizer.Add( self.static_text1, 1, wx.EXPAND|wx.ALL, 1 )
+            gsizer.Add( self.static_text1, 1, wx.EXPAND|wx.ALL, 5 )
             if edit_mode:
-                gsizer.Add( self.static_repo, 0, wx.EXPAND|wx.ALL, 1 )
+                gsizer.Add( self.static_repo, 0, wx.EXPAND|wx.ALL, 5 )
             else:
-                gsizer.Add( self.text_repo, 0, wx.EXPAND|wx.ALL, 1 )
-            gsizer.Add( self.static_text2, 1, wx.EXPAND|wx.ALL, 1 )
-            gsizer.Add( self.text_dir, 0, wx.EXPAND|wx.ALL, 1 )
+                gsizer.Add( self.text_repo, 0, wx.EXPAND|wx.ALL, 5 )
+            gsizer.Add( self.static_text2, 1, wx.EXPAND|wx.ALL, 5 )
+            gsizer.Add( self.text_dir, 0, wx.EXPAND|wx.ALL, 5 )
 
             sizer = wx.BoxSizer( wx.VERTICAL )
             sizer.Add( gsizer )
             sizer.Add( wx.StaticLine(self, -1, size=(20,-1), style=wx.LI_HORIZONTAL),
-                       0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 1 )
-            sizer.Add( self.CreateStdDialogButtonSizer(wx.OK | wx.CANCEL), 0, wx.ALL|wx.ALIGN_RIGHT, 1 )
-            self.SetSizer(sizer)
+                       0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+            sizer.Add( self.CreateStdDialogButtonSizer(wx.OK | wx.CANCEL), 0, wx.ALL|wx.ALIGN_RIGHT, 5 )
+            self.SetSizer( sizer )
             self.Fit()
 
         def GetValue( self ):

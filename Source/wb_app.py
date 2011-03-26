@@ -288,11 +288,14 @@ class WbApp(wx.App):
             return
 
         self.__last_client_error = []
-        for message, _ in e.args[1]:
-            self.__last_client_error.append( message )
-            self.log.error( message )
+        try:
+            for message, _ in e.args[1]:
+                self.__last_client_error.append( message )
+                self.log.error( message )
 
-        wx.MessageBox( '\n'.join( self.__last_client_error ), title, style=wx.OK|wx.ICON_ERROR );
+            wx.MessageBox( '\n'.join( self.__last_client_error ), title, style=wx.OK|wx.ICON_ERROR );
+        except:
+            pass
 
     def log_error( self, e, title='Error' ):
         # must run on the main thread

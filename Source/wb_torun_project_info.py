@@ -28,7 +28,6 @@ import wb_config
 import wb_tree_panel
 
 import wb_source_control_providers
-import wb_subversion_tree_handler
 import wb_subversion_list_handler
 import wb_subversion_project_info
 
@@ -361,7 +360,14 @@ class RepositoryPanel(PagePanel):
         for item in repo_names:
             index = self.list_box.GetItemCount()
             self.list_box.InsertStringItem( index, item )
-            self.list_box.SetStringItem( index, 1, repo_map_list[item] )
+            if repo_map_list.has_key( item ):
+                self.list_box.SetStringItem( index, 1, repo_map_list[item] )
+            else:
+                item = self.list_box.GetItem( index )
+                item.SetTextColour( wx.RED )
+                self.list_box.SetItem( item )
+
+                self.list_box.SetStringItem( index, 1, '<unknown>' )
 
         self.sizer.Add(self.list_box, 1, wx.EXPAND|wx.ALL)
         return self.sizer
@@ -395,7 +401,7 @@ class SubversionClient:
         #==== add functions except checkout and update
         for func in ('add', 'cat', 'checkin', 'copy', 'copy2',
                       'diff', 'info', 'info2', 'list', 'log', 'ls', 'mkdir',
-                      'move', 'remove', 'propget', 'propset', 'proplist',
+                      'move', 'remove', 'revert', 'propget', 'propset', 'proplist',
                       'root_url_from_path', 'status', 'switch' ):
             self.__dict__[func] = getattr( self.client, func )
 
@@ -450,9 +456,11 @@ class SubversionClient:
             for new_url in mlist or list():
                 if not self.exists( new_url ): continue
                 if url == new_url:
+                    self.app.foregroundProcess( self.app.setAction, ( ('Update %s...' % wc_path), ) )
                     self.client.update( wc_path, depth=pysvn.depth.empty,
                                         revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
                 else:
+                    self.app.foregroundProcess( self.app.setAction, ( ('Switch %s...' % wc_path), ) )
                     self.client.switch( wc_path, new_url, depth=pysvn.depth.infinity,
                                         revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
                 break
@@ -562,15 +570,27 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
     def init( self, project_name, **kws):
         wb_source_control_providers.ProjectInfo.init( self, project_name )
 
+        try_wrapper = wb_exceptions.TryWrapperFactoryWithExcept( self.app.log_client_error,
+                                                                 pysvn.ClientError )
         self.menu_info = \
-            [( 0, None, None )
-            ,( wb_ids.id_SP_Torun_ProcAdd, self.isDirToAddIdent, self.Cmd_Torun_ProcAdd )
-            ,( wb_ids.id_SP_Torun_ProcDelete, self.isDirToDeleteIdent, self.Cmd_Torun_ProcDelete )
-            ,( 0, None, None )
-            ,( wb_ids.id_SP_Torun_ProcDevelop, self.isDirToDevelop, self.Cmd_Torun_ProcDevel )
-            ,( wb_ids.id_SP_Torun_ProcDeliver, self.isDirToDeliver, self.Cmd_Torun_ProcDeliv )
-            ,( wb_ids.id_SP_Torun_ProcRevert, self.isDirToRevert, self.Cmd_Torun_ProcRevert )
-            ]
+            ( ( 0, None, None )
+              ,( wb_ids.id_SP_Torun_ProcAdd,
+                 try_wrapper( self.isDirToAddIdent ),
+                 try_wrapper( self.Cmd_Torun_ProcAdd ) )
+              ,( wb_ids.id_SP_Torun_ProcDelete,
+                 try_wrapper( self.isDirToDeleteIdent ),
+                 try_wrapper( self.Cmd_Torun_ProcDelete ) )
+              ,( 0, None, None )
+              ,( wb_ids.id_SP_Torun_ProcDevelop,
+                 try_wrapper( self.isDirToDevelop ),
+                 try_wrapper( self.Cmd_Torun_ProcDevel ) )
+              ,( wb_ids.id_SP_Torun_ProcDeliver,
+                 try_wrapper( self.isDirToDeliver ),
+                 try_wrapper( self.Cmd_Torun_ProcDeliv ) )
+              ,( wb_ids.id_SP_Torun_ProcRevert,
+                 try_wrapper( self.isDirToRevert ),
+                 try_wrapper( self.Cmd_Torun_ProcRevert ) )
+            )
 
         self.wc_path = kws['wc_path']
         self.configspec = kws.get( 'configspec', '' )
@@ -1022,7 +1042,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         if project_info.url.startswith( repo_info.tags_url ):
             # 1.1 make sure the temporary directory could be used
 
-            ident_url, tailing_dir, local_ident = self.splitDirectory( repo_info, project_info, True )
+            ident_url, tailing_dir, local_ident = self.splitDirectory( repo_info, project_info )
             dir_name = os.path.basename( local_ident )
             temp_dir = self.temporaryDevelopBranch( repo_info, self.project_name, dir_name )
 
@@ -1064,26 +1084,40 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         if not ret:
             return
 
-        # check the temporary directory for the process
-        temp_dir = self.temporaryDevelopBranch( repo_info, self.project_name, dir_name )
-        if self.client.bg.exists( temp_dir ):
-            wx.MessageBox( T_('Temporary is existent: %s' % temp_dir), style=wx.OK|wx.ICON_ERROR )
-            return
-
         dir_name = os.path.basename( project_info.wc_path )
         ident_url, tailing_dir, local_ident = self.splitDirectory( repo_info, project_info )
 
-        properties = self.readOrWriteSpecifiedProperties( local_ident )
-        # 1 copy the contents to the temporary directory ...
-        self.client_bg.copy2( self.__listCopy( ident_url ), temp_dir, make_parents=True )
-        # 2 switch to the temp directory ...
-        self.client_bg.switch( local_ident, temp_dir, depth=pysvn.depth.infinity,
-                               revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
-        # 3. update the properties
-        properties['status'] = 'EXPERIMENTAL'
-        properties['vsnorigin'] = self.relativePath( project_info.url )
+        # check the temporary directory for the process
+        temp_dir = self.temporaryDevelopBranch( repo_info, self.project_name, dir_name )
+        if self.client_bg.exists( temp_dir ):
+            wx.MessageBox( T_('Temporary is existent: %s' % temp_dir), style=wx.OK|wx.ICON_ERROR )
+            return
 
-        self.readOrWriteSpecifiedProperties( local_ident, properties )
+        self.app.setAction( T_('Torun Developing process %s...') % project_info )
+
+        yield self.app.backgroundProcess
+
+        try:
+            properties = self.readOrWriteSpecifiedProperties( local_ident )
+
+            self.app.log.info( "Change workspace from %s to %s" % ( ident_url, temp_dir ) )
+            # 1 copy the contents to the temporary directory ...
+            self.client_bg.copy2( self.__listCopy( ident_url ), temp_dir, make_parents=True )
+            # 2 switch to the temp directory ...
+            self.client_bg.switch( local_ident, temp_dir, depth=pysvn.depth.infinity,
+                                   revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+            # 3. update the properties
+            properties['status'] = 'EXPERIMENTAL'
+            properties['vsnorigin'] = self.relativePath( project_info.url )
+
+            self.readOrWriteSpecifiedProperties( local_ident, properties )
+        except pysvn.ClientError, e:
+            self.app.log_client_error( e )
+
+        yield self.app.foregroundProcess
+
+        self.app.clearProgress()
+        self.app.setAction( T_('Ready') )
         self.app.refreshFrame()
 
     def Cmd_Torun_ProcDeliv( self, project_info ):
@@ -1104,6 +1138,8 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         if properties['status'] != 'EXPERIMENTAL':
             return
 
+        self.app.setAction( T_('Torun delivering process %s...') % project_info )
+
         dir_name = os.path.basename( project_info.wc_path )
         tag_list = self.getLabesInTags( repo_info, dir_name )
         rc, tag = self.app.getIdent( T_('Make new %s' % ident_type), dir_name, tag_list, True )
@@ -1114,15 +1150,26 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
             properties['status'] = 'CONFIDENTIAL'
             properties['vsnnumber'] = tag
             properties['vsnorigin'] = self.relativePath( project_info.url )
-            self.readOrWriteSpecifiedProperties( local_ident, properties )
-            self.client_bg.checkin( local_ident, 'Torun Deliv', recurse=True )
-            # 3. copy and switch to the new tag location
-            self.client_bg.copy2( self.__listCopy( ident_url ), tag_dir, make_parents=True )
-            # 4. create the new identifier in the repository directly
-            self.client_bg.switch( local_ident, tag_dir, depth=pysvn.depth.infinity,
-                                   revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
-            # 5. remove the temporary location
-            self.client_bg.remove( ident_url )
+
+            yield self.app.backgroundProcess
+            try:
+                self.readOrWriteSpecifiedProperties( local_ident, properties )
+
+                self.client_bg.checkin( local_ident, 'Torun Deliv', recurse=True )
+                # 3. copy and switch to the new tag location
+                self.client_bg.copy2( self.__listCopy( ident_url ), tag_dir, make_parents=True )
+                # 4. create the new identifier in the repository directly
+                self.client_bg.switch( local_ident, tag_dir, depth=pysvn.depth.infinity,
+                                       revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+                # 5. remove the temporary location
+                self.client_bg.remove( ident_url )
+            except pysvn.ClientError, e:
+                self.app.log_client_error( e )
+
+            yield self.app.foregroundProcess
+
+        self.app.clearProgress()
+        self.app.setAction( T_('Ready') )
 
         self.app.refreshFrame()
 
@@ -1139,10 +1186,13 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         if not ret:
             return
 
+        dir_name = os.path.basename( project_info.wc_path )
+        ident_url, tailing_dir, local_ident = self.splitDirectory( repo_info, project_info )
+
         properties = self.readOrWriteSpecifiedProperties( local_ident )
         orginal_url = properties.get( 'vsnorigin' )
         if orginal_url is None:
-            MessageBox( T_("vsnorigin '%s' is not existent" % orginal_urld), style=wx.OK|wx.ICON_ERROR )
+            MessageBox( T_("vsnorigin '%s' is not existent" % orginal_url), style=wx.OK|wx.ICON_ERROR )
             return
         else:
             orginal_url = self.client_bg.root_url_from_path( project_info.url ) + orginal_url
@@ -1150,21 +1200,29 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
                 MessageBox( T_("'vsnorigin' is not defined"), style=wx.OK|wx.ICON_ERROR )
                 return
 
-        dir_name = os.path.basename( project_info.wc_path )
-        ident_url, tailing_dir, local_ident = self.splitDirectory( repo_info, project_info )
-
         # should not be equal
         if orginal_url == ident_url:
             MessageBox( T_("'vsnorigin' is equal with current url"), style=wx.OK|wx.ICON_ERROR )
             return
 
-        # 1. revert the modfication if possible
-        self.client_bg.revert( local_ident, recurse=True )
-        # 2. create the new identifier in the repository directly
-        self.client_bg.switch( local_ident, orginal_url, depth=pysvn.depth.infinity,
-                               revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
-        # 3. remove the temporary location
-        self.client_bg.remove( project_info.url )
+        self.app.setAction( T_('Torun reverting process %s...') % project_info )
+
+        yield self.app.backgroundProcess
+        try:
+            # 1. revert the modfication if possible
+            self.client_bg.revert( local_ident, recurse=True )
+            # 2. create the new identifier in the repository directly
+            self.client_bg.switch( local_ident, orginal_url, depth=pysvn.depth.infinity,
+                                   revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+            # 3. remove the temporary location
+            self.client_bg.remove( project_info.url )
+        except pysvn.ClientError, e:
+            self.app.log_client_error( e )
+
+        yield self.app.foregroundProcess
+        self.app.clearProgress()
+        self.app.setAction( T_('Ready') )
+
         self.app.refreshFrame()
 
     def readOrWriteSpecifiedProperties( self, filename, value_dict=None ):
@@ -1233,22 +1291,21 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
 
         self.readOrWriteSpecifiedProperties( new_dir, properties )
 
-    def splitDirectory( self, repo_info, project_info, parent=False ):
+    def splitDirectory( self, repo_info, project_info ):
         ident_url = ''
         repo_dir = repo_info.wc_path.replace( '\\', '/' )
         tailing_dir = local_dir = project_info.wc_path.replace( '\\', '/' )
 
-        while local_dir != repo_dir:
-            if parent:
-                local_dir = local_dir[:local_dir.rfind( '/' )]
-                ret, _ = self.isDirMatchPattern( local_dir )
-                if ret:
-                    break
-            else:
-                ret, _ = self.isDirMatchPattern( local_dir )
-                if ret:
-                    break
-                local_dir = local_dir[:local_dir.rfind( '/' )]
+        while local_dir != '' and local_dir != repo_dir:
+            parent_dir = local_dir[:local_dir.rfind( '/' )]
+            # check both current directory its parent
+            ret, _ = self.isDirMatchPattern( local_dir )
+            if not ret:
+                ret, _ = self.isDirMatchParent( parent_dir )
+
+            if ret:
+                break
+            local_dir = parent_dir
 
         if os.path.exists( local_dir ):
             ident_url = self.client_bg.get_url_from_path( local_dir )
