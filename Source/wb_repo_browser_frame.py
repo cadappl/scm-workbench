@@ -19,7 +19,7 @@ import pysvn
 
 import wb_images
 import wb_exceptions
-import wb_subversion_utils
+import wb_utils
 
 ID_FILE = 0
 ID_EXT  = 1
@@ -76,6 +76,7 @@ class RepoBrowserPanel( wx.Panel ):
         wx.EVT_TEXT_ENTER( self, self.text_ctrl_url.GetId(), self.OnEventTextCtrlUrlEnter )
         wx.EVT_BUTTON( self, self.button_browse.GetId(), self.OnEventButtonBrowse )
         wx.EVT_TREE_SEL_CHANGED( self, self.tree_ctrl.GetId(), self.OnEventTreeCtrlChanged )
+#        wx.EVT_LEFT_DCLICK( self, self.list_ctrl.GetId(), self.OnEventListCtrlDoubleClick )
         self.list_ctrl.Bind( wx.EVT_LEFT_DCLICK, self.OnEventListCtrlDoubleClick )
         self.list_ctrl.Bind( wx.EVT_LIST_ITEM_SELECTED, self.OnEventListCtrlSelected )
 
@@ -94,7 +95,9 @@ class RepoBrowserPanel( wx.Panel ):
         url = self.text_ctrl_url.GetValue().strip()
 
         if url:
+            #yield self.app.backgroundProcess
             dir_status, self.all_files_status = self.getRepoStatus( url )
+            #yield self.app.foregroundProcess
 
             self.tree_ctrl.DeleteAllItems()
 
@@ -137,7 +140,7 @@ class RepoBrowserPanel( wx.Panel ):
         dir_status = None
         all_files_status = self.client.list( url, recurse=True )
 
-        all_files_status.sort( wb_subversion_utils.by_list_path )
+        all_files_status.sort( wb_utils.by_list_path )
 
         if len( all_files_status) > 0:
             dir_status = all_files_status[0]
@@ -201,6 +204,11 @@ class RepoBrowserPanel( wx.Panel ):
                                           time.strftime( '%Y-%m-%d %H:%M:%S', time.gmtime( int( status.time ) ) ) )
             self.list_ctrl.SetStringItem( id, ID_REV, str( status.created_rev.number ) )
 
+#        self.list_ctrl.SetColumnWidth( ID_FILE, wx.LIST_AUTOSIZE )
+#        self.list_ctrl.SetColumnWidth( ID_EXT, wx.LIST_AUTOSIZE )
+#        self.list_ctrl.SetColumnWidth( ID_REV, wx.LIST_AUTOSIZE )
+#        self.list_ctrl.SetColumnWidth( ID_AUTHOR, wx.LIST_AUTOSIZE )
+#        self.list_ctrl.SetColumnWidth( ID_SIZE, wx.LIST_AUTOSIZE )
         self.list_ctrl.SetColumnWidth( ID_DATE, wx.LIST_AUTOSIZE )
 
     def getServerTrust( self, trust_data ):

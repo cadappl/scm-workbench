@@ -106,9 +106,11 @@ def CommandShell( app, project_info ):
     if terminal_program == 'konsole':
         __run_command( app, terminal_program,
             ['--title',  ' '.join( title ), '--workdir', working_dir, '-e', '/bin/sh', shell_script_filename] )
+
     elif terminal_program in ('gnome-terminal', 'xfce4-terminal'):
         __run_command( app, terminal_program,
             ['--title',  ' '.join( title ), '--working-directory', working_dir, '-x', shell_script_filename] )
+
     elif terminal_program == 'xterm':
         __run_command( app, terminal_program,
             ['-T',  ' '.join( title ), '-e', shell_script_filename] )
@@ -132,6 +134,7 @@ def FileBrowser( app, project_info ):
 
     if browser_program == 'konqueror':
         __run_command( app, browser_program, ['--mimetype', 'inode/directory', project_info.getWorkingDir()] )
+
     elif browser_program in ('nautilus', 'thunar', 'dolphin'):
         __run_command( app, browser_program, [project_info.getWorkingDir()] )
 

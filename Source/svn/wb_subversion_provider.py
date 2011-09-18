@@ -11,6 +11,7 @@
     wb_subversion_provider.py
 
 '''
+
 import os
 import time
 import fnmatch
@@ -18,6 +19,7 @@ import pysvn
 import threading
 import wx
 import wb_source_control_providers
+import wb_preferences_dialog
 import wb_subversion_history
 import wb_subversion_annotate
 import wb_ids
@@ -26,6 +28,9 @@ import wb_subversion_tree_handler
 import wb_subversion_list_handler
 import wb_subversion_utils
 import wb_subversion_project_info
+import wb_subversion_project_dialogs
+import wb_subversion_list_handler_common
+import wb_subversion_setting_panels
 
 def registerProvider():
     wb_source_control_providers.registerProvider( SubversionProvider() )
@@ -39,6 +44,12 @@ class SubversionProvider(wb_source_control_providers.Provider):
 
     def getUpdateProjectDialog( self, app, parent, project_info ):
         return wb_subversion_project_info.UpdateProjectDialog( app, parent, project_info )
+
+    def getPreferencePanels( self ):
+        return ( wb_subversion_setting_panels.ListColumnsPage, )
+
+    def getProjectDialog( self ):
+        return wb_subversion_project_dialogs.AddProjectDialog
 
     def getProjectTreeItem( self, app, project_info ):
         return wb_subversion_tree_handler.SubversionProject( app, project_info )

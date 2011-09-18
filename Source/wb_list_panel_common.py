@@ -124,7 +124,7 @@ class WbListPanelCommon(wx.Panel):
             box = wx.BoxSizer( wx.VERTICAL )
             box.Add( self.list_ctrl, 1, wx.EXPAND|wx.ALL, 3)
             self.focus_ring_panel.SetSizer( box )
-            
+
             self.list_ctrl.Bind( wx.EVT_PAINT, self.OnPaint )
 
             list_window = self.focus_ring_panel
@@ -151,7 +151,7 @@ class WbListPanelCommon(wx.Panel):
         wx.EVT_LIST_ITEM_DESELECTED( self.list_ctrl, self.id_list, self.OnItemDeselected )
 
         wx.EVT_SET_FOCUS( self.list_ctrl, self.OnSetFocus )
-        wx.EVT_KILL_FOCUS( self.list_ctrl, self.OnKillFocus )  
+        wx.EVT_KILL_FOCUS( self.list_ctrl, self.OnKillFocus )
 
         self.addToSizer( self.v_sizer )
 
@@ -414,10 +414,10 @@ class WbListPanelCommon(wx.Panel):
 
     def OnSpDiffWorkHead( self ):
         return self.Sp_Dispatch( 'Cmd_File_DiffWorkHead' )
- 
+
     def OnSpDiffWorkBranchOriginBase( self ):
         return self.Sp_Dispatch( 'Cmd_File_DiffWorkBranchOriginBase' )
- 
+
     def OnSpDiffWorkBranchOriginHead( self ):
         return self.Sp_Dispatch( 'Cmd_File_DiffWorkBranchOriginHead' )
 
@@ -497,7 +497,7 @@ class WbListPanelCommon(wx.Panel):
 
         #print 'getSelectedRows() %r' % all_rows
         return all_rows
-        
+
 class HeaderPanel(wx.Panel):
     def __init__( self, parent, app, filter_field ):
         wx.Panel.__init__(self, parent, -1)

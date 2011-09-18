@@ -12,7 +12,11 @@
 
 '''
 
+import os
 import sys
+
+startup_dir = os.getcwd()
+sys.path += ( os.path.join( startup_dir, 'platform' ), )
 
 def noTranslate(msg):
     return msg
@@ -25,7 +29,6 @@ import wx
 import wb_preferences
 import wb_platform_specific
 import wb_repo_browser_frame
-
 
 class WbRepoBrowserApp:
     def __init__( self ):

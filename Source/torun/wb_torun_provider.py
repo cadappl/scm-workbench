@@ -11,12 +11,14 @@
 
 '''
 
-import wb_configspec
 import wb_torun_project_info
 import wb_torun_tree_handler
 import wb_torun_list_handler
+import wb_torun_setting_panels
+
 import wb_subversion_project_info
 import wb_source_control_providers
+import wb_torun_project_dialogs
 
 def registerProvider():
     wb_source_control_providers.registerProvider( TorunProvider() )
@@ -36,6 +38,14 @@ class TorunProvider(wb_source_control_providers.Provider):
 
     def getListHandler( self, app, list_panel, project_info ):
         return wb_torun_list_handler.TorunListHandler( app, list_panel, project_info )
+
+    def getPreferencePanels( self ):
+        return ( wb_torun_setting_panels.RepoSettingPage,
+                 wb_torun_setting_panels.RepoListPage,
+                 wb_torun_setting_panels.RepoPatternPage )
+
+    def getProjectDialog( self ):
+        return wb_torun_project_dialogs.AddProjectDialog
 
     def getAboutString( self ):
         return ('TORUN version: 1.1\n'

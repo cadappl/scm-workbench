@@ -1,6 +1,7 @@
 '''
  ====================================================================
  Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2010 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -17,6 +18,7 @@ import pysvn
 import wx
 
 import wb_ids
+import wb_utils
 import wb_subversion_list_handler_common
 import wb_subversion_info_dialog
 import wb_subversion_properties_dialog
@@ -80,7 +82,8 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
                 ,('-', 0, 0 )
                 ,('', wb_ids.id_SP_Cleanup, T_('Clean up') )
                 ]
-        menu_template += wb_subversion_utils.handleMenuInfo( self.project_info )
+
+        menu_template += wb_utils.handleMenuInfo( self.project_info )
 
         return wb_subversion_utils.populateMenu( wx.Menu(), menu_template )
 
@@ -104,7 +107,7 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
         self.app.setPasteData( wb_clipboard.Clipboard( [self.getFilename( row ) for row in all_rows], is_copy=True ) )
         print T_('Copied %d files to the Clipboard') % len(all_rows)
         self.app.refreshFrame()
- 
+
     def Cmd_File_EditCut( self, all_rows ):
         self.app.setPasteData( wb_clipboard.Clipboard( [self.getFilename( row ) for row in all_rows], is_copy=False ) )
         print T_('Cut %d files to the Clipboard') % len(all_rows)
@@ -455,14 +458,14 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
                                                 {'filename': basename
                                                 ,'rev': rev.number} )
                     else:
-                        self.app.log.info( S_('Updated %(filename)s to revision %(rev)d, %(count)d new update', 
+                        self.app.log.info( S_('Updated %(filename)s to revision %(rev)d, %(count)d new update',
                                               'Updated %(filename)s to revision %(rev)d, %(count)d new updates', count) %
                                                 {'filename': basename
                                                 ,'rev': rev.number
                                                 ,'count': count} )
 
         if self.project_info.notification_of_files_in_conflict > 0:
-            wx.MessageBox( S_("%d file is in conflict", 
+            wx.MessageBox( S_("%d file is in conflict",
                               "%d files are in conflict", self.project_info.notification_of_files_in_conflict) % self.project_info.notification_of_files_in_conflict,
                 T_("Warning"), style=wx.OK|wx.ICON_EXCLAMATION )
 
@@ -471,7 +474,7 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
         self.app.refreshFrame()
 
     def Cmd_File_UpdateTo( self, all_rows ):
-        dialog = wb_dialogs.UpdateTo( None, T_('Update to revision') )
+        dialog = wb_subversion_dialogs.UpdateTo( None, T_('Update to revision') )
         if dialog.ShowModal() != wx.ID_OK:
             return
 
@@ -504,18 +507,18 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
                     basename = os.path.basename( filename )
                     count = self.app.getProgressValue( 'count' )
                     if count == 0:
-                        self.app.log.info( T_('Updated %(filename)s to revision %(rev)d, no new updates') % 
+                        self.app.log.info( T_('Updated %(filename)s to revision %(rev)d, no new updates') %
                                                 {'filename': basename
                                                 ,'rev': rev.number} )
                     else:
-                        self.app.log.info( S_('Updated %(filename)s to revision %(rev)d, %(count)d new update', 
+                        self.app.log.info( S_('Updated %(filename)s to revision %(rev)d, %(count)d new update',
                                               'Updated %(filename)s to revision %(rev)d, %(count)d new updates', count) %
                                                 {'filename': basename
                                                 ,'rev': rev.number
                                                 ,'count': count} )
 
         if self.project_info.notification_of_files_in_conflict > 0:
-            wx.MessageBox( S_("%d file is in conflict", 
+            wx.MessageBox( S_("%d file is in conflict",
                               "%d files are in conflict", self.project_info.notification_of_files_in_conflict) % self.project_info.notification_of_files_in_conflict,
                               T_("Warning"), style=wx.OK|wx.ICON_EXCLAMATION )
 
@@ -524,10 +527,11 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
         self.app.refreshFrame()
 
     def Cmd_File_Switch ( self ):
-        dialog = wb_dialogs.Switch( self.app.frame.tree_panel.tree_ctrl,
+        dialog = wb_subversion_dialogs.Switch( self.app.frame.tree_panel.tree_ctrl,
                                     self.app, self.project_info.wc_path,
                                     T_('Switch to Branch/Tag'),
                                     self.project_info.url )
+
         if dialog.ShowModal() != wx.ID_OK:
             return
 
@@ -552,4 +556,3 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
 
         self.app.setAction( T_('Ready') )
         self.app.refreshFrame()
-

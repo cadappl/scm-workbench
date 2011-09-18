@@ -1,7 +1,7 @@
 '''
  ====================================================================
  Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
- Copyright (c) 2010 ccc. All rights reserved.
+ Copyright (c) 2010-2011 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -34,6 +34,7 @@ import wb_subversion_properties_dialog
 import wb_clipboard
 import wb_dialogs
 import wb_config
+import wb_utils
 
 class SubversionProject(wb_tree_panel.TreeProjectItem):
     def __init__( self, app, project_info ):
@@ -54,7 +55,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
         if dir_status is None:
             # no status available - make a guess
             if not os.path.exists( self.project_info.wc_path ):
-                # nothing there 
+                # nothing there
                 return False
             else:
                 # some dir assume can expand
@@ -113,7 +114,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
 
         # versioned and present
         return wb_config.colour_status_normal
-    
+
     def getState( self ):
         state = wb_tree_panel.TreeState()
 
@@ -189,6 +190,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
         else:
             menu_item += [('', wb_ids.id_SP_Switch, T_('Switch...') )]
             menu_item += [('-', 0, '')]
+
             menu_item += [('', wb_ids.id_SP_Update, T_('Update') )]
             menu_item += [('', wb_ids.id_SP_UpdateTo, T_('Update to..') )]
         menu_item += [('-', 0, '' )
@@ -204,7 +206,8 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
             ,('-', 0, 0 )
             ,('', wb_ids.id_SP_Cleanup, T_('Clean up') )
             ]
-        menu_item += wb_subversion_utils.handleMenuInfo( self.project_info )
+
+        menu_item += wb_utils.handleMenuInfo( self.project_info )
 
         return wb_subversion_utils.populateMenu( wx.Menu(), menu_item )
 
@@ -253,7 +256,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
         self.app.setPasteData( wb_clipboard.Clipboard( [self.project_info.wc_path], is_copy=True ) )
         print T_('Copied folder %s to the Clipboard') % self.project_info.wc_path
         self.app.refreshFrame()
- 
+
     def Cmd_Dir_EditCut( self ):
         self.app.setPasteData( wb_clipboard.Clipboard( [self.project_info.wc_path], is_copy=False ) )
         print T_('Cut folder %s to the Clipboard') % self.project_info.wc_path
@@ -293,7 +296,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
         self.app.refreshFrame()
 
     def Cmd_Dir_CheckoutTo( self ):
-        dialog = wb_dialogs.UpdateTo( None, T_('Checkout to revision') )
+        dialog = wb_subversion_dialogs.UpdateTo( None, T_('Checkout to revision') )
         if dialog.ShowModal() == wx.ID_OK:
             recursive, svndepth = dialog.getSvnDepth()
             self.app.setAction( T_('Checkout %s...') % self.project_info.url )
@@ -416,7 +419,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
             while True:
                 try:
                     where_to_go_next = generator.next()
-                    
+
                 except StopIteration:
                     # no problem all done
                     break
@@ -502,7 +505,6 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
 
     def Cmd_Dir_Info( self ):
         filename = self.project_info.wc_path
-
         try:
             if hasattr( self.project_info.client_fg, 'info2' ):
                 entry = self.project_info.client_fg.info2( filename, recurse=False )
@@ -844,7 +846,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
         self.__updateToRevisionProcessResults( rev_list )
 
     def Cmd_Dir_UpdateTo( self ):
-        dialog = wb_dialogs.UpdateTo( None, T_('Update to revision') )
+        dialog = wb_subversion_dialogs.UpdateTo( None, T_('Update to revision') )
         if dialog.ShowModal() != wx.ID_OK:
             return
 
@@ -875,7 +877,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
             self.app.log_client_error( e )
 
             return None
-        
+
     def __updateToRevisionProcessResults( self, rev_list ):
         filename = self.project_info.wc_path
         if rev_list is not None:
@@ -887,7 +889,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
                                                 {'filename': filename
                                                 ,'rev': rev.number} )
                     else:
-                        self.app.log.info( S_('Updated %(filename)s to revision %(rev)d, %(count)d new update', 
+                        self.app.log.info( S_('Updated %(filename)s to revision %(rev)d, %(count)d new update',
                                               'Updated %(filename)s to revision %(rev)d, %(count)d new updates', count) %
                                               {'filename': filename
                                               ,'rev': rev.number
@@ -896,7 +898,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
                     self.app.log.warning( T_('Already up to date') )
 
             if self.project_info.notification_of_files_in_conflict > 0:
-                wx.MessageBox( S_("%d file is in conflict", 
+                wx.MessageBox( S_("%d file is in conflict",
                                   "%d files are in conflict", self.project_info.notification_of_files_in_conflict) % self.project_info.notification_of_files_in_conflict,
                                T_("Warning"), style=wx.OK|wx.ICON_EXCLAMATION )
 
@@ -929,10 +931,10 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
         self.app.refreshFrame()
 
     def Cmd_Dir_Switch ( self ):
-        dialog = wb_dialogs.Switch( self.app.frame.tree_panel.tree_ctrl,
-                                    self.app, self.project_info.wc_path,
-                                    T_('Switch to Branch/Tag'),
-                                    self.project_info.url )
+        dialog = wb_subversion_dialogs.Switch( self.app.frame.tree_panel.tree_ctrl,
+                                               self.app, self.project_info.wc_path,
+                                               T_('Switch to Branch/Tag'),
+                                               self.project_info.url )
         if dialog.ShowModal() != wx.ID_OK:
             return
 
@@ -950,6 +952,11 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
             else:
                 self.project_info.client_fg.switch( self.project_info.wc_path, to_url, depth=svndepth,
                                     revision=dialog.getRevision() )
+
+            self.app.log.info( T_('Switch %(from)s to %(to)s, %(rev)s') %
+                                    {'from': self.project_info.wc_path
+                                    ,'to': to_url
+                                    ,'rev': dialog.getRevision()} )
         except pysvn.ClientError, e:
             self.app.log_client_error( e )
 
@@ -958,4 +965,3 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
         self.app.clearProgress()
         self.app.setAction( T_('Ready') )
         self.app.refreshFrame()
-

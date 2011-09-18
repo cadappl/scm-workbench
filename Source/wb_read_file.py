@@ -24,7 +24,7 @@ def readFile( filename ):
 def writeFileByLine( filename, content ):
     try:
         f = open( filename, 'w' )
-        # resort the content of configspec
+
         for li in content.split('\n'):
             f.write('%s\n' % li.strip())
 

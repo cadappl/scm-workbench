@@ -1,31 +1,27 @@
 '''
  ====================================================================
- Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
- Copyright (c) 2010 ccc. All right reserved.
+ Copyright (c) 2010-2011 ccc. All right reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
 
  ====================================================================
 
-    wb_project_dialogs.py
+    wb_torun_project_dialogs.py
 
 '''
 import wx
 import wx.wizard
-import wb_torun_configspec
+# import wb_torun_configspec
 import wb_source_control_providers
+import wb_manifest_providers
+
 import pysvn
 import os
 
 import wb_config
-
 import wb_read_file
-#
-#    Later need to make these dialogs work with the
-#    registered providers to put up provider specific
-#    dialog.
-#
+
 wc_path_browse_id = wx.NewId()
 wc_path_text_ctrl_id = wx.NewId()
 name_text_ctrl_id = wx.NewId()
@@ -35,83 +31,70 @@ url_tags_path_text_ctrl_id = wx.NewId()
 wizard_id = wx.NewId()
 
 class _TinyEditor(wx.Dialog):
-    def __init__(self, parent, title, text=''):
-        wx.Dialog.__init__(self, parent, -1, title,
-          style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER|wx.FIXED_MINSIZE)
+    def __init__( self, parent, title, text='' ):
+        wx.Dialog.__init__( self, parent, -1, title,
+          style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER|wx.FIXED_MINSIZE )
 
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        self.textctrl = wx.TextCtrl(self, -1, text,
-                        size=(500, 400),
-                        style=wx.HSCROLL|wx.TE_MULTILINE|wx.TE_RICH2)
-        # FIXME: fix the referrence in wb_diff_frame
+        sizer = wx.BoxSizer( wx.VERTICAL )
+        self.textctrl = wx.TextCtrl( self, -1, text,
+                        size=( 500, 400 ),
+                        style=wx.HSCROLL|wx.TE_MULTILINE|wx.TE_RICH2 )
+
         self.textctrl.SetFont( wx.Font( wb_config.point_size, wx.DEFAULT,
                                         wx.NORMAL, wx.NORMAL, False, wb_config.face ) )
 
-        sizer.Add(self.textctrl, 1, wx.ALL|wx.EXPAND, 5)
+        sizer.Add( self.textctrl, 1, wx.ALL|wx.EXPAND, 5 )
         sizer.Add( wx.StaticLine( self, -1, size=( 20,-1 ), style=wx.LI_HORIZONTAL ),
                    0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_BOTTOM|wx.ALL, 5 )
-        sizer.Add(self.CreateStdDialogButtonSizer(wx.OK | wx.CANCEL),
+        sizer.Add( self.CreateStdDialogButtonSizer( wx.OK | wx.CANCEL ),
                    0, wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM|wx.ALL, 5 )
 
-        self.SetSizer(sizer)
+        self.SetSizer( sizer )
         self.Fit()
 
     def GetValue( self ):
         return self.textctrl.GetValue()
 
-class AddProjectState:
-    def __init__( self ):
-        self.use_existing = False
-        self.wc_path = ''
-        self.url_path = ''
-        self.project_name = ''
-        self.configspec = ''
-
 class AddProjectDialog:
     def __init__( self, app, parent ):
         self.app = app
+
         self.provider_name = ''
 
         # get the list of names to use in the validation
         pi_list = self.app.prefs.getProjects().getProjectList()
         self.pi_names = [pi.project_name for pi in pi_list]
 
-        self.wizard = wx.wizard.Wizard( parent, wizard_id, T_("Add Project") )
+        self.wizard = wx.wizard.Wizard( parent, wizard_id, T_("Add Torun Project") )
 
         self.page_wc_choice = WorkingCopyChoicePage( self )
         self.page_wc_exists = WorkingCopyExistsPage( self )
         self.page_url = SubversionUrlPage( self )
-        self.page_wc_create = WorkingCopyCreatePage( self )
 
         self.page_project_name = ProjectNamePage( self )
         self.page_new_project = ProjectNamePage( self )
-        self.page_cs_choice = TorunProjectSelectionPage( self )
+
+        self.page_mf_choice = ProjectSelectionPage( self )
         self.page_directory = DirectoryPage( self )
 
         self.page_wc_choice.SetNext( self.page_project_name )
 
         self.page_wc_exists.SetPrev( self.page_wc_choice )
-        #self.page_wc_exists.SetNext( self.page_project_name )
         self.page_wc_exists.SetNext( self.page_new_project )
-
         self.page_new_project.SetPrev( self.page_wc_exists )
+
         self.page_url.SetPrev( self.page_wc_choice )
-        self.page_url.SetNext( self.page_wc_create )
 
-        self.page_wc_create.SetPrev( self.page_url )
-        self.page_wc_create.SetNext( self.page_project_name )
-
-        self.page_project_name.SetPrev( self.page_wc_create )
-
-        self.page_cs_choice.SetPrev( self.page_wc_choice )
-        self.page_cs_choice.SetNext( self.page_directory )
-        self.page_directory.SetPrev( self.page_cs_choice )
+        self.page_mf_choice.SetPrev( self.page_wc_choice )
+        self.page_mf_choice.SetNext( self.page_directory )
+        self.page_directory.SetPrev( self.page_mf_choice )
 
         self.wizard.FitToPage( self.page_wc_exists )
+
         self.wizard.Bind( wx.wizard.EVT_WIZARD_PAGE_CHANGED, self.OnPageChanged )
         self.wizard.Bind( wx.wizard.EVT_WIZARD_PAGE_CHANGING, self.OnPageChanging )
 
-        self.state = AddProjectState()
+        self.state = wb_source_control_providers.AddProjectState()
 
     def ShowModal( self ):
         self.page_wc_choice.loadState( self.state )
@@ -122,11 +105,11 @@ class AddProjectDialog:
 
     def getProjectInfo( self ):
         provider = wb_source_control_providers.getProvider( self.provider_name )
-        pi = provider.getProjectInfo( self.app )
 
+        pi = provider.getProjectInfo( self.app )
         pi.init( self.state.project_name,
                  wc_path=self.state.wc_path,
-                 configspec=self.state.configspec,
+                 manifest=self.state.manifest,
                  url=self.state.url_path )
 
         return pi
@@ -151,7 +134,6 @@ class AddProjectDialog:
         self.client_pi = pi
 
 #----------------------------------------------------------------------
-
 def makePageTitle(wizPg, title):
     sizer = wx.BoxSizer(wx.VERTICAL)
     wizPg.SetSizer(sizer)
@@ -189,42 +171,34 @@ class TitledPage(wx.wizard.PyWizardPage):
     def saveState( self, state ):
         return True
 
-
 class WorkingCopyChoicePage(TitledPage):
     def __init__( self, parent ):
         TitledPage.__init__( self, parent, T_("Working Copy") )
-        self.radio_new = wx.RadioButton( self, -1, T_(" Use new working copy directory "), style = wx.RB_GROUP )
-        self.radio_existing = wx.RadioButton( self, -1, T_(" Use existing Working copy directory ") )
+        self.radio_new = wx.RadioButton( self, -1, T_(" Create new Torun project "), style = wx.RB_GROUP )
+        self.radio_existing = wx.RadioButton( self, -1, T_(" Use existing Torun project ") )
 
-        self.radio_torun = wx.RadioButton( self, -1, T_(" Create Torun project with working directory ") )
         self.sizer.Add( (10, 50) )
         self.sizer.Add( self.radio_new, 0, wx.ALL, 5 )
         self.sizer.Add( (5, 5) )
         self.sizer.Add( self.radio_existing, 0, wx.ALL, 5 )
-        self.sizer.Add( (5, 5))
-        self.sizer.Add( self.radio_torun, 0, wx.ALL, 5)
 
     def GetNext( self ):
+        if self.radio_new.GetValue():
+            return self.parent.page_mf_choice
         if self.radio_existing.GetValue():
             return self.parent.page_wc_exists
-        if self.radio_new.GetValue():
-            return self.parent.page_url
-        if self.radio_torun.GetValue():
-            return self.parent.page_cs_choice
+
         return None
 
     def loadState( self, state ):
         self.radio_new.SetValue( state.use_existing == 0 )
         self.radio_existing.SetValue( state.use_existing == 1 )
-        self.radio_torun.SetValue( state.use_existing == 2 )
 
     def saveState( self, state ):
         if self.radio_new.GetValue():
             state.use_existing = 0
         elif self.radio_existing.GetValue():
             state.use_existing = 1
-        elif self.radio_torun.GetValue():
-            state.use_existing = 2
 
         return True
 
@@ -259,7 +233,7 @@ class WorkingCopyExistsPage(TitledPage):
         wx.EVT_BUTTON( self, wc_path_browse_id, self.OnBrowseWorkingCopyDir )
         wx.EVT_TEXT( self, wc_path_text_ctrl_id, self.updateControls )
 
-        self.configspec = None
+        self.manifest = None
         self._update_controls_lock = False
 
     def loadState( self, state ):
@@ -271,26 +245,27 @@ class WorkingCopyExistsPage(TitledPage):
         # otherwise all sorts of things break inside workbench
         state.wc_path = os.path.abspath( os.path.expanduser( self.wc_path_ctrl.GetValue().strip() ) )
         state.url_path = self.url_ctrl.GetLabel().strip()
-        state.configspec = self.configspec
+
+        state.manifest = self.manifest
 
         if not os.path.exists( state.wc_path ):
             wx.MessageBox( T_('Path %s\n'
                     'Does not exist\n'
-                    'Choose an existing subversion working copy directory')
+                    'Choose an existing Torun working copy directory')
                     % state.wc_path, style=wx.OK|wx.ICON_ERROR );
             return False
 
         if not os.path.isdir( state.wc_path ):
             wx.MessageBox( T_('Path %s\n'
                     'Is not a directory\n'
-                    'Choose an existing subversion working copy directory')
+                    'Choose an existing Torun working copy directory')
                     % state.wc_path, style=wx.OK|wx.ICON_ERROR );
             return False
 
-        if state.url_path == '' and state.configspec is None:
+        if state.url_path == '' and state.manifest is None:
             wx.MessageBox( T_('Path %s\n'
-                    'Is not a subversion working copy\n'
-                    'Choose an existing subversion working copy directory')
+                    'Is not a Torun working copy\n'
+                    'Choose an existing Torun working copy directory')
                     % state.wc_path, style=wx.OK|wx.ICON_ERROR );
             return False
 
@@ -298,7 +273,7 @@ class WorkingCopyExistsPage(TitledPage):
 
     def OnBrowseWorkingCopyDir( self, event ):
         filename = os.path.expanduser( self.wc_path_ctrl.GetValue() )
-        dir_dialog = wx.DirDialog( 
+        dir_dialog = wx.DirDialog(
             self,
             T_("Select Working Copy directory"),
             filename,
@@ -315,39 +290,28 @@ class WorkingCopyExistsPage(TitledPage):
         # on some platforms we will be reentered when SetValue is called
         if self._update_controls_lock:
             return
-        self._update_controls_lock = True
 
+        self._update_controls_lock = True
         self.parent.setProviderName( 'subversion' )
+
         # If the wc_path exists and is a svn wc then disable the url field
         wc_path = self.wc_path_ctrl.GetValue()
         wc_path = os.path.expanduser( wc_path )
 
-        url = None
         if os.path.exists( wc_path ):
-            try:
-                info = self.parent.client_pi.client_fg.info( wc_path )
-                url = info.url
-            except pysvn.ClientError:
-                pass
-
-        if url is None:
-            self.url_ctrl.SetLabel( '' )
-        else:
-            self.url_ctrl.SetLabel( url )
-
-        if url is None and os.path.exists( wc_path ):
             p = self.parent.app.prefs.getRepository()
-            cs_file = os.path.join( wc_path, p.repo_configspec )
-            if os.path.exists( cs_file ):
-                configspec = wb_read_file.readFile( cs_file )
-
-                cs_parser = wb_torun_configspec.wb_subversion_configspec( configspec )
-                if cs_parser.error() is None:
-                    self.configspec = configspec
-                    self.parent.setProviderName( 'torun' )
+            manifestf = os.path.join( wc_path, p.manifest_name )
+            if os.path.exists( manifestf ):
+                manifest = wb_read_file.readFile( manifestf )
+                # detect the manifest format with all manifest providers
+                for pv in wb_manifest_providers.getProviders():
+                    pi = wb_source_control_providers.ProjectInfo( self.parent.app, self.parent, None )
+                    pi.manifest = manifest
+                    if pv.require( pi ):
+                        self.manifest = manifest
+                        self.parent.setProviderName( pv.manifestp )
 
         self._update_controls_lock = False
-
 
 class SubversionUrlPage(TitledPage):
     def __init__( self, parent ):
@@ -357,13 +321,13 @@ class SubversionUrlPage(TitledPage):
         self.g_sizer.AddGrowableCol( 1 )
 
 
-        self.url_path_label = wx.StaticText(self, -1, T_('Subversion URL:'), style=wx.ALIGN_RIGHT )
-        self.url_path_ctrl = wx.TextCtrl(self, url_trunk_path_text_ctrl_id, '' )
+        self.url_path_label = wx.StaticText( self, -1, T_('Subversion URL:'), style=wx.ALIGN_RIGHT )
+        self.url_path_ctrl = wx.TextCtrl( self, url_trunk_path_text_ctrl_id, '' )
+
         self.url_repo_button = wx.Button( self, -1, T_('...') )
 
         self.g_sizer.Add( self.url_path_label, 1, wx.EXPAND|wx.ALL|wx.ALIGN_RIGHT, 5 )
         self.g_sizer.Add( self.url_path_ctrl, 0, wx.EXPAND|wx.ALL, 3 )
-#        self.g_sizer.Add( (1, 1), 0, wx.EXPAND )
         self.g_sizer.Add( self.url_repo_button, 0 )
 
         self.g_sizer.Add( (10,10) )
@@ -371,6 +335,7 @@ class SubversionUrlPage(TitledPage):
         self.g_sizer.Add( (10,10) )
 
         wx.EVT_BUTTON( self, self.url_repo_button.GetId(), self.OnEventRepoButton )
+
         self.sizer.Add( self.g_sizer, 0, wx.ALL, 5 )
 
     def OnEventRepoButton( self, event ):
@@ -384,6 +349,7 @@ class SubversionUrlPage(TitledPage):
 
     def saveState( self, state ):
         self.parent.setProviderName( 'subversion' )
+
         state.url_path = self.url_path_ctrl.GetValue().strip()
 
         if state.url_path == '':
@@ -392,7 +358,7 @@ class SubversionUrlPage(TitledPage):
 
         if not self.parent.client_pi.client_fg.is_url( state.url_path ):
             wx.MessageBox( T_('%s is not a valid Subversion URL') % state.url_path,
-                style=wx.OK|wx.ICON_ERROR );
+                           style=wx.OK|wx.ICON_ERROR );
             return False
 
         try:
@@ -409,11 +375,11 @@ class SubversionUrlPage(TitledPage):
 
         return True
 
-class TorunProjectSelectionPage(TitledPage):
+class ProjectSelectionPage(TitledPage):
     def __init__( self, parent ):
         TitledPage.__init__( self, parent, T_("Select Configspec") )
 
-        self.configspec = ''
+        self.manifest = ''
         self.repo_list = None
 
         self.client = pysvn.Client()
@@ -421,15 +387,15 @@ class TorunProjectSelectionPage(TitledPage):
 
         # choose for creation type
         radiobox_type = wx.RadioBox( self, -1, "Creation Type", wx.DefaultPosition, wx.DefaultSize,
-                                     ['Create with Configspec', 'Create with Baseline info'],
+                                     ['Create with Manual Manifest', 'Create with Baseline info'],
                                      2, wx.RA_SPECIFY_COLS )
 
         radiobox_type.Bind( wx.EVT_RADIOBOX, self.OnChangeConfigspecCategory)
         self.sizer.Add( radiobox_type, 0, wx.EXPAND|wx.ALL, 5 )
 
-        text_proj_id = wx.StaticText( self, -1, T_("Project ID ") )
+        text_proj_id = wx.StaticText( self, -1, T_("Project ID") )
         self.project_id = wx.ComboBox( self, -1, style=wx.CB_READONLY )
-        text_proj_label = wx.StaticText( self, -1, T_("Project Label ") )
+        text_proj_label = wx.StaticText( self, -1, T_("Project Label") )
         self.project_label = wx.ComboBox( self, -1, style=wx.CB_READONLY )
         self.extend_proj = wx.CheckBox( self, -1, T_("Include Extended Projects") )
 
@@ -446,10 +412,10 @@ class TorunProjectSelectionPage(TitledPage):
         info_sizer.Add( self.extend_proj, 0, wx.ALL, 5 )
         self.sizer.Add( info_sizer, 0, wx.EXPAND|wx.ALL, 5 )
 
-        spec = wx.StaticBox( self, -1, T_("Configspec") )
+        spec = wx.StaticBox( self, -1, T_("Manifest") )
         spec_sizer = wx.StaticBoxSizer( spec, wx.HORIZONTAL )
-        spec_text = wx.StaticText( self, -1, T_("The configspec obeys the syntax of ClearCase Configspec") )
-        self.spec_button = wx.Button( self, -1, T_("Configspec") )
+        spec_text = wx.StaticText( self, -1, T_("The manifest format must obey definitions") )
+        self.spec_button = wx.Button( self, -1, T_("Manifest") )
 
         spec_sizer.Add( spec_text, 0, wx.EXPAND|wx.ALL, 5 )
         spec_sizer.Add( self.spec_button, 0, wx.ALIGN_RIGHT|wx.ALL|wx.EXPAND, 5 )
@@ -460,25 +426,25 @@ class TorunProjectSelectionPage(TitledPage):
         self.project_label.Bind( wx.EVT_COMBOBOX, self.OnProjectLabelChange )
         self.spec_button.Bind( wx.EVT_BUTTON, self.OnConfigspecClick )
 
-        self.updateControls(0)
-
     def loadState( self, state ):
-        self.configspec = state.configspec
+        self.manifest = state.manifest
+        # delay to load the project info in remote
+        self.updateControls(0)
 
     def saveState( self, state ):
         self.parent.setProviderName( 'torun' )
 
-        if self.configspec == '':
+        if self.manifest == '':
             wx.MessageBox( T_('Select a project with one specified version, or enter a configspec'),
-                    style=wx.OK|wx.ICON_ERROR );
+                           style=wx.OK|wx.ICON_ERROR );
             return False
 
-        configspec_parser = wb_torun_configspec.wb_subversion_configspec(self.configspec)
+        configspec_parser = wb_torun_configspec.wb_subversion_configspec( self.manifest )
         if configspec_parser.error():
             wx.MessageBox( T_(configspec_parser.error() ), style=wx.OK|wx.ICON_ERROR )
             return False
 
-        state.configspec = self.configspec
+        state.manifest = self.manifest
         state.project_name = self.project_id.GetClientData( self.project_id.GetSelection() )
 
         return True
@@ -505,12 +471,12 @@ class TorunProjectSelectionPage(TitledPage):
         prefix = '/vobs/'
         dir_maps = dict()
 
-        repo_name = (project_location.split('/'))[2]
-        repo_location = self.repo_map.get(repo_name)
+        repo_name = ( project_location.split( '/' ) )[2]
+        repo_location = self.repo_map.get( repo_name )
         if not repo_location:
             return
 
-        if not repo_location.endswith('/'):
+        if not repo_location.endswith( '/' ):
             repo_location += '/'
 
         # try to read all project tags. compatible with Torun - two
@@ -524,8 +490,8 @@ class TorunProjectSelectionPage(TitledPage):
                     peg_revision=pysvn.Revision( pysvn.opt_revision_kind.unspecified ) )
 
             for item in dirs:
-                if item.name.rfind('/tags/%s-' % uproject) > 0:
-                    label = item.name.split('/')[-1]
+                if item.name.rfind( '/tags/%s-' % uproject ) > 0:
+                    label = item.name.split( '/' )[-1]
                     dir_maps[ label ] = item.name
         except:
             # ignore the exception
@@ -549,6 +515,8 @@ class TorunProjectSelectionPage(TitledPage):
         self.project_label.Clear()
         if len( dir_maps ) > 0:
             dir_list = dir_maps.keys()
+
+            # sort without CB_LIST
             dir_list.sort()
             for item in dir_list:
                 self.project_label.Append( item, dir_maps[item] )
@@ -557,7 +525,7 @@ class TorunProjectSelectionPage(TitledPage):
             self.OnProjectLabelChange( None )
 
     def OnProjectLabelChange( self, event ):
-        self.configspec = ''
+        self.manifest = ''
         location = self.project_label.GetClientData( self.project_label.GetSelection() )
 
         # read the configspec with the order defined in the list
@@ -567,17 +535,23 @@ class TorunProjectSelectionPage(TitledPage):
                       'configspec.cygwin', 'configspec.windows' ]:
             try:
                 url = '%s/%s/confm/%s' % ( location, project, name )
-                text = self.client.cat(url,
-                        revision=pysvn.Revision( pysvn.opt_revision_kind.head ),
-                        peg_revision=pysvn.Revision( pysvn.opt_revision_kind.unspecified) )
+                manifest = self.client.cat(url,
+                           revision=pysvn.Revision( pysvn.opt_revision_kind.head ),
+                           peg_revision=pysvn.Revision( pysvn.opt_revision_kind.unspecified) )
 
-                self.configspec = \
+                # build up a new manifest with selected labels
+                for p in wb_manifest_providers.getProviders() or list():
+                    pi = wb_source_control_providers.ProjectInfo( self.app, self.parent, p.name )
+                    if p.require( pi ):
+                        editor = p.getEditor()
+                self.manifest = \
 """\
 #====================================
 # Generated from %s
 #====================================
 
 %s
+
 #===+PROJECT
 element %s/%s/... %s
 """ % ( name, text.strip(), self.repo_list[project], project, self.project_label.GetValue() )
@@ -587,9 +561,9 @@ element %s/%s/... %s
                 pass
 
     def OnConfigspecClick( self, event ):
-        editor = _TinyEditor(self, 'Edit Configspec', self.configspec)
+        editor = _TinyEditor(self, 'Edit Configspec', self.manifest)
         if editor.ShowModal() == wx.ID_OK:
-            self.configspec = editor.GetValue()
+            self.manifest = editor.GetValue()
             editor.Destroy()
 
     def updateControls( self, choice ):
@@ -641,12 +615,12 @@ element %s/%s/... %s
             repo_url += '/'
 
         text = None
-        for suffix in ['trunk/' + (repo_url.split('/'))[-2] + '/repo.list',
+        for suffix in ['trunk/' + ( repo_url.split( '/' ) )[-2] + '/repo.list',
                        'trunk/baseline/repo.list',
                        'trunk/repo.list',
                        'repo.list']:
             try:
-                text = self.client.cat(repo_url + suffix,
+                text = self.client.cat( repo_url + suffix,
                         revision=pysvn.Revision( pysvn.opt_revision_kind.head ),
                         peg_revision=pysvn.Revision( pysvn.opt_revision_kind.unspecified) )
             except:
@@ -666,7 +640,6 @@ element %s/%s/... %s
 
         return ret
 
-
 class DirectoryPage(TitledPage):
     def __init__( self, parent ):
         TitledPage.__init__( self, parent, T_("Select Directory") )
@@ -682,9 +655,9 @@ class DirectoryPage(TitledPage):
         self.g_sizer.Add( self.path_ctrl, 1, wx.EXPAND|wx.ALL|wx.ALIGN_BOTTOM, 3 )
         self.g_sizer.Add( self.path_browse, 0, wx.EXPAND )
 
-        self.g_sizer.Add( (10,10) )
-        self.g_sizer.Add( (400,10) )
-        self.g_sizer.Add( (10,10) )
+        self.g_sizer.Add( ( 10, 10 ) )
+        self.g_sizer.Add( ( 400, 10 ) )
+        self.g_sizer.Add( ( 10, 10 ) )
 
         self.sizer.Add( self.g_sizer, 0, wx.ALL, 5 )
 
@@ -712,7 +685,7 @@ class DirectoryPage(TitledPage):
                     % state.wc_path, style=wx.OK|wx.ICON_ERROR );
             return False
 
-        # handle the project name following SIG solution
+        # handle the project name following solution
         project_name = state.project_name
         # replace project_name with the directory name
         state.project_name = state.wc_path.replace( '\\', '/' ).split( '/' )[-1]
@@ -830,7 +803,7 @@ class WorkingCopyCreatePage(TitledPage):
 
     def OnBrowseWorkingCopyDir( self, event ):
         filename = os.path.expanduser( self.wc_path_ctrl.GetValue() )
-        dir_dialog = wx.DirDialog( 
+        dir_dialog = wx.DirDialog(
             self,
             T_("Select Working Copy directory"),
             filename,
@@ -840,8 +813,6 @@ class WorkingCopyCreatePage(TitledPage):
             self.wc_path_ctrl.SetValue( dir_dialog.GetPath() )
 
         dir_dialog.Destroy()
-
-
 
 class ProjectNamePage(TitledPage):
     def __init__( self, parent ):
@@ -882,7 +853,7 @@ class ProjectNamePage(TitledPage):
         self.wc_path_ctrl.SetLabel( state.wc_path )
         self.url_ctrl.SetLabel( state.url_path )
 
-        if state.configspec:
+        if state.manifest:
             project_name = state.wc_path.replace( '\\', '/' ).split( '/' )[-1]
             self.name_ctrl.SetValue( project_name )
             # set prompt for url

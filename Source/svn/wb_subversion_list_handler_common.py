@@ -1,7 +1,6 @@
 '''
  ====================================================================
  Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
- Copyright (c) 2010 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -276,7 +275,7 @@ class SubversionListHandlerCommon(wb_list_panel_common.ListHandler):
                 prop_status = self.getPropStatus(f)
                 if text_status in modified_states or prop_status in modified_states:
                     self.all_files.append( f )
-                    
+
         self.all_files.sort( SortList( sort_data, self.project_info ) )
 
         self.__restoreListSelectionState( selection_state )
@@ -365,7 +364,6 @@ class SubversionListHandlerCommon(wb_list_panel_common.ListHandler):
                 return ''
 
         status = self.all_files[ index ]
-
         if column == self.col_name:
             value = self.__get_NameColumn( status, self._getNameColPrefix() )
 
@@ -434,7 +432,7 @@ class SubversionListHandlerCommon(wb_list_panel_common.ListHandler):
         else:
             is_dir = status.entry.kind == pysvn.node_kind.dir
         return is_dir
-    
+
     def __get_NameColumn( self, status, prefix_len ):
         if status.entry is None:
             is_dir = os.path.isdir( status.path )
@@ -772,7 +770,7 @@ class SubversionListHandlerCommon(wb_list_panel_common.ListHandler):
                                 self.project_info,
                                 info1,
                                 info2 )
-                            
+
             if type(generator) == types.GeneratorType:
                 while True:
                     try:

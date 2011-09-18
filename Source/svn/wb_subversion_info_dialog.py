@@ -181,7 +181,6 @@ class InfoDialog(wx.Dialog):
                                         style=wx.TE_MULTILINE )
         else:
             value_ctrl = wx.TextCtrl( self, -1, unicode(value) )
-        # value_ctrl.SetSelection( -1, -1 )
 
         self.g_sizer.Add( label_ctrl, 1, wx.LEFT|wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL, 3 )
         self.g_sizer.Add( value_ctrl, 0, wx.EXPAND|wx.RIGHT, 3)

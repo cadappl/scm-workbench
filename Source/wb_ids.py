@@ -1,6 +1,7 @@
 '''
  ====================================================================
  Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2010-2011 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -11,8 +12,6 @@
 
 '''
 import wx
-
-id_Torun_Setting = wx.NewId()
 
 id_View_Refresh = wx.NewId()
 id_View_AutoRefresh = wx.NewId()
@@ -74,7 +73,9 @@ id_SP_Properties = wx.NewId()
 id_SP_Rename = wx.NewId()
 id_SP_Resolved = wx.NewId()
 id_SP_Revert = wx.NewId()
+
 id_SP_Switch = wx.NewId()
+
 id_SP_Unlock = wx.NewId()
 id_SP_Update = wx.NewId()
 id_SP_UpdateTo = wx.NewId()
@@ -85,6 +86,7 @@ id_SP_Report_Updates = wx.NewId()
 id_SP_Report_LocksWc = wx.NewId()
 id_SP_Report_LocksRepos = wx.NewId()
 id_SP_Report_BranchChanges = wx.NewId()
+
 
 id_SP_Torun_ProcAdd = wx.NewId()
 id_SP_Torun_ProcDelete = wx.NewId()

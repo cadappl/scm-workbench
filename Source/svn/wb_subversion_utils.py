@@ -254,28 +254,3 @@ def populateMenu( menu, contents ):
 def by_path( a, b ):
     return cmp( a.path, b.path )
 
-def by_list_path( a, b ):
-    return cmp( a[0].path, b[0].path )
-
-def handleMenuInfo( project_info, start=0 ):
-    menu_context = list()
-
-    length = len( project_info.menu_info or list() )
-    while start < length:
-        id, func, callback = project_info.menu_info[start]
-        # optimized for separator
-        if id == 0 or func == None:
-            menu_tmp = handleMenuInfo( project_info, start + 1 )
-            if len(menu_tmp):
-                menu_context.append( ( '-', 0, 0 ) )
-                menu_context += menu_tmp
-                break
-        else:
-            ret, context = func( project_info )
-            if ret:
-                menu_context.append( ( '', id, context) )
-
-        start += 1
-
-    return menu_context
-

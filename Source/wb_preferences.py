@@ -2,7 +2,7 @@
 
  ====================================================================
  Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
- Copyright (c) 2010 ccc. All rights reserved.
+ Copyright (c) 2010-2011 SiG Technologies. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -235,7 +235,6 @@ class PreferenceData:
             return element.attributes[ attrib_name ].value
         return default
 
-
     def has_section( self, section_name ):
         return section_name in self.all_sections
 
@@ -352,7 +351,7 @@ class SetOption:
         self.section_name = section_name
 
     def set( self, name, value, sep='' ):
-        # Extend for list saving with a delimiter
+        #Extend for list saving with a delimiter
         if type(value) == types.ListType and len(sep) > 0:
             value = sep.join( value )
 
@@ -909,8 +908,13 @@ class RepositoryPreferences(PreferenceSection):
         PreferenceSection.__init__( self, 'Repository' )
         self.app = app
 
+        self.repo_prefix = '/vobs'
         self.repo_baseline = ''
-        self.repo_configspec = ''
+        self.manifest_name = '.configspec'
+
+        # parent -> indicate the parent of a module
+        # pattern -> it's a module identifier file
+        # component -> all directories for the module
         self.info_module = dict( {
             'parent'    : '.+modules$',
             'pattern'   : '%D/%F.ident',
@@ -933,13 +937,17 @@ class RepositoryPreferences(PreferenceSection):
         get_option = GetOption( pref_data, self.section_name )
 
         if get_option.has( 'repo_baseline' ):
-            self.repo_baseline = get_option.getstr('repo_baseline')
+            self.repo_baseline = get_option.getstr( 'repo_baseline' )
 
-        if get_option.has( 'repo_configspec' ):
-            self.repo_configspec = get_option.getstr( 'repo_configspec')
+        if get_option.has( 'manifest_name' ):
+            self.manifest_name = get_option.getstr( 'manifest_name')
 
-        if not self.repo_configspec:
-            self.repo_configspec = '.configspec'
+        if get_option.has( 'repo_prefix' ):
+            prefix = get_option.getstr( 'repo_prefix' )
+            if prefix[-1] == '/' or prefix[-1] == '\\':
+                prefix = prefix[:-1]
+
+            self.repo_prefix = prefix
 
         if get_option.has( 'info_module' ):
             self.info_module = get_option.get( 'info_module' )
@@ -961,15 +969,16 @@ class RepositoryPreferences(PreferenceSection):
 
     def writePreferences( self, pref_data ):
         set_option = SetOption( pref_data, self.section_name )
+        set_option.set( 'repo_prefix', self.repo_prefix )
         set_option.set( 'repo_baseline', self.repo_baseline )
-        set_option.set( 'repo_configspec', self.repo_configspec )
+        set_option.set( 'manifest_name', self.manifest_name )
 
         listp = list()
         for o, v in self.repo_map_list.items():
-           dic = dict()
-           dic[ 'name ' ] = o
-           dic[ 'url' ] = v
-           listp.append(dic)
+           d = dict()
+           d[ 'name ' ] = o
+           d[ 'url' ] = v
+           listp.append(d)
 
         set_option.set( 'repo_map_list', dict( { 'repository' : listp } ) )
 

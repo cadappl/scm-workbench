@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2010 ccc.  All rights reserved.
+ Copyright (c) 2010-2011 ccc.  All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -16,12 +16,12 @@ import wx
 import wb_exceptions
 import os
 
-import wb_torun_configspec
 import wb_subversion_list_handler_common
 import wb_shell_commands
 import wb_dialogs
 import wb_tree_panel
 import wb_toolbars
+import wb_utils
 
 class TorunSettingDialog( wx.Dialog ):
     def __init__( self, parent, app ):
@@ -109,21 +109,22 @@ class RepoSettingPage(PagePanel):
 
         self.grid_sizer = wx.FlexGridSizer( 0, 3, 0, 0 )
         self.grid_sizer.AddGrowableCol( 1 )
-        self.static_text1 = wx.StaticText( self, -1, T_('Baseline Repo: '), style=wx.ALIGN_RIGHT)
+
+        self.static_text1 = wx.StaticText( self, -1, T_('Baseline Repo: '), style=wx.ALIGN_RIGHT )
         self.text_ctrl_editor = wx.TextCtrl( self, -1, p.repo_baseline, wx.DefaultPosition, wx.Size( 300, -1 ) )
 
-        self.browse_button = wx.Button( self, -1, T_(' Browse... '))
+        self.browse_button = wx.Button( self, -1, T_(' Browse... ') )
 
         self.grid_sizer.Add( self.static_text1, 0, wx.EXPAND|wx.ALL, 1 )
         self.grid_sizer.Add( self.text_ctrl_editor, 1, wx.EXPAND|wx.ALL, 1 )
         self.grid_sizer.Add( self.browse_button, 0, wx.EXPAND )
 
         self.static_text2 = wx.StaticText( self, -1, T_('Configspec Name: '), style=wx.ALIGN_RIGHT )
-        self.text_ctrl_configspec = wx.TextCtrl( self, -1, p.repo_configspec, wx.DefaultPosition, wx.Size( 300, -1 ) )
+        self.text_ctrl_configspec = wx.TextCtrl( self, -1, p.manifest_name, wx.DefaultPosition, wx.Size( 300, -1 ) )
 
         self.grid_sizer.Add( self.static_text2, 0, wx.EXPAND|wx.ALL, 1 )
         self.grid_sizer.Add( self.text_ctrl_configspec, 1, wx.EXPAND|wx.ALL, 1 )
-        self.grid_sizer.Add( (1, 1), 0, wx.EXPAND )
+        self.grid_sizer.Add( ( 1, 1 ), 0, wx.EXPAND )
 
         wx.EVT_BUTTON( self, self.browse_button.GetId(), self.OnBrowseExe )
 
@@ -202,7 +203,7 @@ class RepoListPage(PagePanel):
         self.repo_map_list.SetColumnWidth( 1, 300 )
 
         repo_names = self.p.repo_map_list.keys()
-        repo_names.sort( wb_torun_configspec.compare )
+        repo_names.sort( wb_utils.compare )
         for item in repo_names:
             index = self.repo_map_list.GetItemCount()
             self.repo_map_list.InsertStringItem( index, item )
@@ -253,7 +254,7 @@ class RepoListPage(PagePanel):
         self.selected_item = None
 
     def OnButtonAdd( self, event ):
-        repo_dialog = self.RepoListEditDialog( self, 'Add Repository Path')
+        repo_dialog = self.RepoListEditDialog( self, 'Add Repository Path' )
         if repo_dialog.ShowModal() == wx.ID_OK:
             repo, dir = repo_dialog.GetValue()
             if self.p.repo_map_list.has_key( repo ):

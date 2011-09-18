@@ -1,6 +1,7 @@
 '''
  ====================================================================
  Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2010-2011 ccc.  All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -44,12 +45,13 @@ import wb_dialogs
 import wb_background_thread
 import wb_shell_commands
 import wb_repo_browser_frame
-import wb_subversion_report_revision_changes
-import wb_subversion_utils
+
+# TEMP
+#### import wb_subversion_report_revision_changes
 
 # 2.8 has the convenient ACCEL_CMD
 # on 2.6 we can add the feature
-try: 
+try:
     wx.ACCEL_CMD
 except AttributeError:
     if 'wxMac' in wx.PlatformInfo:
@@ -98,7 +100,7 @@ class WbApp(wx.App):
 
         locale_path = wb_platform_specific.getLocalePath( self )
 
-        all_mofiles = gettext.find( 
+        all_mofiles = gettext.find(
                 'pysvn_workbench',
                 locale_path,
                 languages,

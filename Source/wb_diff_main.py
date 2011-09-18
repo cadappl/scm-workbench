@@ -20,7 +20,7 @@ import sys
 # 2.8 is reported to work as well
 if not hasattr(sys, 'frozen'):
     import wxversion
-    wxversion.select( ['2.6', '2.8'] )
+    wxversion.select( ['2.9', '2.8', '2.6'] )
 
 def noTranslate(msg):
     return msg

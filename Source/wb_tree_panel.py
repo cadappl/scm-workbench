@@ -1,7 +1,7 @@
 '''
  ====================================================================
  Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
- Copyright (c) ccc. All rights reserved.
+ Copyright (c) 2010 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -21,10 +21,9 @@ import wb_source_control_providers
 import wb_ids
 import wb_shell_commands
 import wb_dialogs
-import wb_project_dialogs
 
 import wb_config
-import wb_torun_configspec
+import wb_utils
 
 class TreeState:
     def __init__( self, place_holder=False ):
@@ -256,7 +255,6 @@ class WbTreePanel(wx.Panel):
             # mark all the project parents as such
             handler = provider.getProjectTreeItem( self.app, project_info )
             handler.setIsProjectParent()
-
             self.tree_ctrl.SetPyData( item, handler )
             self.tree_ctrl.SetItemHasChildren( item, handler.mayExpand() )
             self.tree_ctrl.SetItemTextColour( item, handler.getTreeNodeColour() )
@@ -287,11 +285,9 @@ class WbTreePanel(wx.Panel):
         # remove any items that are no longer present
         del_items = []
         found_pi = []
-
         child_item, cookie = self.tree_ctrl.GetFirstChild( this_item )
         while child_item:
             tree_pi = self.tree_ctrl.GetPyData( child_item ).getProjectInfo()
-
             found = False
             for index, pi in enumerate( project_info_list ):
                 if tree_pi.isEqual( pi ):
@@ -309,7 +305,6 @@ class WbTreePanel(wx.Panel):
         for index, project_info in enumerate( project_info_list ):
             if index not in found_pi:
                 provider = wb_source_control_providers.getProvider( project_info.provider_name )
-
                 child_item = self.tree_ctrl.AppendItem( this_item, project_info.project_name )
                 child_handler = provider.getProjectTreeItem( self.app, project_info )
                 self.tree_ctrl.SetPyData( child_item, child_handler )
@@ -427,7 +422,7 @@ class WbTreePanel(wx.Panel):
             return
         self.tree_ctrl.SelectItem( self.tree_ctrl.GetItemParent( item ) )
         self.selectTreeNode( filename )
-        
+
     def selectTreeNode( self, filename ):
         item = self.tree_ctrl.GetSelection()
         if not item:
@@ -580,9 +575,31 @@ class WbTreePanel(wx.Panel):
         menu.Destroy()
 
     def OnProjectAdd( self, event ):
-        dialog = wb_project_dialogs.AddProjectDialog( self.app, self )
-        rc = dialog.ShowModal()
-        if rc == wx.ID_OK:
+        # show all supported providers with project enabler
+        listp = list()
+        provider_name = None
+
+        for provider in wb_source_control_providers.getProviders():
+            if provider.getProjectDialog() != None:
+                listp.append( provider.name )
+
+        listp.sort()
+        dialog = wx.SingleChoiceDialog( self.app.frame,
+                                        T_('Choose a provider for project creation'),
+                                        T_('Add Project'),
+                                        listp, wx.CHOICEDLG_STYLE )
+
+        if dialog.ShowModal() == wx.ID_OK:
+            provider_name = dialog.GetStringSelection()
+
+        dialog.Destroy()
+        if provider_name == None:
+            return
+
+        builder = wb_source_control_providers.getProvider( provider_name ).getProjectDialog()
+        dialog = builder( self.app, self )
+
+        if dialog.ShowModal() == wx.ID_OK:
             project_info = dialog.getProjectInfo()
             self.app.prefs.getProjects().addProject( project_info )
             self.app.savePreferences()
@@ -625,7 +642,7 @@ class WbTreePanel(wx.Panel):
             self.app.savePreferences()
 
             self.tree_ctrl.Delete( item )
-            
+
             # back to the top
             self.tree_ctrl.SelectItem( self.root_item )
 
@@ -731,7 +748,7 @@ class WbTreePanel(wx.Panel):
 
     def OnSpDiffWorkHead( self ):
         return self.Sp_Dispatch( 'Cmd_Dir_DiffWorkHead' )
- 
+
     def OnSpHistory( self ):
         return self.Sp_Dispatch( 'Cmd_Dir_History' )
 
@@ -828,7 +845,7 @@ class WbTreePanel(wx.Panel):
             print 'Not implemented', sp_func_name
             return None
         else:
-            return fn()    
+            return fn()
 
     def Sp_DispatchDrop( self, sp_func_name, filename_list ):
         self.app.trace.info( 'WbTreePanel.Sp_DispatchDrop( %s )' % sp_func_name )
@@ -907,7 +924,7 @@ class SvnDropTarget(wx.PyDropTarget):
                 self.tree.OnSpCopy( all_filenames )
             elif d == wx.DragMove:
                 self.tree.OnSpMove( all_filenames )
-            
+
         # what is returned signals the source what to do
         # with the original data (move, copy, etc.)  In this
         # case we just return the suggested value given to us.
@@ -931,8 +948,8 @@ class WbTreeCtrl(wx.TreeCtrl):
             style = wx.TR_HAS_BUTTONS
         else:
             style = wx.TR_HAS_BUTTONS|wx.TR_HIDE_ROOT
- 
-        wx.TreeCtrl.__init__( self, parent, self.id_tree, 
+
+        wx.TreeCtrl.__init__( self, parent, self.id_tree,
                                 wx.DefaultPosition,
                                 wx.DefaultSize,
                                 style )
@@ -985,7 +1002,7 @@ class WbTreeCtrl(wx.TreeCtrl):
         else:
             # compare children of projects
             # return cmp( a_pi.wc_path.lower(), b_pi.wc_path.lower() )
-            return wb_torun_configspec.compare( a_pi.wc_path.lower().split( os.sep )[-1], b_pi.wc_path.lower().split( os.sep )[-1] )
+            return wb_utils.compare( a_pi.wc_path.lower().split( os.sep )[-1], b_pi.wc_path.lower().split( os.sep )[-1] )
 
 #--------------------------------------------------------------------------------
 #
@@ -1016,7 +1033,7 @@ class TreeProjectItem:
 
     def getContextMenu( self, state ):
         raise wb_exceptions.InternalError( 'getContextMenu not implemented' )
-        
+
 
 class RootTreeItem(TreeProjectItem):
     def __init__( self ):

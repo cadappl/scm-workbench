@@ -1,7 +1,7 @@
 '''
  ====================================================================
  Copyright (c) 2003-2006 Barry A Scott.  All rights reserved.
- Copyright (c) 2010 ccc. All rights reserved.
+ Copyright (c) 2010-2011 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -15,12 +15,14 @@ import wb_exceptions
 
 _source_code_providers = {}
 
-
 def hasProvider( name ):
     return _source_code_providers.has_key( name )
 
 def getProvider( name ):
     return _source_code_providers[ name ]
+
+def getProviders():
+    return _source_code_providers.values()
 
 def registerProvider( provider ):
     _source_code_providers[ provider.name ] = provider
@@ -49,6 +51,23 @@ class Provider:
     def getAboutString( self ):
         raise wb_exceptions.InternalError( 'getAboutString not implemented' )
 
+    def getCopyrightString( self ):
+        raise wb_exceptions.InternalError( 'getCopyrightString not implemented' )
+
+    def getPreferencePanels( self ):
+        return list()
+
+    def getProjectDialog( self ):
+        return None
+
+class AddProjectState:
+    def __init__( self ):
+        self.use_existing = 0
+        self.wc_path = ''
+        self.url_path = ''
+        self.project_name = ''
+        self.manifest = ''
+
 class ProjectInfo:
     def __init__( self, app, parent, provider_name ):
         self.app = app
@@ -75,7 +94,6 @@ class ProjectInfo:
         self.use_background_colour = use
         self.background_colour = colour
 
-
     def readPreferences( self, get_option ):
         if get_option.has( 'new_file_template_dir' ):
             self.new_file_template_dir = get_option.getstr( 'new_file_template_dir' )
@@ -96,13 +114,11 @@ class ProjectInfo:
             self.background_colour =    (get_option.getint( 'background_colour_red' )
                                         ,get_option.getint( 'background_colour_green' )
                                         ,get_option.getint( 'background_colour_blue' ))
-
         else:
             self.background_colour = (255,255,255)
 
         if get_option.has( 'use_background_colour' ):
             self.use_background_colour = get_option.getbool( 'use_background_colour' )
-
         else:
             self.use_background_colour = False
 
@@ -125,3 +141,4 @@ class ProjectInfo:
             pref_dict[ 'background_colour_red' ] = self.background_colour[0]
             pref_dict[ 'background_colour_green' ] = self.background_colour[1]
             pref_dict[ 'background_colour_blue' ] = self.background_colour[2]
+

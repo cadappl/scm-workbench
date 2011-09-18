@@ -1,7 +1,7 @@
 '''
  ====================================================================
  Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
- Copyright (c) 2010 ccc. All rights reserved.
+ Copyright (c) 2010-2011 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -33,8 +33,8 @@ elif sys.platform.startswith( 'win' ):
 
 if stdout_filename is not None:
     try:
-        sys.stdout = open( stdout_filename, 'w' )
-        sys.stderr = sys.stdout
+#        sys.stdout = open( stdout_filename, 'w' )
+#        sys.stderr = sys.stdout
         print 'PySVN WorkBench starting'
         sys.stdout.flush()
 
@@ -45,19 +45,21 @@ if stdout_filename is not None:
 try:
     import wxversion
     wxversion.select( ['2.8'] )
-
 except:
     pass
 
+startup_dir = os.getcwd()
+sys.path += ( os.path.join( startup_dir, 'platform' ),
+              os.path.join( startup_dir, 'manifest' ) )
+
 import wb_app
-import wb_torun_provider
-import wb_subversion_provider
+import wb_utils
 
 def prerequesitChecks():
     return 1
 
 def main( args ):
-    startup_dir = os.getcwd()
+
     if True:
         if sys.platform == 'win32':
             os.chdir( os.environ['USERPROFILE'] )
@@ -76,8 +78,7 @@ def main( args ):
     initLocale()
 
     # Register all supported source control providers
-    wb_torun_provider.registerProvider()
-    wb_subversion_provider.registerProvider()
+    wb_utils.loadExts( startup_dir )
 
     # Create the win application and start its message loop
     app = wb_app.WbApp( startup_dir, args )
@@ -86,7 +87,6 @@ def main( args ):
         return 1
 
     app.frame.Show( 1 )
-
 
     app.MainLoop()
 
@@ -124,7 +124,7 @@ def initLocale():
             except locale.Error:
                 locale.setlocale( locale.LC_ALL, 'C' )
 
-# 
+#
 # needed to make MEINC Installer notice these packages
 # Include all the codecs
 #

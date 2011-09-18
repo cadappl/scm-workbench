@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2010 ccc. All rights reserved.
+ Copyright (c) 2010-2011 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -13,10 +13,10 @@
 
 import os
 
-__version__ = '1.2'
+__version__ = '1.4'
 
 # return the separated words and set the offset in the dictorary 'env'
-def getWordFromLine( context, env=dict(), delimiter=None ):
+def getWord( context, env=dict(), delimiter=None ):
     if context is None:
         return None, None
 
@@ -136,21 +136,21 @@ class ElementRule( ConfigspecRule ):
         if date_time and len( date_time ):
             opts['date-time'] = date_time[-1]
 
-        word, tails = getWordFromLine( context, env )
+        word, tails = getWord( context, env )
         if word != 'element':
             error = 'mismatch rule?'
 
         if error is None:
-            word, tails = getWordFromLine( tails, env )
+            word, tails = getWord( tails, env )
 
             opts['-file'] = word == '-file'
             opts['-directory']  = word == '-directory'
             iself = word == '-elftype'
             if iself:
-                word, tails = getWordFromLine( tails, env )
+                word, tails = getWord( tails, env )
                 if word:
                     opts['-elftype'] = word
-                    word, tails = getWordFromLine( tails, env )
+                    word, tails = getWord( tails, env )
                 else:
                     error = "Parameter of -elftype is missed"
 
@@ -163,20 +163,20 @@ class ElementRule( ConfigspecRule ):
 
         # version-selector
         if error is None:
-            word, tails = getWordFromLine( tails, env, "'" )
+            word, tails = getWord( tails, env, "'" )
             if word:
                 opts['version-selector'] = word
                 if word == '-conifg':
-                    word, tails = getWordFromLine( tails, env )
+                    word, tails = getWord( tails, env )
                     if word:
                         opts['-config'] = word
                     else:
                         error = 'Parameter of -config is missed'
 
                     if error is None:
-                        word, tails = getWordFromLine( tails, env )
+                        word, tails = getWord( tails, env )
                         if word == '-select':
-                            word, tails = getWordFromLine( tails, env )
+                            word, tails = getWord( tails, env )
                             if word:
                                 opts['-select'] = word
                             else:
@@ -184,14 +184,14 @@ class ElementRule( ConfigspecRule ):
                         elif word == '-ci':
                             opts['-ci'] = True
                 else:
-                    word, tails = getWordFromLine( tails, env )
+                    word, tails = getWord( tails, env )
             else:
                 error = 'Version-selector is missed'
 
         # optional clause
         if error is None:
             if word == '-time':
-                word, tails = getWordFromLine( tails, env )
+                word, tails = getWord( tails, env )
                 if word:
                     opts['-time'] = word
                 else:
@@ -255,7 +255,6 @@ class ElementRule( ConfigspecRule ):
                         x += 1
         elif tp == 'r':
           # SCI should be longer than pattern
-  #        print 'l_s=%d,l_p=%d' % (len(s),len(p))
           if len( s ) + 1 < len( p ):
             r = False
           else:
@@ -312,19 +311,19 @@ class MkBranchRule( ConfigspecRule ):
         env = dict()
         opts = dict( {'-override' : False} )
 
-        word, tails = getWordFromLine( context, env )
+        word, tails = getWord( context, env )
         if word != 'mkbranch':
             error = 'mismatch rule?'
 
         if error is None:
-            word, tails = getWordFromLine( tails, env )
+            word, tails = getWord( tails, env )
             if word:
                 opts['branch-type-name'] = word
             else:
                 error = 'branch-type-name is missed'
 
         if error is None:
-            word, tails = getWordFromLine( tails, env )
+            word, tails = getWord( tails, env )
             if word == '-override':
                 opts['-override'] = True
 
@@ -357,11 +356,11 @@ class EndMkbranchRule( ConfigspecRule ):
         error = None
         opts = dict()
 
-        word, tails = getWordFromLine( context, env )
+        word, tails = getWord( context, env )
         if word != 'end':
             error = 'mismatch rule?'
         if error is None:
-            word, tails = getWordFromLine( tails, env )
+            word, tails = getWord( tails, env )
             if word != 'branch':
                 error = 'mismatch rule for?'
 
@@ -369,11 +368,12 @@ class EndMkbranchRule( ConfigspecRule ):
             error = 'no branch-name defined'
 
         if error is None:
-            word, tails = getWordFromLine( tails, env )
+            word, tails = getWord( tails, env )
             if word:
                 opts['branch-type-name'] = word
                 if word != branch_name[-1]:
-                    error = 'branch-type-name "%s" mismatch last branch "%s"' % ( word, branch_name[-1] )
+                    error = 'branch-type-name "%s" mismatch last branch "%s"' \
+                              % ( word, branch_name[-1] )
                 else:
                     branch_name.pop( -1 )
             else:
@@ -396,12 +396,12 @@ class TimeRule( ConfigspecRule ):
         env = dict()
         opts = dict()
 
-        word, tails = getWordFromLine( context, env )
+        word, tails = getWord( context, env )
         if word != 'time':
             error = 'mismatch rule?'
 
         if error is None:
-            word, tails = getWordFromLine( tails, env )
+            word, tails = getWord( tails, env )
             if word:
                 opts['date-time'] = word
                 date_time.append( word )
@@ -425,11 +425,11 @@ class EndTimeRule( ConfigspecRule ):
         error = None
         opts = dict()
 
-        word, tails = getWordFromLine( context, env )
+        word, tails = getWord( context, env )
         if word != 'end':
             error = 'mismatch rule?'
         if error is None:
-            word, tails = getWordFromLine( tails, env )
+            word, tails = getWord( tails, env )
             if word != 'time':
                 error = 'mismatch rule for?'
 
@@ -437,18 +437,19 @@ class EndTimeRule( ConfigspecRule ):
             error = 'no date-time defined'
 
         if error is None:
-            word, tails = getWordFromLine( tails, env )
+            word, tails = getWord( tails, env )
             if word:
                 opts['date-time'] = word
                 if word != date_time[-1]:
-                    error = 'branch-type-name "%s" mismatch last branch "%s"' % ( word, date_time[-1] )
+                    error = 'branch-type-name "%s" mismatch last branch "%s"' \
+                              % ( word, date_time[-1] )
                 else:
                     date_time.pop( -1 )
             else:
                 error = 'Branch-type-name is missed'
 
         env['error'] = error
-        ConfigspecRule.__init__( self, 'end', lineno, rule, env, opts )
+        ConfigspecRule.__init__( self, 'end time', lineno, rule, env, opts )
 
     def dump( self ):
         listp = list()
@@ -464,12 +465,12 @@ class IncludeRule( ConfigspecRule ):
         env = dict()
         opts = dict()
 
-        word, tails = getWordFromLine( context, env )
+        word, tails = getWord( context, env )
         if word != 'include':
             error = 'mismatch rule?'
 
         if error is None:
-            word, tails = getWordFromLine( tails, env, "'" )
+            word, tails = getWord( tails, env, "'" )
             if word:
                 opts['config-spec-pname'] = s[k]
             else:
@@ -493,12 +494,12 @@ class LoadRule( ConfigspecRule ):
         env = dict()
         opts = dict()
 
-        word, tails = getWordFromLine( context, env )
+        word, tails = getWord( context, env )
         if word != 'load':
             error = 'mismatch rule?'
 
         if error is None:
-            word, tails = getWordFromLine( tails, env, '\'"' )
+            word, tails = getWord( tails, env, '\'"' )
             if word:
                 opts['pname'] = s[k]
             else:
@@ -518,26 +519,26 @@ class LoadRule( ConfigspecRule ):
         return self.opts.get( 'pname', None )
 
 class Configspec:
-    def __init__ ( self, configspec='', configspec_file='' ):
+    def __init__( self, configspec ):
+        self.zparsed = list()
         self.configspec = configspec
 
-        lines = configspec.split( '\n' )
+        lines = configspec.replace( '\n', '' ).split( '\n' )
         self.perror = self.parse( lines )
 
-    def error ( self ):
+    def getError( self ):
         return self.perror
 
-    def parse ( self, lines ):
+    def parse( self, lines ):
         date_time = list()
         branch_name = list()
 
-        self.parsed_lines = list()
         for k, lo in enumerate( lines ):
             #print "Line %d: %s" % (k, lo)
             off_hash = lo.find( '#' )
             if off_hash > -1:
                 rp = CommentRule( k, lo[off_hash:] )
-                self.parsed_lines.append( rp )
+                self.zparsed.append( rp )
                 lo = lo[:off_hash]
 
             for li in lo.split( ';' ):
@@ -575,21 +576,15 @@ class Configspec:
                 if rp.getError() is not None:
                     return 'Line %d: Error - %s' % ( rp.lineno, rp.getError() )
 
-                self.parsed_lines.append( rp )
+                self.zparsed.append( rp )
 
         return None
 
-    def match( self, root, sci, prefix ):
+    def match( self, scipath ):
         ret = list()
 
-        if root.endswith( '/' ):
-            root = root[:-1]
-        if prefix.endswith( '/' ):
-            prefix = prefix[:-1]
-
-        sci = sci.replace( root, prefix ).replace( '\\', '/' )
-        for item in self.parsed_lines:
-            if item.match( sci ):
+        for item in self.zparsed:
+            if item.match( scipath ):
               ret.append( item )
 
         if len(ret):
@@ -606,16 +601,16 @@ class Configspec:
     def getRepositories( self ):
         pnames = list()
 
-        for item in self.parsed_lines:
+        for item in self.zparsed:
             repo = item.getRepository()
-            if repo and ( repo not in pnames ):
+            if repo != None and ( repo not in pnames ):
                 pnames.append(repo)
 
         return pnames
 
     def dump( self ):
         lines = list()
-        for rule in self.parsed_lines:
+        for rule in self.zparsed:
             lines.append( rule.dump() )
 
         return os.linesep.join( lines )

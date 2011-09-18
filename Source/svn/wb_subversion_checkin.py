@@ -313,7 +313,7 @@ class CheckinFrame(wx.Frame):
             wx.MessageBox( T_('There are no changes to check in'),
                 T_('Warning'), style=wx.OK|wx.ICON_EXCLAMATION )
             self.Destroy()
-        else:    
+        else:
             # Redraw the panel
             self.panel_list.drawList()
             self.Show()
@@ -322,14 +322,14 @@ class CheckinFrame(wx.Frame):
         self.app.refreshFrame()
 
         return result
-    
+
 class CheckinListHandler(wb_subversion_list_handler_common.SubversionListHandlerCommon):
     def __init__( self, app, parent, project_info ):
         wb_subversion_list_handler_common.SubversionListHandlerCommon.__init__( self, app, parent, project_info )
 
         self.all_excluded_files = {}
         self.__parent = parent
-        
+
     def getContextMenu( self ):
         menu_template = [
             ('', wb_ids.id_File_Edit, T_('Edit') )
@@ -394,11 +394,11 @@ class CheckinListHandler(wb_subversion_list_handler_common.SubversionListHandler
             ignore=True, update=False )
         all_files = [entry for entry in all_files
                         if wb_subversion_utils.wc_status_checkin_map[ entry.text_status ]
-                        or wb_subversion_utils.wc_status_checkin_map[ entry.prop_status ]]       
+                        or wb_subversion_utils.wc_status_checkin_map[ entry.prop_status ]]
 
         # Set the project files to be this new list
         self.project_info.all_files = all_files
-            
+
 class CheckinProjectInfo:
     def __init__( self, project_info, all_files ):
         self.all_files = all_files

@@ -368,7 +368,6 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         # subversion specific values
         self.url = kws['url']
         self.wc_path = kws['wc_path']
-
         if kws.has_key( 'client_fg' ):
             self.client_fg = kws['client_fg']
             self.client_bg = kws['client_bg']
@@ -390,7 +389,6 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
 
         self.tags_url = kws.get( 'tags_url', '' )
         self.branches_url = kws.get( 'branches_url', '' )
-
         if not self.menu_info:
             self.menu_info = kws.get( 'menu_info', None )
 
@@ -489,7 +487,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
 
     def readPreferences( self, get_option ):
         wb_source_control_providers.ProjectInfo.readPreferences( self, get_option )
-        
+
         # load state from a preference file
         name = get_option.getstr( 'name' )
         url = get_option.getstr( 'url' )
@@ -507,6 +505,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
 
         # expand any ~/ or ~user/ in the path
         wc_path = os.path.expanduser( wc_path )
+
         self.init( name, url=url, wc_path=wc_path, tags_url=tags_url, branches_url=branches_url )
 
     def writePreferences( self, pref_dict ):
@@ -660,7 +659,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
                     filtered_all_files.append( f )
 
         return filtered_all_files
-                
+
 
     def getProperty( self, filename, propname ):
         d = self.files_properties.get( filename, {} )

@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2010 ccc. All right reserved.
+ Copyright (c) 2010-2011 ccc. All right reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -26,12 +26,12 @@ import wb_subversion_utils
 
 import wb_config
 import wb_tree_panel
+import wb_utils
+import wb_manifest_providers
 
 import wb_source_control_providers
 import wb_subversion_list_handler
 import wb_subversion_project_info
-
-import wb_torun_configspec
 
 wc_path_browse_id = wx.NewId()
 wc_path_text_ctrl_id = wx.NewId()
@@ -42,7 +42,7 @@ class ProjectState:
         self.name = ''
         self.wc_path = ''
         self.color = ''
-        self.configspec = ''
+        self.manifest = ''
         self.background_colour = 0
         self.use_background_colour = False
         self.new_file_template_dir = ''
@@ -102,6 +102,7 @@ class ProjectDialog(wx.Dialog):
         provider = wb_source_control_providers.getProvider( 'torun' )
 
         pi = provider.getProjectInfo( self.app )
+
         pi.new_file_template_dir = self.state.new_file_template_dir
         pi.setBackgroundColour( self.state.use_background_colour, self.state.background_colour )
 
@@ -140,7 +141,7 @@ class PagePanel(wx.Panel):
         notebook.AddPage( self, title )
 
     def initControls( self ):
-        raise wb_exceptions.InternalError('must override initControls')
+        raise wb_exceptions.InternalError( 'must override initControls' )
 
     def validate( self, state ):
         return True
@@ -164,7 +165,7 @@ class ProjectPanel(PagePanel):
         self.g_sizer.Add( self.name_label, (0,0), (1,1), wx.ALIGN_RIGHT )
         self.g_sizer.Add( self.name_ctrl,  (0,1), (1,2), wx.EXPAND )
 
-        self.wc_path_browse = wx.Button( self, wc_path_browse_id, T_(" Browse... ") )
+        self.wc_path_browse = wx.Button( self, wc_path_browse_id, T_(" Browse...") )
 
         self.wc_path_label = wx.StaticText(self, -1, T_('Working copy Path:'), style=wx.ALIGN_RIGHT )
         self.wc_path_ctrl = wx.TextCtrl(self, -1, '' )
@@ -208,7 +209,7 @@ class ProjectPanel(PagePanel):
         if self.project_info.use_background_colour:
             self.list_background_colour = self.project_info.background_colour
         else:
-            self.list_background_colour = (255,255,255)
+            self.list_background_colour = ( 255,255,255 )
 
         self.list_background_colour_ctrl.SetValue( self.project_info.use_background_colour )
         self.list_background_colour_example.SetBackgroundColour( self.list_background_colour )
@@ -310,25 +311,25 @@ class ConfigspecPanel(PagePanel):
 
         self.sizer = wx.BoxSizer( wx.VERTICAL )
 
-        self.configspec_ctrl = wx.TextCtrl( self, -1, size=(-1, 200), style=wx.HSCROLL|wx.TE_MULTILINE|wx.TE_RICH2 )
-        self.configspec_ctrl.SetFont(wx.Font(wb_config.point_size, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, wb_config.face))
-        self.sizer.Add( self.configspec_ctrl, 1, wx.EXPAND|wx.ALL )
-        self.configspec_edit = wx.Button( self, -1, T_(" Edit... ") )
+        self.manifest_ctrl = wx.TextCtrl( self, -1, size=(-1, 200), style=wx.HSCROLL|wx.TE_MULTILINE|wx.TE_RICH2 )
+        self.manifest_ctrl.SetFont(wx.Font(wb_config.point_size, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, wb_config.face))
+        self.sizer.Add( self.manifest_ctrl, 1, wx.EXPAND|wx.ALL )
+        self.manifest_edit = wx.Button( self, -1, T_(" Edit... ") )
 
-        wx.EVT_BUTTON( self, self.configspec_edit.GetId(), self.OnEditConfigspec )
-        self.sizer.Add( self.configspec_edit, 0, wx.ALIGN_RIGHT|wx.ALL, 5 )
+        wx.EVT_BUTTON( self, self.manifest_edit.GetId(), self.OnEditConfigspec )
+        self.sizer.Add( self.manifest_edit, 0, wx.ALIGN_RIGHT|wx.ALL, 5 )
 
         return self.sizer
 
     def updateControls( self ):
-        self.configspec_ctrl.SetValue( self.project_info.configspec )
+        self.manifest_ctrl.SetValue( self.project_info.configspec )
 
     def validate( self, state ):
-        if self.configspec_ctrl.GetValue().strip() == '':
+        if self.manifest_ctrl.GetValue().strip() == '':
             wx.MessageBox( T_('Enter a configspec'), style=wx.OK|wx.ICON_ERROR );
             return False
 
-        state.configspec = self.configspec_ctrl.GetValue().strip()
+        state.configspec = self.manifest_ctrl.GetValue().strip()
         return True
 
     def OnEditConfigspec( self, event ):
@@ -344,7 +345,7 @@ class RepositoryPanel(PagePanel):
     def initControls( self ):
         self.list_background_colour = None
 
-        repo_names = self.project_info.svn_project_infos.keys()
+        repo_names = self.project_info.project_infos.keys()
         repo_map_list = self.app.prefs.getRepository().repo_map_list
 
         self.sizer = wx.BoxSizer( wx.VERTICAL )
@@ -356,7 +357,7 @@ class RepositoryPanel(PagePanel):
         self.list_box.InsertColumn( 1, T_('Location') )
         self.list_box.SetColumnWidth( 1, 400 )
 
-        repo_names.sort(wb_torun_configspec.compare)
+        repo_names.sort(wb_utils.compare)
         for item in repo_names:
             index = self.list_box.GetItemCount()
             self.list_box.InsertStringItem( index, item )
@@ -379,6 +380,7 @@ class UpdateProjectDialog(ProjectDialog):
     def __init__( self, app, parent, project_info ):
         ProjectDialog.__init__( self, app, parent, project_info, T_('Project Settings') )
         self.updateControls()
+
 ####
 # wrap the client_bg to insert the function for update and checkout
 #
@@ -399,7 +401,7 @@ class SubversionClient:
         self.initNotify()
 
         #==== add functions except checkout and update
-        for func in ('add', 'cat', 'checkin', 'copy', 'copy2',
+        for func in ( 'add', 'cat', 'checkin', 'copy', 'copy2',
                       'diff', 'info', 'info2', 'list', 'log', 'ls', 'mkdir',
                       'move', 'remove', 'revert', 'propget', 'propset', 'proplist',
                       'root_url_from_path', 'status', 'switch' ):
@@ -412,20 +414,34 @@ class SubversionClient:
         self.client.callback_notify = wb_exceptions.TryWrapper( self.app.log, self.callback_notify )
 
     def checkout(self, *arg, **args):
-        self.updateWithConfigspec()
+        format = self.verifyConfigspecFormat( self.project_info.configspec )
+        if format == 'xml':
+            self.updateWithManifest()
+        else:
+            self.updateWithConfigspec()
 
         # should update the repository info
         self.project_info.initRepositoryInfo()
 
     def update(self, *arg, **args):
-        self.updateWithConfigspec(False)
+        format = self.verifyConfigspecFormat( self.project_info.configspec )
+        if format == 'xml':
+            self.updateWithManifest( False )
+        else:
+            self.updateWithConfigspec( False )
+
+    def verifyConfigspecFormat( self, configspec ):
+        cs = configspec.strip()
+        if len(cs) > 0 and cs[0] == '<':
+            return 'xml'
+        else:
+            return 'rational'
 
     def updateWithConfigspec(self, checkout=True):
         repo_map_list = self.app.prefs.getRepository().repo_map_list
         # handle the configspec, checkout or update the project
         cs_parser = wb_torun_configspec.wb_subversion_configspec(
-                        rootdir=self.project_info.wc_path,
-                        configspec=self.project_info.configspec)
+                        configspec=self.project_info.configspec )
         # it's assumed the stored configspec is always correct
         dirs = list()
         # 1. find and check out all repositories
@@ -433,6 +449,7 @@ class SubversionClient:
         for repo in repos:
             # FIXME: ignore the unmapped repository?
             if not repo_map_list.has_key( repo ): continue
+
             url = '%s/trunk' % repo_map_list[repo]
             wc_path = os.path.join( self.project_info.wc_path, repo )
             # build up the repository location with /trunk
@@ -449,19 +466,21 @@ class SubversionClient:
             # 2.2 get the target URL from the configspec
             # Configspec.match returns a url list of matched rules in order,
             # to handle the list, a loop is required to check each url.
-            mlist = cs_parser.match( repo_map_list, wc_path )
+            mlist = cs_parser.match( repo_map_list, self.project_info.wc_path, wc_path )
 
             # check the existence of urls in mlist and do switching
             # FIXME: do a careful switching for the existent modules?
             for new_url in mlist or list():
-                if not self.exists( new_url ): continue
+                if not self.exists( new_url ):
+                    continue
+
                 if url == new_url:
-                    self.app.foregroundProcess( self.app.setAction, ( ('Update %s...' % wc_path), ) )
-                    self.client.update( wc_path, depth=pysvn.depth.empty,
-                                        revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
-                else:
                     self.app.foregroundProcess( self.app.setAction, ( ('Switch %s...' % wc_path), ) )
                     self.client.switch( wc_path, new_url, depth=pysvn.depth.infinity,
+                                        revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+                elif not checkout:
+                    self.app.foregroundProcess( self.app.setAction, ( ('Update %s...' % wc_path), ) )
+                    self.client.update( wc_path, depth=pysvn.depth.empty,
                                         revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
                 break
 
@@ -470,6 +489,58 @@ class SubversionClient:
                 path = os.path.join( wc_path, d )
                 if ( not d.startswith( '.' ) ) and os.path.isdir( path ):
                     dirs.append( path )
+
+    def updateWithManifest(self, checkout=True):
+        repo_map_list = self.app.prefs.getRepository().repo_map_list
+        # handle the configspec, checkout or update the project
+        parser = wb_subversion_repo_manifest.wb_subversion_repo_manifest(
+                        configspec=self.project_info.configspec )
+
+        # it's assumed the stored configspec is always correct
+        dirs = list()
+        # 1. find and check out all repositories
+        repos = parser.getRepositories()
+        for repo, vals in repos:
+            uri, path = vals
+
+            # skip '/vobs'
+            segments = uri[ 5: ].split( '/' )
+            repo = segments[0]
+            # FIXME: ignore the unmapped repository?
+            if not repo_map_list.has_key( repo ): continue
+
+            url = repo_map_list[repo] + '/'.join( segments[1:] )
+            wc_path = os.path.join( self.project_info.wc_path, path )
+            if not os.path.exists( wc_path ):
+                self.client.checkout( url, wc_path, depth=pysvn.depth.infinity,
+                                      revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+            dirs.append( wc_path )
+
+        # 2. update or switch directory according to the configspec
+        while len( dirs ) > 0:
+            wc_path = dirs.pop( 0 )
+            # 2.1 get the URL from the path
+            url = self.get_url_from_path( wc_path )
+            # 2.2 get the target URL from the configspec
+            # Configspec.match returns a url list of matched rules in order,
+            # to handle the list, a loop is required to check each url.
+            mlist = cs_parser.match( repo_map_list, self.project_info.wc_path, wc_path )
+
+            # check the existence of urls in mlist and do switching
+            # FIXME: do a careful switching for the existent modules?
+            for new_url in mlist or list():
+                if not self.exists( new_url ):
+                    continue
+
+                if url == new_url:
+                    self.app.foregroundProcess( self.app.setAction, ( ('Switch %s...' % wc_path), ) )
+                    self.client.switch( wc_path, new_url, depth=pysvn.depth.infinity,
+                                        revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+                elif not checkout:
+                    self.app.foregroundProcess( self.app.setAction, ( ('Update %s...' % wc_path), ) )
+                    self.client.update( wc_path, depth=pysvn.depth.empty,
+                                        revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+                break
 
     def exists( self, filename ):
         ret = True
@@ -555,19 +626,19 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         wb_source_control_providers.ProjectInfo.__init__( self, app, parent, 'torun' )
         self.url = None
         self.wc_path = None
-        self.configspec = ''
+        self.manifest = ''
         self.app = app
         self.parent = self.parent
-        #TODO: check the usage of need_checkout
+        # TODO: check the usage of need_checkout
         self.need_update = False
         self.need_checkout = True
         self.need_properties = False
-        self.svn_project_infos = dict()
+        self.project_infos = dict()
 
     def __repr__( self ):
         return '<torun.ProjectInfo wc_path=%r>' % self.wc_path
 
-    def init( self, project_name, **kws):
+    def init( self, project_name, **kws ):
         wb_source_control_providers.ProjectInfo.init( self, project_name )
 
         try_wrapper = wb_exceptions.TryWrapperFactoryWithExcept( self.app.log_client_error,
@@ -593,38 +664,42 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
             )
 
         self.wc_path = kws['wc_path']
-        self.configspec = kws.get( 'configspec', '' )
+        self.manifest = kws.get( 'manifest', '' )
+        self.manifest_provider = kws.get( 'manifest_provider', '' )
+
         if not self.menu_info:
             self.menu_info = kws.get( 'menu_info', None )
 
         # need one client/project/thread
         self.client_bg = SubversionClient( self.app, self )
-        self.client_fg = SubversionClient( self.app, self )
+        self.client_fg = SubversionClient( self.app, self ) #pysvn.Client()
 
         self.initRepositoryInfo()
 
     def initRepositoryInfo( self ):
         self.need_checkout = False
         # build up the subversion project infos
-        cs_parser = wb_torun_configspec.wb_subversion_configspec(
-                        rootdir=self.wc_path,
-                        configspec=self.configspec )
+        pv = wb_manifest_providers.getProvider( self.manifest_provider )
+        if pv != None:
+            pi = wb_source_control_providers.ProjectInfo( self.app, self.parent, None )
+            pi.manifest = self.manifest
+            par = pv.require( pi )
 
-        for repo in cs_parser.getRepositories() or list():
-            self.svn_project_infos[repo] = None
+            for repo in par.getRepositories() or list():
+                self.project_infos[repo] = None
 
-        for repo in self.svn_project_infos.keys():
-            wc_path = os.path.join( self.wc_path, repo )
-            try:
-                url = self.client_bg.get_url_from_path( wc_path )
-                # create a temporary subversion project_name '@@repo'
-                self.svn_project_infos[repo] = wb_subversion_project_info.ProjectInfo(
-                                                    self.app, self.parent )
-                self.svn_project_infos[repo].init( '@@%s' % repo, url=url,
-                                                   wc_path=wc_path, menu_info=self.menu_info )
-            except:
-                self.need_update = True
-                self.need_checkout = True
+            for repo in self.project_infos.keys():
+                wc_path = os.path.join( self.wc_path, repo )
+                try:
+                    url = self.client_bg.get_url_from_path( wc_path )
+                    # create a temporary subversion project_name '@@repo_name'
+                    self.project_infos[repo] = wb_subversion_project_info.ProjectInfo(
+                                                        self.app, self.parent )
+                    self.project_infos[repo].init( '@@%s' % repo, url=url,
+                                                       wc_path=wc_path, menu_info=self.menu_info )
+                except:
+                    self.need_update = True
+                    self.need_checkout = True
 
     def initNotify( self ):
         self.notification_of_files_in_conflict = 0
@@ -649,9 +724,9 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         repo = self.findRepository( rel_url )
         if repo:
             if is_label:
-                label_url = self.svn_project_infos[repo].tags_url
+                label_url = self.project_infos[repo].tags_url
             else:
-                label_url = self.svn_project_infos[repo].branches_url
+                label_url = self.project_infos[repo].branches_url
 
         if label_url is '':
             return ''
@@ -673,11 +748,11 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         return '/'.join( label_url_parts )
 
     def findRepository( self, url ):
-        for name, repo in self.svn_project_infos.items():
+        for name, repo in self.project_infos.items():
             if url.startswith( repo.url ) \
             or url.startswith( repo.branches_url ) \
             or url.startswith( repo.tags_url ):
-                return repo
+                return name
 
         return None
 
@@ -735,13 +810,14 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         wb_source_control_providers.ProjectInfo.writePreferences( self, pref_dict )
 
         pref_dict[ 'wc_path' ] = self.wc_path
-        if len( self.configspec ):
-            pref_dict[ 'configspec' ] = self.configspec
+        if len( self.manifest ):
+            pref_dict[ 'manifest' ] = self.manifest
+            pref_dict[ 'manifest_provider' ] = self.manifest_provider
 
-        if len(self.configspec):
+        if len(self.manifest):
             # read the name from preferences
-            repo_configspec = self.app.prefs.getRepository().repo_configspec
-            wb_read_file.writeFileByLine( os.path.join( self.wc_path, repo_configspec ), self.configspec )
+            manifest_name = self.app.prefs.getRepository().manifest_name
+            wb_read_file.writeFileByLine( os.path.join( self.wc_path, manifest_name ), self.manifest )
 
     def isEqual( self, pi ):
         return (self.provider_name == pi.provider_name
@@ -762,22 +838,21 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         return self.wc_path
 
     def mayExpand( self ):
-        return len(self.svn_project_infos.keys()) > 0
+        return len( self.project_infos.keys() ) > 0
 
-#FIXME: the interface?
     def updateStatus( self ):
-        for repo in self.svn_project_infos:
-            if self.svn_project_infos[ repo ]:
-                self.svn_project_infos[ repo ].updateStatus()
+        for repo in self.project_infos:
+            if self.project_infos[repo]:
+                self.project_infos[repo].updateStatus()
 
     def setNeedProperties( self, need_properties ):
         self.need_properties = need_properties
 
     def getFilesStatus( self ):
         all_files_status = list()
-        for repo in self.svn_project_infos:
-            if self.svn_project_infos[ repo ]:
-                file_status = self.svn_project_infos[ repo ].getDirStatus()
+        for repo in self.project_infos:
+            if self.project_infos[repo]:
+                file_status = self.project_infos[repo].getDirStatus()
                 if file_status:
                     all_files_status.append( file_status )
 
@@ -786,9 +861,9 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
     def getTreeFilesStatus( self ):
         all_tree_files_status = list()
 
-        for repo in self.svn_project_infos:
-            if self.svn_project_infos[ repo ]:
-                tree_files_status = self.svn_project_infos[ repo ].getDirStatus()
+        for repo in self.project_infos:
+            if self.project_infos[repo]:
+                tree_files_status = self.project_infos[repo].getDirStatus()
                 if tree_files_status:
                     all_tree_files_status.append( tree_files_status )
 
@@ -798,9 +873,9 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         all_dir_status = None
 
         # FIXME: check the function
-        for repo in self.svn_project_infos:
-            if self.svn_project_infos[ repo ]:
-                dir_status = self.svn_project_infos[ repo ].getDirStatus()
+        for repo in self.project_infos:
+            if self.project_infos[repo]:
+                dir_status = self.project_infos[repo].getDirStatus()
                 # it just needs one status
                 if dir_status and len(dir_status) > 0:
                     all_dir_status = dir_status
@@ -842,6 +917,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         #= check package's parent directory
         if (not ret) and re.match( p.info_package['parent'], file_path ):
             ret, context = ( True, 'package' )
+
         # check project's parent directory
         if (not ret) and re.match( p.info_project['parent'], file_path ):
             ret, context = ( True, 'project' )
@@ -1041,7 +1117,6 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         # 1. it's under 'tags' directory
         if project_info.url.startswith( repo_info.tags_url ):
             # 1.1 make sure the temporary directory could be used
-
             ident_url, tailing_dir, local_ident = self.splitDirectory( repo_info, project_info )
             dir_name = os.path.basename( local_ident )
             temp_dir = self.temporaryDevelopBranch( repo_info, self.project_name, dir_name )

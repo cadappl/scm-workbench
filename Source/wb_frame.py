@@ -1,7 +1,7 @@
 '''
  ====================================================================
  Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
- Copyright (c) 2010 ccc. All rights reserved.
+ Copyright (c) 2010-2011 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -24,7 +24,6 @@ import wb_exceptions
 import wb_version
 import wb_images
 import wb_preferences_dialog
-import wb_torun_setting_dialog
 import wb_source_control_providers
 import wb_platform_specific
 import wb_bookmarks_dialogs
@@ -59,7 +58,7 @@ class WbFrame(wx.Frame):
         # problem on OSX with incorrect first size event saving the
         # wrong size in the preferences
         wx.CallAfter( self.SetSize, win_prefs.getFrameSize() )
-        
+
         self.menu_edit = wx.Menu()
         self.menu_edit.Append( wb_ids.id_SP_EditCopy, T_("&Copy"), T_("Copy Files") )
         self.menu_edit.Append( wb_ids.id_SP_EditCut, T_("&Cut"), T_("Cut Files") )
@@ -73,7 +72,6 @@ class WbFrame(wx.Frame):
             self.menu_file = self.menu_edit
 
         self.menu_file.Append( wx.ID_PREFERENCES, T_("&Preferences..."), T_("Preferences") )
-        self.menu_file.Append( wb_ids.id_Torun_Setting, T_("TSVN &Settings..."), T_("Customize the TSVN preferences") )
         self.menu_file.Append( wx.ID_EXIT, T_("E&xit"), T_("Exit the application") )
 
         self.menu_actions = wx.Menu()
@@ -159,8 +157,6 @@ class WbFrame(wx.Frame):
         self.menu_bookmarks = wx.Menu()
         self.menu_bookmarks.Append( wb_ids.id_Bookmark_Add, T_('Add'), T_('Add Bookmark') )
         self.menu_bookmarks.Append( wb_ids.id_Bookmark_Manage, T_('Manage...'), T_('Manage Bookmarks') )
-        # self.menu_bookmarks.AppendSeparator()
-
         self.__bookmarkMenuReorder()
 
         self.menu_project = wx.Menu()
@@ -189,11 +185,11 @@ class WbFrame(wx.Frame):
         self.SetIcon( wb_images.getIcon( 'wb.png') )
 
         # Initialize tool bar
-        
+
         # Remark: The order of the groups and their activity (enabled/disabled)
         # is managed in the preferences...
         self.compileToolBar()
-        
+
         # Add the status bar
         s = self.CreateStatusBar()
         s.SetFieldsCount( WbFrame.status_num_fields )
@@ -232,7 +228,7 @@ class WbFrame(wx.Frame):
 
         h_sash_pos = max( 200, int( size.height * win_prefs.h_sash_ratio) )
         v_sash_pos = max( 200, int( size.width  * win_prefs.v_sash_ratio) )
-        
+
         # Arrange the panels with the splitter windows
         self.v_split.SplitVertically( self.tree_panel, self.list_panel, v_sash_pos )
         self.h_split.SplitHorizontally( self.v_split, self.log_panel, h_sash_pos )
@@ -242,7 +238,7 @@ class WbFrame(wx.Frame):
             # Set up the event handlers
             wx.EVT_MENU( event_source, wx.ID_ABOUT, try_wrapper( self.OnCmdAbout ) )
             wx.EVT_MENU( event_source, wx.ID_PREFERENCES, try_wrapper( self.OnCmdPreferences ) )
-            wx.EVT_MENU( event_source, wb_ids.id_Torun_Setting, try_wrapper( self.OnCmdTorunSettings ) )
+
             wx.EVT_MENU( event_source, wx.ID_EXIT, try_wrapper( self.OnCmdExit ) )
             wx.EVT_MENU( event_source, wb_ids.id_ClearLog, try_wrapper( self.OnCmdClearLog ) )
 
@@ -366,11 +362,13 @@ class WbFrame(wx.Frame):
         wx.EVT_MENU( self, wb_ids.id_Project_Delete, try_wrapper( self.app.eventWrapper( self.tree_panel.OnProjectDelete ) ) )
         wx.EVT_UPDATE_UI( self, wb_ids.id_Project_Delete, try_wrapper( self.app.eventWrapper( self.OnUpdateUiProjectUpdateOrDelete ) ) )
 
+        # dispatch the event
         wx.EVT_MENU( self, wb_ids.id_SP_Torun_ProcAdd, try_wrapper( self.app.eventWrapper( self.OnSp_TorunDispatch ) ) )
         wx.EVT_MENU( self, wb_ids.id_SP_Torun_ProcDelete, try_wrapper( self.app.eventWrapper( self.OnSp_TorunDispatch ) ) )
         wx.EVT_MENU( self, wb_ids.id_SP_Torun_ProcDevelop, try_wrapper( self.app.eventWrapper( self.OnSp_TorunDispatch ) ) )
         wx.EVT_MENU( self, wb_ids.id_SP_Torun_ProcDeliver, try_wrapper( self.app.eventWrapper( self.OnSp_TorunDispatch ) ) )
         wx.EVT_MENU( self, wb_ids.id_SP_Torun_ProcRevert, try_wrapper( self.app.eventWrapper( self.OnSp_TorunDispatch ) ) )
+
         wx.EVT_MENU( self, wb_ids.id_Bookmark_Add, try_wrapper( self.OnBookmarkAdd ) )
         wx.EVT_MENU( self, wb_ids.id_Bookmark_Manage, try_wrapper( self.OnBookmarkManage ) )
 
@@ -383,7 +381,7 @@ class WbFrame(wx.Frame):
         wx.EVT_SPLITTER_SASH_POS_CHANGED( self.h_split, -1, self.OnHorizSashPositionChanged )
 
         wx.stc.EVT_STC_ZOOM(self, -1, self.OnZoom)
-        
+
         wx.EVT_CLOSE(self, try_wrapper( self.OnCloseWindow ))
 
         # default to the tree panel as the first set_focus can go missing
@@ -491,15 +489,6 @@ class WbFrame(wx.Frame):
         self.list_panel.updateHandler()
         self.refreshFrame()
 
-    def OnCmdTorunSettings( self, event ):
-        pref_dialog = wb_torun_setting_dialog.TorunSettingDialog( self, self.app )
-        rc = pref_dialog.ShowModal()
-        if rc == wx.ID_OK:
-            self.app.savePreferences()
-
-        self.list_panel.updateHandler()
-        self.refreshFrame()
-
     def OnUnlockedUi( self ):
         self.setAction( T_('Ready') )
         self.tree_panel.updateTree()
@@ -552,7 +541,7 @@ class WbFrame(wx.Frame):
     def OnZoom(self, evt):
         win_prefs = self.app.prefs.getWindow()
         win_prefs.zoom = self.log_panel.GetZoom()
-        
+
     #------------------------------------------------------------------------
     def OnActivateApp( self, is_active ):
         if is_active and self.app.prefs.getView().auto_refresh:
@@ -696,7 +685,7 @@ class WbFrame(wx.Frame):
         if pi is None:
             return
         bm_prefs = self.app.prefs.getBookmarks()
- 
+
         if not bm_prefs.hasBookmark( pi.url ):
             print T_('Adding bookmark to %s') % pi.wc_path
             bm_prefs.addBookmark( pi )
@@ -748,6 +737,7 @@ class WbFrame(wx.Frame):
 
     def OnUpdateUiCommandShell( self, event ):
         self.getUpdateUiState()
+        # enable the command shell if it's a directory even which isn't in a "true" project
         event.Enable( self.ui_state_tree.file_exists or self.ui_state_tree.is_folder )
 
     def OnFileBrowser( self, event ):
@@ -755,6 +745,7 @@ class WbFrame(wx.Frame):
 
     def OnUpdateUiFileBrowser( self, event ):
         self.getUpdateUiState()
+        # enable the command shell if it's a directory even which isn't in a "true" project
         event.Enable( self.ui_state_tree.file_exists or self.ui_state_tree.is_folder )
 
     def OnSpEditCopy( self, event ):
@@ -1244,7 +1235,7 @@ class StyledLogCtrl(wx.stc.StyledTextCtrl):
         self.SetMarginWidth(1, 0)
         self.SetMarginWidth(2, 0)
 
-        self.StyleSetSpec( wx.stc.STC_STYLE_DEFAULT, 
+        self.StyleSetSpec( wx.stc.STC_STYLE_DEFAULT,
                 "size:%d,face:%s,fore:#000000" % (wb_config.point_size, wb_config.face) )
 
         self.StyleSetSpec( self.style_normal,   "fore:#000000" )
@@ -1267,7 +1258,7 @@ class StyledLogCtrl(wx.stc.StyledTextCtrl):
                 flags = wx.NavigationKeyEvent.IsBackward
             if event.ControlDown():
                 flags |= wx.NavigationKeyEvent.WinChange
-            self.Navigate(flags)            
+            self.Navigate(flags)
         else:
             event.Skip()
 
@@ -1347,8 +1338,8 @@ class BookmarkMenu:
         if len( self.menu_items ):
             item = parent_menu.AppendSeparator()
             self.all_menu_ids.append ( item.GetId() )
-
         for name_or_menu, pi in self.menu_items:
+
             if isinstance( name_or_menu, BookmarkMenu ):
                 menu_id = wx.NewId()
                 submenu = wx.Menu()
@@ -1379,7 +1370,7 @@ class BookmarkMenu:
 
         for menu_id in self.all_menu_ids:
             self.parent_menu.Delete( menu_id )
-        
+
     def dump( self, indent ):
         prefix = ' '*indent
         for name, pi in self.menu_items:
