@@ -23,62 +23,81 @@ def registerProvider():
     wb_manifest_providers.registerProvider( ConfigspecProvider( 'configspec' ) )
 
 class ConfigspecEditor(wb_manifest_providers.Editor):
-    def __init__( self, provider_name, manifest, **kws ):
-        wb_manifest_providers.Editor.__init__( self, provider, **kws )
+    def __init__( self, project_info, **kws ):
+        wb_manifest_providers.Editor.__init__( self, project_info, **kws )
 
         # cache the lined configspec to a list
-        self.cs = wb_configspec.Configspec( manifest )
+        if project_info != None:
+            self.cs = wb_configspec.Configspec( project_info.manifest )
+        else:
+            self.cs = wb_configspec.Configspec( '' )
 
-    def insert( self, ki, pattern, selector, **kws ):
-        tp = kws.get( 'format', '' )
+    def insert( self, ki, pattern, *args, **kws ):
+        tp = kws.get( 'format' )
 
         # find the location to insert
-        matches = self.cs.match( pattern )
-        if ki == -1 and len( matches ) > 0:
-            # get the longest match
-            e = matches[0]
-            for k in range( 1, len( matches ) ):
-                if len( matches[k].get( 'pattern' ) ) > len( e.get( 'pattern' ) ):
-                    e = matches[k]
+        if ki == -1:
+            matches = self.cs.match( pattern )
+            if len( matches ) > 0:
+                # get the longest match
+                e = matches[0]
+                for k in range( 1, len( matches ) ):
+                    if len( matches[k].get( 'pattern' ) ) > len( e.get( 'pattern' ) ):
+                        e = matches[k]
 
-            # generally the inserted line should be ahead of the found one
-            slots = self.__findTorunSlots()
-            t = self.__belongs( slots, e.lineno )
-            if t == -1:
-                ki = 0
-            elif t == 0:
-                ki = self.__getlast( slots, t )
-            else:
-                ki = self.__getlast( slots, t - 1 )
+                # generally the inserted line should be ahead of the found one
+                slots = self.__findTorunSlots()
+                t = self.__belongs( slots, e.lineno )
+                if t == -1:
+                    ki = 0
+                elif t == 0:
+                    ki = self.__getlast( slots, t )
+                else:
+                    ki = self.__getlast( slots, t - 1 )
 
         if ki > len( self.cs.zparsed ):
-            ki = len( self.cs.zparsed ) - 1
+            ki = len( self.cs.zparsed )
 
-        lineno = self.cs.zparsed[ki].lineno + 1
-
-        if tp == 'ELEMENT':
-            line = 'element %s/... %s' % ( pattern, selector )
-            rule = wb_configspec.ElementRule( lineno, line )
-        elif tp == 'NOTE':
-            line = '# %s' % pattern
-            rule = wb_configspec.CommentRule( lineno, line )
+        if ki < 0 or len( self.cs.zparsed ) == 0:
+            ki = 0
+            lineno = 0
+        elif ki < len( self.cs.zparsed ):
+            lineno = self.cs.zparsed[ki].lineno
         else:
+            lineno = self.cs.zparsed[ len( self.cs.zparsed ) - 1].lineno + 1
+
+        if pattern == '':
+            rule = wb_configspec.EmptyLineRule( lineno, '' )
+        elif pattern != None and len( pattern ) > 0 and pattern[0] == '#':
+            rule = wb_configspec.CommentRule( lineno, pattern )
+        elif tp == 'NOTE':
+            if len( pattern ) > 0 and pattern[0] == '=':
+                line = '#%s' % pattern
+            else:
+                line = '# %s' % pattern
+
+            rule = wb_configspec.CommentRule( lineno, line )
+        elif tp == 'ELEMENT' or tp == None:
+            line = 'element %s %s' % ( pattern, args[0] )
+            rule = wb_configspec.ElementRule( lineno, line )
+        else:
+            print 'Error: unknown type "%s"' % tp
             return None
 
         # adjust the lines after the inserting point
         self.cs.zparsed.insert( ki, rule )
         for k, item in enumerate( self.cs.zparsed ):
-            if k > ki + 1:
+            if k > ki:
                 item.lineno += 1
 
         return rule
 
-    def append( self, pattern, selector, **kws ):
-        return self.insert( 0xffffffff, pattern, selector, **kws )
+    def append( self, pattern, *args, **kws ):
+        return self.insert( 0xfffffffe, pattern, *args, **kws )
 
-    def replace( self, pattern, selector, **kws ):
+    def replace( self, pattern, selector, *args, **kws ):
         if selector is None:
-            return self.remove( pattern, **kws )
+            return self.remove( pattern, *args, **kws )
 
         count = 0
         for item in self.cs.zparsed:
@@ -88,7 +107,7 @@ class ConfigspecEditor(wb_manifest_providers.Editor):
 
         return count
 
-    def remove( self, pattern ):
+    def remove( self, pattern, *args, **kws ):
         # build up the formatted pattern
         pattern = pattern.replace( '\\', '/' )
         if pattern.startswith( '.../' ):
@@ -154,7 +173,14 @@ class ConfigspecProvider(wb_manifest_providers.Provider):
         self.inst = None
         wb_manifest_providers.Provider.__init__( self, name )
 
+    def getAboutString( self ):
+        return 'Configspec ' + wb_configspec.__version__
+
     def require( self, project_info, **kws ):
+        # don't support empty manifest for Configspec
+        if project_info.manifest != None and len( project_info.manifest ) == 0:
+            return False
+
         wb_manifest_providers.Provider.require( self, project_info )
 
         if project_info != None and ( not hasattr( project_info, 'manifest' ) ):
@@ -165,6 +191,9 @@ class ConfigspecProvider(wb_manifest_providers.Provider):
             return False
 
         return True
+
+    def getEditor( self ):
+        return ConfigspecEditor( self.project_info )
 
     def getRepositories( self ):
         repo = list()

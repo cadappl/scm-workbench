@@ -424,28 +424,26 @@ class SubversionClient:
         self.project_info.initRepositoryInfo()
 
     def update(self, *arg, **args):
-        format = self.verifyConfigspecFormat( self.project_info.configspec )
-        if format == 'xml':
-            self.updateWithManifest( False )
-        else:
-            self.updateWithConfigspec( False )
+        self.updateWithManifest()
 
-    def verifyConfigspecFormat( self, configspec ):
-        cs = configspec.strip()
-        if len(cs) > 0 and cs[0] == '<':
-            return 'xml'
-        else:
-            return 'rational'
-
-    def updateWithConfigspec(self, checkout=True):
+    def updateWithManifest(self):
+        pv = None
         repo_map_list = self.app.prefs.getRepository().repo_map_list
-        # handle the configspec, checkout or update the project
-        cs_parser = wb_torun_configspec.wb_subversion_configspec(
-                        configspec=self.project_info.configspec )
+        # detect the manifest provider
+        for pv in wb_manifest_providers.getProviders():
+            pi = wb_source_control_providers.ProjectInfo( self.parent.app, self.parent, None )
+            pi.manifest = self.project_info.manifest
+            if pv.require( pi ):
+                self.manifest = manifest
+                self.parent.setProviderName( pv.manifestp )
+        else:
+            print 'Error: cannot detect the format of configspec, make sure it\'s normal'
+            return
+
         # it's assumed the stored configspec is always correct
         dirs = list()
         # 1. find and check out all repositories
-        repos = cs_parser.getRepositories()
+        repos = pv.getRepositories()
         for repo in repos:
             # FIXME: ignore the unmapped repository?
             if not repo_map_list.has_key( repo ): continue
@@ -466,7 +464,7 @@ class SubversionClient:
             # 2.2 get the target URL from the configspec
             # Configspec.match returns a url list of matched rules in order,
             # to handle the list, a loop is required to check each url.
-            mlist = cs_parser.match( repo_map_list, self.project_info.wc_path, wc_path )
+            mlist = pv.match( repo_map_list, self.project_info.wc_path, wc_path )
 
             # check the existence of urls in mlist and do switching
             # FIXME: do a careful switching for the existent modules?
@@ -489,58 +487,6 @@ class SubversionClient:
                 path = os.path.join( wc_path, d )
                 if ( not d.startswith( '.' ) ) and os.path.isdir( path ):
                     dirs.append( path )
-
-    def updateWithManifest(self, checkout=True):
-        repo_map_list = self.app.prefs.getRepository().repo_map_list
-        # handle the configspec, checkout or update the project
-        parser = wb_subversion_repo_manifest.wb_subversion_repo_manifest(
-                        configspec=self.project_info.configspec )
-
-        # it's assumed the stored configspec is always correct
-        dirs = list()
-        # 1. find and check out all repositories
-        repos = parser.getRepositories()
-        for repo, vals in repos:
-            uri, path = vals
-
-            # skip '/vobs'
-            segments = uri[ 5: ].split( '/' )
-            repo = segments[0]
-            # FIXME: ignore the unmapped repository?
-            if not repo_map_list.has_key( repo ): continue
-
-            url = repo_map_list[repo] + '/'.join( segments[1:] )
-            wc_path = os.path.join( self.project_info.wc_path, path )
-            if not os.path.exists( wc_path ):
-                self.client.checkout( url, wc_path, depth=pysvn.depth.infinity,
-                                      revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
-            dirs.append( wc_path )
-
-        # 2. update or switch directory according to the configspec
-        while len( dirs ) > 0:
-            wc_path = dirs.pop( 0 )
-            # 2.1 get the URL from the path
-            url = self.get_url_from_path( wc_path )
-            # 2.2 get the target URL from the configspec
-            # Configspec.match returns a url list of matched rules in order,
-            # to handle the list, a loop is required to check each url.
-            mlist = cs_parser.match( repo_map_list, self.project_info.wc_path, wc_path )
-
-            # check the existence of urls in mlist and do switching
-            # FIXME: do a careful switching for the existent modules?
-            for new_url in mlist or list():
-                if not self.exists( new_url ):
-                    continue
-
-                if url == new_url:
-                    self.app.foregroundProcess( self.app.setAction, ( ('Switch %s...' % wc_path), ) )
-                    self.client.switch( wc_path, new_url, depth=pysvn.depth.infinity,
-                                        revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
-                elif not checkout:
-                    self.app.foregroundProcess( self.app.setAction, ( ('Update %s...' % wc_path), ) )
-                    self.client.update( wc_path, depth=pysvn.depth.empty,
-                                        revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
-                break
 
     def exists( self, filename ):
         ret = True
@@ -666,6 +612,17 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         self.wc_path = kws['wc_path']
         self.manifest = kws.get( 'manifest', '' )
         self.manifest_provider = kws.get( 'manifest_provider', '' )
+        if self.manifest_provider == None or len( self.manifest_provider ) == 0:
+            # detect the manifest format with all manifest providers
+            for pv in wb_manifest_providers.getProviders():
+                pi = wb_source_control_providers.ProjectInfo( self.app, self.parent, None )
+                pi.manifest = self.manifest
+                if pv.require( pi ):
+                    self.manifest_provider = pv.name
+
+        # if no manifest, it assumed to be configspec
+        if self.manifest_provider == None or len( self.manifest_provider ) == 0:
+            self.manifest_provider = 'configspec'
 
         if not self.menu_info:
             self.menu_info = kws.get( 'menu_info', None )
@@ -683,23 +640,22 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         if pv != None:
             pi = wb_source_control_providers.ProjectInfo( self.app, self.parent, None )
             pi.manifest = self.manifest
-            par = pv.require( pi )
+            if pv.require( pi ):
+                for repo in pv.getRepositories() or list():
+                    self.project_infos[repo] = None
 
-            for repo in par.getRepositories() or list():
-                self.project_infos[repo] = None
-
-            for repo in self.project_infos.keys():
-                wc_path = os.path.join( self.wc_path, repo )
-                try:
-                    url = self.client_bg.get_url_from_path( wc_path )
-                    # create a temporary subversion project_name '@@repo_name'
-                    self.project_infos[repo] = wb_subversion_project_info.ProjectInfo(
-                                                        self.app, self.parent )
-                    self.project_infos[repo].init( '@@%s' % repo, url=url,
+                for repo in self.project_infos.keys():
+                    wc_path = os.path.join( self.wc_path, repo )
+                    try:
+                        url = self.client_bg.get_url_from_path( wc_path )
+                        # create a temporary subversion project_name '@@repo_name'
+                        self.project_infos[repo] = wb_subversion_project_info.ProjectInfo(
+                                                            self.app, self.parent )
+                        self.project_infos[repo].init( '@@%s' % repo, url=url,
                                                        wc_path=wc_path, menu_info=self.menu_info )
-                except:
-                    self.need_update = True
-                    self.need_checkout = True
+                    except:
+                        self.need_update = True
+                        self.need_checkout = True
 
     def initNotify( self ):
         self.notification_of_files_in_conflict = 0
@@ -796,14 +752,22 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         name = get_option.getstr( 'name' )
         wc_path = get_option.getstr( 'wc_path' )
 
-        if get_option.has( 'configspec' ):
-            configspec = get_option.getstr( 'configspec' )
+
+        if get_option.has( 'manifest' ):
+            manifest = get_option.getstr( 'manifest' )
         else:
-            configspec = ''
+            manifest = ''
+
+        if get_option.has( 'manifest_provider' ):
+            manifest_provider = get_option.getstr( 'manifest_provider' )
+        else:
+            manifest_provider = ''
 
         # expand any ~/ or ~user/ in the path
         wc_path = os.path.expanduser( wc_path )
-        self.init( name, wc_path=wc_path, configspec=configspec )
+        self.init( name, wc_path=wc_path,
+                   manifest=manifest,
+                   manifest_provider=manifest_provider )
 
     def writePreferences( self, pref_dict ):
         # save state into a preference file

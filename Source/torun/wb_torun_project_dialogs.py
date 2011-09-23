@@ -59,7 +59,7 @@ class AddProjectDialog:
     def __init__( self, app, parent ):
         self.app = app
 
-        self.provider_name = ''
+        self.provider_name = 'torun'
 
         # get the list of names to use in the validation
         pi_list = self.app.prefs.getProjects().getProjectList()
@@ -292,11 +292,10 @@ class WorkingCopyExistsPage(TitledPage):
             return
 
         self._update_controls_lock = True
-        self.parent.setProviderName( 'subversion' )
+        self.parent.setProviderName( 'torun' )
 
         # If the wc_path exists and is a svn wc then disable the url field
-        wc_path = self.wc_path_ctrl.GetValue()
-        wc_path = os.path.expanduser( wc_path )
+        wc_path = os.path.expanduser( self.wc_path_ctrl.GetValue() )
 
         if os.path.exists( wc_path ):
             p = self.parent.app.prefs.getRepository()
@@ -348,7 +347,7 @@ class SubversionUrlPage(TitledPage):
         self.url_path_ctrl.SetValue( state.wc_path )
 
     def saveState( self, state ):
-        self.parent.setProviderName( 'subversion' )
+        self.parent.setProviderName( 'torun' )
 
         state.url_path = self.url_path_ctrl.GetValue().strip()
 
@@ -387,7 +386,7 @@ class ProjectSelectionPage(TitledPage):
 
         # choose for creation type
         radiobox_type = wx.RadioBox( self, -1, "Creation Type", wx.DefaultPosition, wx.DefaultSize,
-                                     ['Create with Manual Manifest', 'Create with Baseline info'],
+                                     ( 'Create with Manual Manifest', 'Create with Baseline info' ),
                                      2, wx.RA_SPECIFY_COLS )
 
         radiobox_type.Bind( wx.EVT_RADIOBOX, self.OnChangeConfigspecCategory)
@@ -414,11 +413,11 @@ class ProjectSelectionPage(TitledPage):
 
         spec = wx.StaticBox( self, -1, T_("Manifest") )
         spec_sizer = wx.StaticBoxSizer( spec, wx.HORIZONTAL )
-        spec_text = wx.StaticText( self, -1, T_("The manifest format must obey definitions") )
+        spec_text = wx.StaticText( self, -1, T_("The manifest format must obey SIG definitions") )
         self.spec_button = wx.Button( self, -1, T_("Manifest") )
 
         spec_sizer.Add( spec_text, 0, wx.EXPAND|wx.ALL, 5 )
-        spec_sizer.Add( self.spec_button, 0, wx.ALIGN_RIGHT|wx.ALL|wx.EXPAND, 5 )
+        spec_sizer.Add( self.spec_button, 0, wx.ALIGN_RIGHT|wx.ALL, 5 )
         self.sizer.Add( spec_sizer, 0, wx.EXPAND|wx.ALL, 5 )
 
         self.extend_proj.Bind( wx.EVT_CHECKBOX, self.OnSelectExtendedProject )
@@ -455,7 +454,7 @@ class ProjectSelectionPage(TitledPage):
         self.updateControls( choice )
 
     def OnSelectExtendedProject( self, event ):
-        self.updateControls( self.choice )
+        self.updateControls( self.choice, True )
 
     def OnProjectIdChange( self, event ):
         project = self.project_id.GetClientData( self.project_id.GetSelection() )
@@ -467,11 +466,12 @@ class ProjectSelectionPage(TitledPage):
         if not project_location:
             return
 
-        # FIXME: handle the prefix '/vobs'
-        prefix = '/vobs/'
         dir_maps = dict()
+        prefix = self.parent.app.prefs.getRepository().repo_prefix
+        if prefix[-1] != '/':
+            prefix += '/'
 
-        repo_name = ( project_location.split( '/' ) )[2]
+        repo_name = ( project_location.replace( prefix, '' ).split( '/' ) )[0]
         repo_location = self.repo_map.get( repo_name )
         if not repo_location:
             return
@@ -531,34 +531,48 @@ class ProjectSelectionPage(TitledPage):
         # read the configspec with the order defined in the list
         project = self.project_id.GetClientData( self.project_id.GetSelection() )
 
-        for name in [ 'configspec', 'config_spec', 'configspec.linux',
-                      'configspec.cygwin', 'configspec.windows' ]:
+        for name in ( 'configspec', 'config_spec', 'configspec.linux',
+                      'configspec.cygwin', 'configspec.windows' ):
             try:
                 url = '%s/%s/confm/%s' % ( location, project, name )
                 manifest = self.client.cat(url,
                            revision=pysvn.Revision( pysvn.opt_revision_kind.head ),
                            peg_revision=pysvn.Revision( pysvn.opt_revision_kind.unspecified) )
 
+                editor = None
                 # build up a new manifest with selected labels
                 for p in wb_manifest_providers.getProviders() or list():
-                    pi = wb_source_control_providers.ProjectInfo( self.app, self.parent, p.name )
+                    pi = wb_source_control_providers.ProjectInfo( self.parent.app, self.parent, p.name )
+                    pi.manifest = manifest
                     if p.require( pi ):
                         editor = p.getEditor()
-                self.manifest = \
-"""\
-#====================================
-# Generated from %s
-#====================================
+                        break
+                else:
+                    # consider the empty configspec as a normal one to insert the project info
+                    if len( manifest ) == 0:
+                        p = wb_manifest_providers.getProvider( 'configspec' )
+                        editor = p.getEditor()
 
-%s
+                if editor != None:
+                    # insert the comments
+                    editor.insert( 0, '#====================================' )
+                    editor.insert( 1, '# Generated from %s' % name )
+                    editor.insert( 2, '#====================================' )
+                    # it needn't insert an empty line for an empty manifest
+                    if len( manifest ) != 0:
+                        editor.insert( 3, '' )
+                    # add the project
+                    editor.append( '')
+                    editor.append( '#===+PROJECT' )
+                    editor.append( '%s/%s/...' % (self.repo_list[project], project ),
+                                   self.project_label.GetValue() )
 
-#===+PROJECT
-element %s/%s/... %s
-""" % ( name, text.strip(), self.repo_list[project], project, self.project_label.GetValue() )
-
+                    self.manifest = editor.getManifest()
                 break
             except:
                 pass
+
+        self.updateControls( self.choice )
 
     def OnConfigspecClick( self, event ):
         editor = _TinyEditor(self, 'Edit Configspec', self.manifest)
@@ -566,7 +580,7 @@ element %s/%s/... %s
             self.manifest = editor.GetValue()
             editor.Destroy()
 
-    def updateControls( self, choice ):
+    def updateControls( self, choice, force=False ):
         self.choice = choice
 
         if self.repo_list is None:
@@ -574,13 +588,17 @@ element %s/%s/... %s
             self.repo_map = p.repo_map_list
             self.repo_list = self._readRepoList( p.repo_baseline )
 
+        # don't re-create the combox if it's inited and not required
+        if not force:
+            force = len( self.project_id.GetValue() ) == 0
+
         is_torun_p = choice == 1 and len( self.repo_list ) > 0
 
         self.project_id.Enable( is_torun_p )
         self.project_label.Enable( is_torun_p )
         self.extend_proj.Enable( is_torun_p )
 
-        if is_torun_p:
+        if is_torun_p and force:
             self.project_id.Clear()
 
             # sort the project list without CB_SORT
@@ -606,6 +624,9 @@ element %s/%s/... %s
 
             self.project_id.SetSelection( 0 )
             self.OnProjectIdChange( None )
+
+        # set enable with a usable manifest
+        self.spec_button.Enable( len( self.manifest ) > 0 )
 
     def _readRepoList( self, repo_url ):
         ret = dict()

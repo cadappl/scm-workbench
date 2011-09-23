@@ -20,6 +20,8 @@ import wb_subversion_project_info
 import wb_source_control_providers
 import wb_torun_project_dialogs
 
+__version__ = '1.2'
+
 def registerProvider():
     wb_source_control_providers.registerProvider( TorunProvider() )
 
@@ -48,5 +50,4 @@ class TorunProvider(wb_source_control_providers.Provider):
         return wb_torun_project_dialogs.AddProjectDialog
 
     def getAboutString( self ):
-        return ('TORUN version: 1.1\n'
-            'configspec version: %s\n' % wb_configspec.__version__)
+        return 'TORUN version: %s\n' % __version__

@@ -48,7 +48,11 @@ try:
 except:
     pass
 
-startup_dir = os.getcwd()
+startup_dir = os.path.dirname( sys.argv[0] )
+if len( startup_dir ) == 0:
+    startup_dir = os.getcwd()
+
+startup_dir = os.path.abspath( startup_dir )
 sys.path += ( os.path.join( startup_dir, 'platform' ),
               os.path.join( startup_dir, 'manifest' ) )
 

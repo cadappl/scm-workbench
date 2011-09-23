@@ -38,27 +38,31 @@ class _Node:
         return self.attrs.get( attr )
 
 class ManifestEditor(wb_manifest_providers.Editor):
-    def __init__( self, provider_name, manifest, **kws ):
-        wb_manifest_providers.Editor.__init__( self, provider, **kws )
+    def __init__( self, project_info, **kws ):
+        wb_manifest_providers.Editor.__init__( self, project_info, **kws )
 
         # cache the lined configspec to a list
-        self.manifest = wb_repo_manifest.manifest( manifest )
+        if project_info != None:
+            self.manifest = wb_repo_manifest.Manifest( project_info.manifest )
+        else:
+            self.manifest = wb_repo_manifest.Manifest( '' )
 
     def insert( self, ki, pattern, selector, **kws ):
-        tp = kws.get( 'format', '' )
+        tp = kws.get( 'format' )
 
         # find the location to insert
         matches = self.manifest.match( pattern )
         if ki == -1:
             ki = 0
 
-        if tp == 'ELEMENT':
-            node = { 'uri' : pattern, 'revision' : selector }
-            rule = wb_repo_manifest.ProjectElement( node )
-        elif tp == 'NOTE':
+        if tp == 'NOTE':
             node = _Node( dict(), pattern )
             rule = wb_repo_manifest.NoticeElement( node )
+        elif tp == 'ELEMENT' or tp == None:
+            node = { 'uri' : pattern, 'revision' : selector }
+            rule = wb_repo_manifest.ProjectElement( node )
         else:
+            print 'Error: unknown type "%s"' % tp
             return None
 
         # adjust the lines after the inserting point
@@ -66,7 +70,7 @@ class ManifestEditor(wb_manifest_providers.Editor):
         return rule
 
     def append( self, pattern, selector, **kws ):
-        return self.insert( 0xffffffff, pattern, selector, **kws )
+        return self.insert( 0xfffffffe, pattern, selector, **kws )
 
     def replace( self, pattern, selector, **kws ):
         if selector is None:
@@ -110,6 +114,9 @@ class ManifestProvider(wb_manifest_providers.Provider):
         self.inst = None
         wb_manifest_providers.Provider.__init__( self, name )
 
+    def getAboutString( self ):
+        return 'Manifest v1.0'
+
     def require( self, project_info, **kws ):
         wb_manifest_providers.Provider.require( self, project_info )
 
@@ -121,6 +128,9 @@ class ManifestProvider(wb_manifest_providers.Provider):
             return False
 
         return True
+
+    def getEditor( self ):
+        return ManifestEditor( self.project_info )
 
     def __returnElement( self, scipath, element, repom ):
         ret = list()

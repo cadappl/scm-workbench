@@ -13,7 +13,7 @@
 
 import os
 
-__version__ = '1.4'
+__version__ = '1.5'
 
 # return the separated words and set the offset in the dictorary 'env'
 def getWord( context, env=dict(), delimiter=None ):
@@ -52,6 +52,10 @@ class ConfigspecRule:
         self.context = context
         self.env = env
         self.opts = opts
+
+    def __str__( self ):
+        return "<ConfigspecRule: scope='%s', lineno=%d, context='%s'>" % (
+               self.scope, self.lineno, self.context)
 
     def dump( self ):
         return self.context
@@ -104,6 +108,11 @@ class Error( ConfigspecRule ):
     def __init__ ( self, lineno, context ):
         env = dict( { 'error':'unknown keyword' } )
         ConfigspecRule.__init__( self, '!!ERROR!!', lineno, context, env )
+
+# empty line
+class EmptyLineRule( ConfigspecRule ):
+    def __init__( self, lineno, context ):
+        ConfigspecRule.__init__( self, 'EMPTY', lineno, context )
 
 # # comment
 class CommentRule( ConfigspecRule ):
@@ -523,7 +532,7 @@ class Configspec:
         self.zparsed = list()
         self.configspec = configspec
 
-        lines = configspec.replace( '\n', '' ).split( '\n' )
+        lines = configspec.replace( '\x0a', '' ).split( '\x0d' )
         self.perror = self.parse( lines )
 
     def getError( self ):
@@ -570,6 +579,8 @@ class Configspec:
                 #= include config-spec-pname
                 elif lz[0] == 'include':
                     rp = IncludeRule( k, lo, branch_name, date_time )
+                elif len( lo ) == 0:
+                    rp = EmptyLineRule( k, lo )
                 else:
                     rp = Error( k, lo )
 
@@ -610,8 +621,19 @@ class Configspec:
 
     def dump( self ):
         lines = list()
+
+        ki = -1
         for rule in self.zparsed:
-            lines.append( rule.dump() )
+            lz = rule.lineno
+            if ki != -1:
+                for k in range( ki + 1, lz ):
+                    lines.append('')
+
+            if ki == lz:
+                lines[-1] += ';' + rule.dump
+            else:
+                ki = lz
+                lines.append( rule.dump() )
 
         return os.linesep.join( lines )
 

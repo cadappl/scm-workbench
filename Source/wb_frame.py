@@ -471,8 +471,14 @@ class WbFrame(wx.Frame):
         ver_str = ('%d.%d.%d-%d\n' %
                     (wb_version.major, wb_version.minor,
                      wb_version.patch, wb_version.build))
+
+        pv_str = wb_manifest_providers.getProviderAboutStrings()
+        if pv_str != None and len(pv_str.strip()) > 0:
+            pv_str += '\n'
+
+        pv_str += wb_source_control_providers.getProviderAboutStrings()
         str_message =    ((T_('kSVN version: %s') % ver_str) +
-                '\n' + wb_source_control_providers.getProviderAboutStrings() +
+                '\n' + pv_str +
                 'wxPython %d.%d.%d.%d %s' % wx.VERSION +
                 '\nPython %d.%d.%d %s %d\n' % sys.version_info +
                 T_('\nCopyright Barry Scott (c) 2003-2009. All rights reserved') +
