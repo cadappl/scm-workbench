@@ -1002,7 +1002,8 @@ class WbTreeCtrl(wx.TreeCtrl):
         else:
             # compare children of projects
             # return cmp( a_pi.wc_path.lower(), b_pi.wc_path.lower() )
-            return wb_utils.compare( a_pi.wc_path.lower().split( os.sep )[-1], b_pi.wc_path.lower().split( os.sep )[-1] )
+            return wb_utils.compare( a_pi.wc_path.lower().split( os.sep )[-1],
+                                     b_pi.wc_path.lower().split( os.sep )[-1] )
 
 #--------------------------------------------------------------------------------
 #

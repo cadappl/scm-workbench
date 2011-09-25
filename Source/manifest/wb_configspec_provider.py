@@ -195,6 +195,12 @@ class ConfigspecProvider(wb_manifest_providers.Provider):
     def getEditor( self ):
         return ConfigspecEditor( self.project_info )
 
+    def getError( self ):
+        if self.inst is None:
+            return None
+        else:
+            return self.inst.getError()
+
     def getRepositories( self ):
         repo = list()
         listp = self.inst.getRepositories()
@@ -222,7 +228,7 @@ class ConfigspecProvider(wb_manifest_providers.Provider):
         repo = segments[1]
 
         repodir = repo_map_list.get( repo, '' )
-        rules = self.inst.match( self, rpath )
+        rules = self.inst.match( rpath )
 
         # filter out CHECKEDOUT
         filters = dict( {'not-version-selector' : 'CHECKEDOUT'} )
@@ -268,15 +274,15 @@ class ConfigspecProvider(wb_manifest_providers.Provider):
                 tags = ( '%s/tags/%s' % ( repodir, selector ),
                        '%s/tags/%s/%s' % ( repodir, label, version ) )
 
-                if tri_dots + 3 == len( pattern ) and patterns[-1] == '...':
+                if tri_dots == pattern.rfind( '...' ) and patterns[-1] == '...':
                     # handle the case "element /vobs/package/pkfoo/... PKFOO-1.0
                     leading = pattern[:tri_dots - 1]
-                    ppath = rpath.replace( leading, '' )
-                    last_dir = patt.split( '/' )[-1]
+                    lastdir = leading.split( '/' )[-1]
+                    extpath = rpath.replace( leading, '' )
 
                     for t in tags:
-                        ret.append( wb_manifest_provider.Rule( scipath,
-                                    '%s/%s' % ( t, ppath ) ) )
+                        ret.append( wb_manifest_providers.Rule( scipath,
+                                    '%s/%s/%s' % ( t, lastdir, extpath ) ) )
                 else:
                     # handle the case that triple dots aren't the tailing ones
                     # add all cases to insert the labels, for instance, the path
@@ -294,7 +300,7 @@ class ConfigspecProvider(wb_manifest_providers.Provider):
                     while len( patterns ) > 0:
                         ppath = '/'.joins( patterns )
                         for t in tags:
-                            ret.append( wb_manifest_provider.Rule( scipath,
+                            ret.append( wb_manifest_providers.Rule( scipath,
                                         '%s/%s' % ( t, ppath ) ) )
 
                         patterns.pop( -1 )
@@ -308,7 +314,7 @@ class ConfigspecProvider(wb_manifest_providers.Provider):
 
                 while len( patterns ) > 0:
                     ppath = '/'.join( patterns )
-                    ret.append( wb_manifest_provider.Rule( scipath,
+                    ret.append( wb_manifest_providers.Rule( scipath,
                                 '%s/%s' % ( pa, ppath ) ) )
 
                     patterns.pop( -1 )

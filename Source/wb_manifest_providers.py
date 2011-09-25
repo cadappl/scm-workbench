@@ -11,6 +11,7 @@
 
 '''
 
+import wb_utils
 import wb_exceptions
 
 _manifest_providers = {}
@@ -35,13 +36,18 @@ def getProviderAboutStrings():
     return about_string
 
 class Rule:
-    def __init__( self, localp, remotp, repo=None, revision=None, mcheckout=None ):
+    def __init__( self, localp, remotep, repo=None, revision=None, checkout=None ):
         self.repo = repo
         self.revision = revision
-        self.localp = localp
+        self.localp = wb_utils.formatPath( localp )
         # the value of 'remotep' could contains starisk as the wildcard
-        self.remotp = remotp
-        self.mcheckout = mcheckout
+        self.remotep = wb_utils.formatPath( remotep )
+        self.checkout = checkout
+
+    def __str__( self ):
+        return '<wb_manifest_providers.Rule repo=%s, revision=%s\n' \
+               '  localp=%s, remotep=%s, mcheckout=%s' % (
+               self.repo, self.revision, self.localp, self.remotep, self.checkout )
 
 class Editor:
     def __init__( self, project_info, **kws ):
@@ -65,7 +71,7 @@ class Editor:
 class Provider:
     def __init__( self, name ):
         self.name = name
-        self.prefix = ''
+        self.prefix = '/vobs'
         self.project_info = None
         self.manifestp = 'subversion'
 
@@ -82,6 +88,9 @@ class Provider:
 
     def getEditor( self ):
         return Editor( self.project_info )
+
+    def getError( self ):
+        return None
 
     def getRepositories( self ):
         raise wb_exceptions.InternalError( 'getRepositories not implemented' )

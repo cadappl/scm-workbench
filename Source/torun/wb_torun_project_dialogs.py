@@ -308,7 +308,6 @@ class WorkingCopyExistsPage(TitledPage):
                     pi.manifest = manifest
                     if pv.require( pi ):
                         self.manifest = manifest
-                        self.parent.setProviderName( pv.manifestp )
 
         self._update_controls_lock = False
 
@@ -438,9 +437,15 @@ class ProjectSelectionPage(TitledPage):
                            style=wx.OK|wx.ICON_ERROR );
             return False
 
-        configspec_parser = wb_torun_configspec.wb_subversion_configspec( self.manifest )
-        if configspec_parser.error():
-            wx.MessageBox( T_(configspec_parser.error() ), style=wx.OK|wx.ICON_ERROR )
+        error = None
+        for pv in wb_manifest_providers.getProviders() or list():
+            pi = wb_source_control_providers.ProjectInfo( self.parent.app, self.parent, None )
+            pi.manifest = self.manifest
+            if pv.require( pi ):
+                break
+        else:
+            wx.MessageBox( 'None of supported manifest provider knows the format',
+                           style=wx.OK|wx.ICON_ERROR )
             return False
 
         state.manifest = self.manifest
@@ -539,6 +544,8 @@ class ProjectSelectionPage(TitledPage):
                            revision=pysvn.Revision( pysvn.opt_revision_kind.head ),
                            peg_revision=pysvn.Revision( pysvn.opt_revision_kind.unspecified) )
 
+                # a manifest editor is requested to edit the manifest
+                # according to different manifest format.
                 editor = None
                 # build up a new manifest with selected labels
                 for p in wb_manifest_providers.getProviders() or list():
@@ -575,7 +582,7 @@ class ProjectSelectionPage(TitledPage):
         self.updateControls( self.choice )
 
     def OnConfigspecClick( self, event ):
-        editor = _TinyEditor(self, 'Edit Configspec', self.manifest)
+        editor = _TinyEditor( self, 'Edit Manifest', self.manifest )
         if editor.ShowModal() == wx.ID_OK:
             self.manifest = editor.GetValue()
             editor.Destroy()

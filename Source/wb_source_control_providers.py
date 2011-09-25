@@ -77,11 +77,17 @@ class ProjectInfo:
         self.new_file_template_dir = ''
         self.menu_name = None
         self.menu_info = None
+        self.manifest = ''
         self.menu_folder = ''
         self.menu_folder2 = ''
         self.menu_folder3 = ''
         self.use_background_colour = False
         self.background_colour = (255,255,255)
+
+    def __str__( self ):
+        return 'app=%r, parent=%r, provider_name=%s, project_name=%s, ' \
+               'manifest=%s' % ( self.app, self.parent, self.provider_name,
+               self.project_name, self.manifest )
 
     def init( self, project_name, **kws ):
         self.project_name = project_name

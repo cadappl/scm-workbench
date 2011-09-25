@@ -132,6 +132,12 @@ class ManifestProvider(wb_manifest_providers.Provider):
     def getEditor( self ):
         return ManifestEditor( self.project_info )
 
+    def getError( self ):
+        if self.inst is None:
+            return None
+        else:
+            return self.inst.getError()
+
     def __returnElement( self, scipath, element, repom ):
         ret = list()
 
@@ -162,14 +168,14 @@ class ManifestProvider(wb_manifest_providers.Provider):
             pa = '%s/trunk' % repodir
             while len( segments ) > 0:
                 ppath = '/'.join( segments )
-                ret.append( wb_manifest_provider.Rule( scipath,
+                ret.append( wb_manifest_providers.Rule( scipath,
                             '%s/%s' % ( pa, __joinUri( ppath, a ) ) ) )
         elif a['revision'].index( '/' ) > -1:
             # branch
             pa = '%s/branches' % repodir
             while len( segments ) > 0:
                 ppath = '/'.join( segments )
-                ret.append( wb_manifest_provider.Rule( scipath,
+                ret.append( wb_manifest_providers.Rule( scipath,
                             '%s/%s' % ( pa, __joinUri( ppath, a ) ) ) )
         else:
             # tags
@@ -180,7 +186,7 @@ class ManifestProvider(wb_manifest_providers.Provider):
 
             for t in tags:
                 ppath = '/'.join( segments )
-                ret.append( wb_manifest_provider.Rule( scipath,
+                ret.append( wb_manifest_providers.Rule( scipath,
                             '%s/%s' % ( t, __joinUri( ppath, a ) ) ) )
 
         return ret

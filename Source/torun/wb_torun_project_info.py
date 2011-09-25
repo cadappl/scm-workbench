@@ -107,7 +107,7 @@ class ProjectDialog(wx.Dialog):
         pi.setBackgroundColour( self.state.use_background_colour, self.state.background_colour )
 
         pi.init( self.state.name,
-            configspec=self.state.configspec,
+            manifest=self.state.manifest,
             wc_path=os.path.expanduser( self.state.wc_path ),
             menu_info=self.project_info.menu_info )
 
@@ -322,14 +322,14 @@ class ConfigspecPanel(PagePanel):
         return self.sizer
 
     def updateControls( self ):
-        self.manifest_ctrl.SetValue( self.project_info.configspec )
+        self.manifest_ctrl.SetValue( self.project_info.manifest )
 
     def validate( self, state ):
         if self.manifest_ctrl.GetValue().strip() == '':
             wx.MessageBox( T_('Enter a configspec'), style=wx.OK|wx.ICON_ERROR );
             return False
 
-        state.configspec = self.manifest_ctrl.GetValue().strip()
+        state.manifest = self.manifest_ctrl.GetValue().strip()
         return True
 
     def OnEditConfigspec( self, event ):
@@ -385,8 +385,9 @@ class UpdateProjectDialog(ProjectDialog):
 # wrap the client_bg to insert the function for update and checkout
 #
 class SubversionClient:
-    def __init__( self, app, project_info ):
+    def __init__( self, app, parent, project_info ):
         self.app = app
+        self.parent = parent
         self.project_info = project_info
 
         self.client = pysvn.Client()
@@ -413,29 +414,23 @@ class SubversionClient:
     def initNotify( self ):
         self.client.callback_notify = wb_exceptions.TryWrapper( self.app.log, self.callback_notify )
 
-    def checkout(self, *arg, **args):
-        format = self.verifyConfigspecFormat( self.project_info.configspec )
-        if format == 'xml':
-            self.updateWithManifest()
-        else:
-            self.updateWithConfigspec()
-
+    def checkout( self, *arg, **args ):
+        self.updateWithManifest( True )
         # should update the repository info
         self.project_info.initRepositoryInfo()
 
-    def update(self, *arg, **args):
-        self.updateWithManifest()
+    def update( self, *arg, **args ):
+        self.updateWithManifest( False )
 
-    def updateWithManifest(self):
+    def updateWithManifest( self, checkout=False ):
         pv = None
         repo_map_list = self.app.prefs.getRepository().repo_map_list
         # detect the manifest provider
         for pv in wb_manifest_providers.getProviders():
-            pi = wb_source_control_providers.ProjectInfo( self.parent.app, self.parent, None )
+            pi = ProjectInfo( self.app, self.parent, None )
             pi.manifest = self.project_info.manifest
             if pv.require( pi ):
-                self.manifest = manifest
-                self.parent.setProviderName( pv.manifestp )
+                break
         else:
             print 'Error: cannot detect the format of configspec, make sure it\'s normal'
             return
@@ -445,7 +440,7 @@ class SubversionClient:
         # 1. find and check out all repositories
         repos = pv.getRepositories()
         for repo in repos:
-            # FIXME: ignore the unmapped repository?
+            # ignore the unmapped repositories
             if not repo_map_list.has_key( repo ): continue
 
             url = '%s/trunk' % repo_map_list[repo]
@@ -459,6 +454,7 @@ class SubversionClient:
         # 2. update or switch directory according to the configspec
         while len( dirs ) > 0:
             wc_path = dirs.pop( 0 )
+
             # 2.1 get the URL from the path
             url = self.get_url_from_path( wc_path )
             # 2.2 get the target URL from the configspec
@@ -467,12 +463,14 @@ class SubversionClient:
             mlist = pv.match( repo_map_list, self.project_info.wc_path, wc_path )
 
             # check the existence of urls in mlist and do switching
-            # FIXME: do a careful switching for the existent modules?
-            for new_url in mlist or list():
-                if not self.exists( new_url ):
+            for m in mlist or list():
+                new_url = m.remotep
+
+                if os.path.abspath( m.localp ) != wc_path \
+                or ( not self.exists( new_url ) ):
                     continue
 
-                if url == new_url:
+                if url != new_url:
                     self.app.foregroundProcess( self.app.setAction, ( ('Switch %s...' % wc_path), ) )
                     self.client.switch( wc_path, new_url, depth=pysvn.depth.infinity,
                                         revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
@@ -568,11 +566,11 @@ class SubversionClient:
 # wb_torun_project_info.ProjectInfo isn't inherited from
 # wb_subversion_project_info.ProjectInfo but assigned each for a sub-repository
 class ProjectInfo(wb_source_control_providers.ProjectInfo):
-    def __init__( self, app, parent ):
+    def __init__( self, app, parent, manifest='' ):
         wb_source_control_providers.ProjectInfo.__init__( self, app, parent, 'torun' )
         self.url = None
         self.wc_path = None
-        self.manifest = ''
+        self.manifest = manifest
         self.app = app
         self.parent = self.parent
         # TODO: check the usage of need_checkout
@@ -612,13 +610,13 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         self.wc_path = kws['wc_path']
         self.manifest = kws.get( 'manifest', '' )
         self.manifest_provider = kws.get( 'manifest_provider', '' )
-        if self.manifest_provider == None or len( self.manifest_provider ) == 0:
-            # detect the manifest format with all manifest providers
-            for pv in wb_manifest_providers.getProviders():
-                pi = wb_source_control_providers.ProjectInfo( self.app, self.parent, None )
-                pi.manifest = self.manifest
-                if pv.require( pi ):
-                    self.manifest_provider = pv.name
+        #if self.manifest_provider == None or len( self.manifest_provider ) == 0:
+        #    # detect the manifest format with all manifest providers
+        #    for pv in wb_manifest_providers.getProviders():
+        #        pi = ProjectInfo( self.app, self.parent, None )
+        #        pi.manifest = self.manifest
+        #        if pv.require( pi ):
+        #            self.manifest_provider = pv.name
 
         # if no manifest, it assumed to be configspec
         if self.manifest_provider == None or len( self.manifest_provider ) == 0:
@@ -627,9 +625,10 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         if not self.menu_info:
             self.menu_info = kws.get( 'menu_info', None )
 
+        # FIXME: adjust the version control system according to the settings
         # need one client/project/thread
-        self.client_bg = SubversionClient( self.app, self )
-        self.client_fg = SubversionClient( self.app, self ) #pysvn.Client()
+        self.client_bg = SubversionClient( self.app, self.parent, self )
+        self.client_fg = SubversionClient( self.app, self.parent, self ) #pysvn.Client()
 
         self.initRepositoryInfo()
 
@@ -638,7 +637,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         # build up the subversion project infos
         pv = wb_manifest_providers.getProvider( self.manifest_provider )
         if pv != None:
-            pi = wb_source_control_providers.ProjectInfo( self.app, self.parent, None )
+            pi = ProjectInfo( self.app, self.parent, None )
             pi.manifest = self.manifest
             if pv.require( pi ):
                 for repo in pv.getRepositories() or list():
