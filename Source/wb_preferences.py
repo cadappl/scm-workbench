@@ -54,7 +54,6 @@ class Preferences:
 
         # all the preference section handles get created here
         self.pref_handlers = {}
-        self.pref_handlers['Projects'] = ProjectsPreferences( self.app )
         self.pref_handlers['Bookmarks'] = BookmarksPreferences( self.app )
         self.pref_handlers['Window'] = WindowPreferences( self.app )
         self.pref_handlers['DiffWindow'] = DiffWindowPreferences( self.app )
@@ -67,6 +66,14 @@ class Preferences:
         self.pref_handlers['Advanced'] = AdvancedPreferences( self.app )
         self.pref_handlers['Repository'] = RepositoryPreferences( self.app )
         self.pref_handlers['RepoBrowser'] = RepoBrowserPreferences( self.app )
+
+        # read preferences into the handlers
+        self.readPreferences()
+
+    def loadProjects( self ):
+        # separately to handle the project because it's not preferred
+        # to limit the usage of the preferences for a project
+        self.pref_handlers['Projects'] = ProjectsPreferences( self.app )
 
         # read preferences into the handlers
         self.readPreferences()

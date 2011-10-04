@@ -67,6 +67,7 @@ class AddProjectState:
         self.url_path = ''
         self.project_name = ''
         self.manifest = ''
+        self.manifest_provider = ''
 
 class ProjectInfo:
     def __init__( self, app, parent, provider_name ):

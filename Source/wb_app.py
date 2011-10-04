@@ -146,6 +146,9 @@ class WbApp(wx.App):
                     wb_platform_specific.getPreferencesFilename(),
                     wb_platform_specific.getOldPreferencesFilename() )
 
+        # initiliaze preferences first, then load the projects
+        # because projects requrired the prefs
+        self.prefs.loadProjects()
         self.lock_ui = 0
         self.need_activate_app_action = False
 

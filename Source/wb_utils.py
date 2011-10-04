@@ -31,11 +31,18 @@ def compare( x, y ):
         return cmp( ax, bx )
 
 def formatPath( path ):
+    schema = '://'
     path = path.replace( '\\', '/' )
+
+    segments = path.split( schema, 1 )
+    if len( segments ) > 1:
+        segments[1] = segments[1].replace( '//', '/' )
+
+    path = schema.join( segments )
     if path.endswith( '/' ):
         path = path[:-1]
 
-    return path.replace( '//', '/' )
+    return path
 
 def __loadFile( path, module, interf ):
     #try:
@@ -73,8 +80,11 @@ def loadExts( dirp ):
                     __loadFile( path, main, 'registerProvider' )
                     registered.append( main )
 
+def by_path( a, b ):
+    return compare( a.path, b.path )
+
 def by_list_path( a, b ):
-    return cmp( a[0].path, b[0].path )
+    return compare( a[0].path, b[0].path )
 
 def handleMenuInfo( project_info, start=0 ):
     menu_context = list()

@@ -438,8 +438,7 @@ class SubversionClient:
         # it's assumed the stored configspec is always correct
         dirs = list()
         # 1. find and check out all repositories
-        repos = pv.getRepositories()
-        for repo in repos:
+        for repo in pv.getRepositories() or list():
             # ignore the unmapped repositories
             if not repo_map_list.has_key( repo ): continue
 
@@ -447,22 +446,44 @@ class SubversionClient:
             wc_path = os.path.join( self.project_info.wc_path, repo )
             # build up the repository location with /trunk
             if not os.path.exists( wc_path ):
+                self.app.foregroundProcess( self.app.setAction, ( ('Checkout %s...' % wc_path), ) )
                 self.client.checkout( url, wc_path, depth=pysvn.depth.infinity,
                                       revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
             dirs.append( wc_path )
 
-        # 2. update or switch directory according to the configspec
+        # 2. read extra repository-relative materials
+        extras = pv.getRepoExtras( self.project_info.wc_path, repo_map_list )
+        for m in extras or list():
+            url, wc_path = m.remotep, m.localp
+            if not self.exists( url ):
+                print 'Error: URL %s is not existent' % url
+                continue
+
+            if not os.path.exists( wc_path ):
+                os.makedirs( wc_path )
+
+                self.app.foregroundProcess( self.app.setAction, ( ('Checkout %s...' % m.localp), ) )
+                self.client.checkout( url, wc_path, depth=pysvn.depth.infinity,
+                                      revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+            elif not checkout:
+                self.app.foregroundProcess( self.app.setAction, ( ('Update %s...' % m.localp), ) )
+                self.client.update( wc_path, depth=pysvn.depth.empty,
+                                    revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+
+            dirs.append( wc_path )
+
+        # 3. update or switch directory according to the configspec
         while len( dirs ) > 0:
             wc_path = dirs.pop( 0 )
 
-            # 2.1 get the URL from the path
+            # 3.1 get the URL from the path
             url = self.get_url_from_path( wc_path )
-            # 2.2 get the target URL from the configspec
+            # 3.2 get the target URL from the configspec
             # Configspec.match returns a url list of matched rules in order,
             # to handle the list, a loop is required to check each url.
             mlist = pv.match( repo_map_list, self.project_info.wc_path, wc_path )
 
-            # check the existence of urls in mlist and do switching
+            # 3.3 check the existence of urls in mlist and do switch
             for m in mlist or list():
                 new_url = m.remotep
 
@@ -480,7 +501,7 @@ class SubversionClient:
                                         revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
                 break
 
-            # cache the directories in current directory
+            # 3.4 cache the directories in current directory
             for d in os.listdir( wc_path ):
                 path = os.path.join( wc_path, d )
                 if ( not d.startswith( '.' ) ) and os.path.isdir( path ):
@@ -640,11 +661,16 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
             pi = ProjectInfo( self.app, self.parent, None )
             pi.manifest = self.manifest
             if pv.require( pi ):
+                # get the repositories
                 for repo in pv.getRepositories() or list():
                     self.project_infos[repo] = None
 
+                # get the repository extras
+                for extra in pv.getRepoExtras( self.wc_path ) or list():
+                    self.project_infos[extra.localp] = None
+
                 for repo in self.project_infos.keys():
-                    wc_path = os.path.join( self.wc_path, repo )
+                    wc_path = os.path.abspath( os.path.join( self.wc_path, repo ) )
                     try:
                         url = self.client_bg.get_url_from_path( wc_path )
                         # create a temporary subversion project_name '@@repo_name'

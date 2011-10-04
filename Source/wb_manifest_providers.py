@@ -93,7 +93,11 @@ class Provider:
         return None
 
     def getRepositories( self ):
-        raise wb_exceptions.InternalError( 'getRepositories not implemented' )
+        return None
+
+    # the result are the list with the class 'Rule'
+    def getRepoExtras( self, mappings, rootdir ):
+        return None
 
     # the result are the list with the class 'Rule'
     def match( self, scipath ):

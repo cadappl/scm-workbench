@@ -110,6 +110,7 @@ class AddProjectDialog:
         pi.init( self.state.project_name,
                  wc_path=self.state.wc_path,
                  manifest=self.state.manifest,
+                 manifest_provider=self.state.manifest_provider,
                  url=self.state.url_path )
 
         return pi
@@ -234,6 +235,7 @@ class WorkingCopyExistsPage(TitledPage):
         wx.EVT_TEXT( self, wc_path_text_ctrl_id, self.updateControls )
 
         self.manifest = None
+        self.manifest_provider = None
         self._update_controls_lock = False
 
     def loadState( self, state ):
@@ -247,6 +249,7 @@ class WorkingCopyExistsPage(TitledPage):
         state.url_path = self.url_ctrl.GetLabel().strip()
 
         state.manifest = self.manifest
+        state.manifest_provider = self.manifest_provider
 
         if not os.path.exists( state.wc_path ):
             wx.MessageBox( T_('Path %s\n'
@@ -308,6 +311,7 @@ class WorkingCopyExistsPage(TitledPage):
                     pi.manifest = manifest
                     if pv.require( pi ):
                         self.manifest = manifest
+                        self.manifest_provider = pv.name
 
         self._update_controls_lock = False
 
@@ -384,12 +388,12 @@ class ProjectSelectionPage(TitledPage):
         self.client.exception_style = 1
 
         # choose for creation type
-        radiobox_type = wx.RadioBox( self, -1, "Creation Type", wx.DefaultPosition, wx.DefaultSize,
-                                     ( 'Create with Manual Manifest', 'Create with Baseline info' ),
-                                     2, wx.RA_SPECIFY_COLS )
+        self.spec_type = wx.RadioBox( self, -1, "Creation Type", wx.DefaultPosition, wx.DefaultSize,
+                                      ( 'Create with Manual Manifest', 'Create with Baseline info' ),
+                                      2, wx.RA_SPECIFY_COLS )
 
-        radiobox_type.Bind( wx.EVT_RADIOBOX, self.OnChangeConfigspecCategory)
-        self.sizer.Add( radiobox_type, 0, wx.EXPAND|wx.ALL, 5 )
+        self.spec_type.Bind( wx.EVT_RADIOBOX, self.OnChangeConfigspecCategory )
+        self.sizer.Add( self.spec_type, 0, wx.EXPAND|wx.ALL, 5 )
 
         text_proj_id = wx.StaticText( self, -1, T_("Project ID") )
         self.project_id = wx.ComboBox( self, -1, style=wx.CB_READONLY )
@@ -437,7 +441,6 @@ class ProjectSelectionPage(TitledPage):
                            style=wx.OK|wx.ICON_ERROR );
             return False
 
-        error = None
         for pv in wb_manifest_providers.getProviders() or list():
             pi = wb_source_control_providers.ProjectInfo( self.parent.app, self.parent, None )
             pi.manifest = self.manifest
@@ -449,7 +452,8 @@ class ProjectSelectionPage(TitledPage):
             return False
 
         state.manifest = self.manifest
-        state.project_name = self.project_id.GetClientData( self.project_id.GetSelection() )
+        if self.project_id.IsEnabled():
+            state.project_name = self.project_id.GetClientData( self.project_id.GetSelection() )
 
         return True
 
@@ -633,7 +637,8 @@ class ProjectSelectionPage(TitledPage):
             self.OnProjectIdChange( None )
 
         # set enable with a usable manifest
-        self.spec_button.Enable( len( self.manifest ) > 0 )
+        self.spec_button.Enable( self.spec_type.GetSelection() == 0
+                                 or len( self.manifest ) > 0 )
 
     def _readRepoList( self, repo_url ):
         ret = dict()
