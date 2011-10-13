@@ -456,7 +456,6 @@ class SubversionClient:
         for m in extras or list():
             url, wc_path = m.remotep, m.localp
             if not self.exists( url ):
-                print 'Error: URL %s is not existent' % url
                 continue
 
             if not os.path.exists( wc_path ):
@@ -606,8 +605,8 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
     def init( self, project_name, **kws ):
         wb_source_control_providers.ProjectInfo.init( self, project_name )
 
-        try_wrapper = wb_exceptions.TryWrapperFactoryWithExcept( self.app.log_client_error,
-                                                                 pysvn.ClientError )
+        try_wrapper = wb_exceptions.TryWrapperFactoryWithExcept(
+                          self.app.log_client_error, pysvn.ClientError )
         self.menu_info = \
             ( ( 0, None, None )
               ,( wb_ids.id_SP_Torun_ProcAdd,
@@ -696,7 +695,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
     def getBranchesUrl( self, rel_url ):
         if self.parent is not None:
             return self.parent.getBranchesUrl( rel_url )
-        return self.expandedLabelUrl( self.branches_url, rel_url )
+        return self.expandedLabelUrl( False, rel_url )
 
     def expandedLabelUrl( self, is_label, rel_url ):
         label_url = ''

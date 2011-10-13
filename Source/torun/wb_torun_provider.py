@@ -50,4 +50,4 @@ class TorunProvider(wb_source_control_providers.Provider):
         return wb_torun_project_dialogs.AddProjectDialog
 
     def getAboutString( self ):
-        return 'TORUN version: %s\n' % __version__
+        return 'Torun v%s' % __version__

@@ -96,7 +96,7 @@ class Provider:
         return None
 
     # the result are the list with the class 'Rule'
-    def getRepoExtras( self, mappings, rootdir ):
+    def getRepoExtras( self, rootdir, mappings=None ):
         return None
 
     # the result are the list with the class 'Rule'

@@ -11,21 +11,26 @@
 
 '''
 
+import os
 import wb_utils
 import wb_repo_manifest
 
 import wb_manifest_providers
 
+__version__ = "1.1"
+
 def registerProvider():
     wb_manifest_providers.registerProvider( ManifestProvider( 'manifest' ) )
 
-def __joinUri( uri, val ):
-    ret = '%s/%s' % ( uri, val.get( 'checkout', '' ) )
+def joinUri( uri, val ):
+    ret = uri
+    if val.get( 'checkout' ) != None:
+        ret += '/%s' % val['checkout']
 
     return ret.replace( '//', '/' )
 
-def __catUri( val ):
-    return __joinUri( val.get( 'uri', '' ), val )
+def _catUri( val ):
+    return joinUri( val.get( 'uri', '' ), val )
 
 class _Node:
     def __init__( self, attrs, child=None ):
@@ -46,65 +51,6 @@ class ManifestEditor(wb_manifest_providers.Editor):
             self.manifest = wb_repo_manifest.Manifest( project_info.manifest )
         else:
             self.manifest = wb_repo_manifest.Manifest( '' )
-
-    def insert( self, ki, pattern, selector, **kws ):
-        tp = kws.get( 'format' )
-
-        # find the location to insert
-        matches = self.manifest.match( pattern )
-        if ki == -1:
-            ki = 0
-
-        if tp == 'NOTE':
-            node = _Node( dict(), pattern )
-            rule = wb_repo_manifest.NoticeElement( node )
-        elif tp == 'ELEMENT' or tp == None:
-            node = { 'uri' : pattern, 'revision' : selector }
-            rule = wb_repo_manifest.ProjectElement( node )
-        else:
-            print 'Error: unknown type "%s"' % tp
-            return None
-
-        # adjust the lines after the inserting point
-        self.elements.insert( ki, rule )
-        return rule
-
-    def append( self, pattern, selector, **kws ):
-        return self.insert( 0xfffffffe, pattern, selector, **kws )
-
-    def replace( self, pattern, selector, **kws ):
-        if selector is None:
-            return self.remove( pattern, **kws )
-
-        count = 0
-        for item in self.manifest.elements:
-            if item.match( pattern ):
-                item.set( selector )
-                count += 1
-
-        return count
-
-    def remove( self, pattern ):
-        # build up the formatted pattern
-        pattern = pattern.replace( '\\', '/' )
-        if pattern.startswith( '.../' ):
-            pattern = pattern[4:]
-        if pattern.endswith( '/...' ):
-            pattern = pattern[:-4]
-
-        # it removes all lines including modules in packages
-        ids = list()
-        for k, item in enumerate( elements ):
-            if item.find( pattern ) > -1:
-                ids.append( k )
-
-        ids.sort()
-        ids.reverse()
-
-        for no in ids:
-            del self.manifest.elements[no]
-
-        return len( ids )
 
     def getManifest( self, **kws ):
         return self.manifest.dump()
@@ -140,6 +86,7 @@ class ManifestProvider(wb_manifest_providers.Provider):
 
     def __returnElement( self, scipath, element, repom ):
         ret = list()
+        repodir = ''
 
         a = element.get( ( 'name', 'revision', 'path', 'checkout', 'uri') )
 
@@ -149,19 +96,25 @@ class ManifestProvider(wb_manifest_providers.Provider):
             uri = uri[ len( self.prefix ): ]
 
         # remove leading /vobs/package
-        segments = uri.split( '/' )
-        if segments[0] == '':
-            segments.pop( 0 )
-        if segments[0] == self.prefix:
-            segments.pop( 0 )
+        segments = list()
+        if uri != None:
+            segments = uri.split( '/' )
+            if segments[0] == '':
+                segments.pop( 0 )
+            if segments[0] == self.prefix:
+                segments.pop( 0 )
 
-        repodir = repom[ segments[0] ]
-        segments.pop( 0 )
+        if repom != None:
+            repodir = repom[ segments[0] ]
+            segments.pop( 0 )
 
         revision = a['revision']
-        revs = revision.split( '/' )
-        if len( revs ) > 0 and revs[-1] == 'LATEST':
-            revs.pop( -1 )
+        if revision != None:
+            revs = revision.split( '/' )
+            if len( revs ) > 0 and revs[-1] == 'LATEST':
+                revs.pop( -1 )
+        else:
+            revision = ''
 
         if revision == '/main/LATEST':
             # trunk
@@ -169,44 +122,56 @@ class ManifestProvider(wb_manifest_providers.Provider):
             while len( segments ) > 0:
                 ppath = '/'.join( segments )
                 ret.append( wb_manifest_providers.Rule( scipath,
-                            '%s/%s' % ( pa, __joinUri( ppath, a ) ) ) )
-        elif a['revision'].index( '/' ) > -1:
+                            '%s/%s' % ( pa, joinUri( ppath, a ) ) ) )
+        elif revision.find( '/' ) > -1:
             # branch
             pa = '%s/branches' % repodir
             while len( segments ) > 0:
                 ppath = '/'.join( segments )
                 ret.append( wb_manifest_providers.Rule( scipath,
-                            '%s/%s' % ( pa, __joinUri( ppath, a ) ) ) )
+                            '%s/%s' % ( pa, joinUri( ppath, a ) ) ) )
         else:
             # tags
-            tags = ( '%s/tags/%s' % ( repodir, revision ), )
-            if revision.index( '/' ) > 0:
-                rev = revision.split( '-', 1 )
+            tags = list()
+            if revision.find( '-' ) > 0:
+                tags.append( '%s/tags/%s' % ( repodir, revision ) )
+                rev = revision.rsplit( '-', 1 )
                 tags.append( '%s/tags/%s/%s' % ( repodir, rev[0], rev[1] ) )
+            else:
+                # it targets to support to suppress the package name following
+                # the rule to build the assumed two uris and the original one
+                name = segments[-1]
+                if name != None and len( name ) != '':
+                    name = name.upper()
+
+                    tags.append( '%s/tags/%s-%s' % ( repodir, name, revision ) )
+                    tags.append( '%s/tags/%s/%s' % ( repodir, name, revision ) )
+                    tags.append( '%s/tags/%s' % (repodir, revision) )
 
             for t in tags:
                 ppath = '/'.join( segments )
                 ret.append( wb_manifest_providers.Rule( scipath,
-                            '%s/%s' % ( t, __joinUri( ppath, a ) ) ) )
+                            '%s/%s' % ( t, joinUri( ppath, a ) ) ) )
 
         return ret
 
-    def getRepositories( self ):
-        repo = list()
-        listp = self.inst.getRepositories()
+    def getRepoExtras( self, rootdir, repo_map_list=None ):
+        listp = list()
 
-        prefix = self.prefix + '/'
-        prefix_len = len( prefix )
-        # filter out all repositories with the prefix
-        for p in listp:
-            if p.startswith( prefix ):
-                li = p[prefix_len:]
-                if li.index( '/' ) > 0: li = li[:li.find( '/' )]
-                if li not in repo: repo.append( li )
+        extras = self.inst.match( None )
 
-        repo.sort( wb_utils.compare )
+        for e in extras or list():
+            # build up the checked-out directory
+            path = e.get( 'path' )
+            if path == None:
+                path = e.get( 'uri' )
+                if path != None:
+                    path = path.replace( self.prefix, '' )
 
-        return repo
+            rpath = os.path.join( rootdir, path )
+            listp += self.__returnElement( rpath, e, repo_map_list )
+
+        return listp
 
     def match( self, repo_map_list, rootdir, scipath ):
         listp = list()
@@ -215,7 +180,7 @@ class ManifestProvider(wb_manifest_providers.Provider):
         rootdir = wb_utils.formatPath( rootdir )
 
         rpath = scipath.replace( rootdir, self.prefix )
-        rules = self.inst.match( self, rpath )
+        rules = self.inst.match( rpath )
 
         for e in rules or list():
             listp += self.__returnElement( rpath, e, repo_map_list )

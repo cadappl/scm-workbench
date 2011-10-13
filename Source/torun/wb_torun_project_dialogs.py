@@ -12,12 +12,13 @@
 '''
 import wx
 import wx.wizard
-# import wb_torun_configspec
 import wb_source_control_providers
 import wb_manifest_providers
 
 import pysvn
 import os
+import sys
+import traceback
 
 import wb_config
 import wb_read_file
@@ -379,7 +380,7 @@ class SubversionUrlPage(TitledPage):
 
 class ProjectSelectionPage(TitledPage):
     def __init__( self, parent ):
-        TitledPage.__init__( self, parent, T_("Select Configspec") )
+        TitledPage.__init__( self, parent, T_("Select Manifest") )
 
         self.manifest = ''
         self.repo_list = None
@@ -540,7 +541,7 @@ class ProjectSelectionPage(TitledPage):
         # read the configspec with the order defined in the list
         project = self.project_id.GetClientData( self.project_id.GetSelection() )
 
-        for name in ( 'configspec', 'config_spec', 'configspec.linux',
+        for name in ( 'configspec', 'config_spec', 'manifest.xml', 'configspec.linux',
                       'configspec.cygwin', 'configspec.windows' ):
             try:
                 url = '%s/%s/confm/%s' % ( location, project, name )

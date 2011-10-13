@@ -532,7 +532,9 @@ class Configspec:
         self.zparsed = list()
         self.configspec = configspec
 
-        lines = configspec.replace( '\x0d', '\x0a' ).split( '\x0a' )
+        lines = configspec.replace( '\x0d\x0a', '\x0a' ) \
+                          .replace( '\x0d', '\x0a' ).split( '\x0a' )
+
         self.perror = self.parse( lines )
 
     def getError( self ):

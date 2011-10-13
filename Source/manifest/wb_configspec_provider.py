@@ -36,7 +36,7 @@ class ConfigspecEditor(wb_manifest_providers.Editor):
         tp = kws.get( 'format' )
 
         # find the location to insert
-        if ki == -1:
+        if ki < 0:
             matches = self.cs.match( pattern )
             if len( matches ) > 0:
                 # get the longest match
@@ -77,7 +77,7 @@ class ConfigspecEditor(wb_manifest_providers.Editor):
                 line = '# %s' % pattern
 
             rule = wb_configspec.CommentRule( lineno, line )
-        elif tp == 'ELEMENT' or tp == None:
+        elif ( tp == 'ELEMENT' or tp == None ) and len( args ) > 0:
             line = 'element %s %s' % ( pattern, args[0] )
             rule = wb_configspec.ElementRule( lineno, line )
         else:
