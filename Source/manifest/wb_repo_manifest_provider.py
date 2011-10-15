@@ -61,7 +61,7 @@ class ManifestProvider(wb_manifest_providers.Provider):
         wb_manifest_providers.Provider.__init__( self, name )
 
     def getAboutString( self ):
-        return 'Manifest v1.0'
+        return 'Manifest %s' % __version__
 
     def require( self, project_info, **kws ):
         wb_manifest_providers.Provider.require( self, project_info )

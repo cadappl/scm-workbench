@@ -446,13 +446,16 @@ class ProjectSelectionPage(TitledPage):
             pi = wb_source_control_providers.ProjectInfo( self.parent.app, self.parent, None )
             pi.manifest = self.manifest
             if pv.require( pi ):
+                state.manifest = self.manifest
+                state.manifest_provider = pv.name
                 break
+            else:
+                print pv.getError()
         else:
             wx.MessageBox( 'None of supported manifest provider knows the format',
                            style=wx.OK|wx.ICON_ERROR )
             return False
 
-        state.manifest = self.manifest
         if self.project_id.IsEnabled():
             state.project_name = self.project_id.GetClientData( self.project_id.GetSelection() )
 

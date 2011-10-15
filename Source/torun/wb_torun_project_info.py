@@ -452,10 +452,28 @@ class SubversionClient:
             dirs.append( wc_path )
 
         # 2. read extra repository-relative materials
+        lastp = dict()
         extras = pv.getRepoExtras( self.project_info.wc_path, repo_map_list )
         for m in extras or list():
             url, wc_path = m.remotep, m.localp
+
+            # avoid to add duplicated url
+            if wc_path in dirs:
+                continue
+
+            # record the urls to inform the user
+            if not lastp.has_key( wc_path ):
+                if len( lastp.keys() ) > 0:
+                    for p in lastp.keys():
+                        print 'Warn: %s cannot match any of proposed urls: %s' % (
+                              p, ','.join( lastp[p] ) )
+
+                lastp[wc_path] = [ url ]
+            else:
+                lastp[wc_path].append( url )
+
             if not self.exists( url ):
+                # print 'Error: URL %s is not existent' % url
                 continue
 
             if not os.path.exists( wc_path ):
@@ -469,6 +487,7 @@ class SubversionClient:
                 self.client.update( wc_path, depth=pysvn.depth.empty,
                                     revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
 
+            lastp = dict()
             dirs.append( wc_path )
 
         # 3. update or switch directory according to the configspec
@@ -639,7 +658,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         #            self.manifest_provider = pv.name
 
         # if no manifest, it assumed to be configspec
-        if self.manifest_provider == None or len( self.manifest_provider ) == 0:
+        if self.manifest_provider == None or self.manifest_provider == '':
             self.manifest_provider = 'configspec'
 
         if not self.menu_info:
