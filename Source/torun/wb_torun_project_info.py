@@ -81,7 +81,7 @@ class ProjectDialog(wx.Dialog):
 
         self.pages = []
         self.pages.append( ProjectPanel( self, self.notebook, self.app, self.project_info ) )
-        self.pages.append( ConfigspecPanel( self, self.notebook, self.app, self.project_info ) )
+        self.pages.append( ManifestPanel( self, self.notebook, self.app, self.project_info ) )
         self.pages.append( RepositoryPanel( self, self.notebook, self.app, self.project_info ) )
 
         self.button_ok = wx.Button( self, wx.ID_OK, T_(' OK ') )
@@ -165,7 +165,7 @@ class ProjectPanel(PagePanel):
         self.g_sizer.Add( self.name_label, (0,0), (1,1), wx.ALIGN_RIGHT )
         self.g_sizer.Add( self.name_ctrl,  (0,1), (1,2), wx.EXPAND )
 
-        self.wc_path_browse = wx.Button( self, wc_path_browse_id, T_(" Browse...") )
+        self.wc_path_browse = wx.Button( self, wc_path_browse_id, T_('Browse...') )
 
         self.wc_path_label = wx.StaticText(self, -1, T_('Working copy Path:'), style=wx.ALIGN_RIGHT )
         self.wc_path_ctrl = wx.TextCtrl(self, -1, '' )
@@ -174,19 +174,18 @@ class ProjectPanel(PagePanel):
         self.g_sizer.Add( self.wc_path_ctrl,   (1,1), (1,2), wx.EXPAND )
         self.g_sizer.Add( self.wc_path_browse, (1,3), (1,1)  )
 
-        self.newfile_dir_label = wx.StaticText( self, -1, T_("New File Template Folder: "), style=wx.ALIGN_RIGHT)
+        self.newfile_dir_label = wx.StaticText( self, -1, T_('New File Template Folder: '), style=wx.ALIGN_RIGHT)
         self.newfile_dir_ctrl = wx.TextCtrl( self, -1, '' )
-        self.newfile_dir_browse = wx.Button( self, -1, T_(" Browse... ") )
+        self.newfile_dir_browse = wx.Button( self, -1, T_('Browse...') )
 
         self.g_sizer.Add( self.newfile_dir_label,  (2,0), (1,1), wx.ALIGN_RIGHT )
         self.g_sizer.Add( self.newfile_dir_ctrl,   (2,1), (1,2), wx.EXPAND )
         self.g_sizer.Add( self.newfile_dir_browse, (2,3), (1,1) )
 
-
-        self.list_background_colour_label = wx.StaticText( self, -1, T_("Background Colour: ") , style=wx.ALIGN_RIGHT)
-        self.list_background_colour_ctrl = wx.CheckBox( self, -1, T_("Use custom background colour") )
-        self.list_background_colour_example = wx.StaticText( self, -1, T_("Example") , style=wx.ALIGN_CENTER )
-        self.list_background_colour_picker = wx.Button( self, -1, T_(" Pick Colour... ") )
+        self.list_background_colour_label = wx.StaticText( self, -1, T_('Background Colour:') , style=wx.ALIGN_RIGHT)
+        self.list_background_colour_ctrl = wx.CheckBox( self, -1, T_('Use custom background colour') )
+        self.list_background_colour_example = wx.StaticText( self, -1, T_('Example') , style=wx.ALIGN_CENTER )
+        self.list_background_colour_picker = wx.Button( self, -1, T_('Pick Colour...') )
 
         self.g_sizer.Add( self.list_background_colour_label,   (3,0), (1,1), wx.ALIGN_RIGHT )
         self.g_sizer.Add( self.list_background_colour_ctrl,    (3,1), (1,1), wx.EXPAND )
@@ -299,12 +298,12 @@ class ProjectPanel(PagePanel):
         self.list_background_colour_example.SetBackgroundColour( self.list_background_colour )
         self.list_background_colour_example.Refresh( True )
 
-class ConfigspecPanel(PagePanel):
+class ManifestPanel(PagePanel):
     def __init__( self, parent, notebook, app, project_info ):
         self.app = app
         self.project_info = project_info
 
-        PagePanel.__init__( self, notebook, T_('Configspec') )
+        PagePanel.__init__( self, notebook, T_('Manifest') )
 
     def initControls( self ):
         self.list_background_colour = None
@@ -314,7 +313,7 @@ class ConfigspecPanel(PagePanel):
         self.manifest_ctrl = wx.TextCtrl( self, -1, size=(-1, 200), style=wx.HSCROLL|wx.TE_MULTILINE|wx.TE_RICH2 )
         self.manifest_ctrl.SetFont(wx.Font(wb_config.point_size, wx.DEFAULT, wx.NORMAL, wx.NORMAL, False, wb_config.face))
         self.sizer.Add( self.manifest_ctrl, 1, wx.EXPAND|wx.ALL )
-        self.manifest_edit = wx.Button( self, -1, T_(" Edit... ") )
+        self.manifest_edit = wx.Button( self, -1, T_('Edit...') )
 
         wx.EVT_BUTTON( self, self.manifest_edit.GetId(), self.OnEditConfigspec )
         self.sizer.Add( self.manifest_edit, 0, wx.ALIGN_RIGHT|wx.ALL, 5 )
@@ -326,7 +325,7 @@ class ConfigspecPanel(PagePanel):
 
     def validate( self, state ):
         if self.manifest_ctrl.GetValue().strip() == '':
-            wx.MessageBox( T_('Enter a configspec'), style=wx.OK|wx.ICON_ERROR );
+            wx.MessageBox( T_('Enter a manifest'), style=wx.OK|wx.ICON_ERROR );
             return False
 
         state.manifest = self.manifest_ctrl.GetValue().strip()
@@ -345,7 +344,9 @@ class RepositoryPanel(PagePanel):
     def initControls( self ):
         self.list_background_colour = None
 
+        wc_path = self.project_info.wc_path.replace( '\\', '/' )
         repo_names = self.project_info.project_infos.keys()
+        repo_prefix = self.app.prefs.getRepository().repo_prefix
         repo_map_list = self.app.prefs.getRepository().repo_map_list
 
         self.sizer = wx.BoxSizer( wx.VERTICAL )
@@ -359,10 +360,23 @@ class RepositoryPanel(PagePanel):
 
         repo_names.sort(wb_utils.compare)
         for item in repo_names:
+            itemp = item
+            if item.startswith( wc_path ):
+                itemp = item[len( wc_path ) + 1:]
+
             index = self.list_box.GetItemCount()
-            self.list_box.InsertStringItem( index, item )
+            self.list_box.InsertStringItem( index, itemp )
+            pi = self.project_info.project_infos[item]
             if repo_map_list.has_key( item ):
                 self.list_box.SetStringItem( index, 1, repo_map_list[item] )
+            elif hasattr( self.project_info.project_infos[item], 'url' ):
+                # covert the link back to constraint ones
+                url = self.project_info.project_infos[item].url
+                for repo in repo_map_list:
+                    if url.startswith( repo_map_list[repo] ):
+                        url = url.replace( repo_map_list[repo],
+                                           repo_prefix + '/' + repo )
+                self.list_box.SetStringItem( index, 1, url )
             else:
                 item = self.list_box.GetItem( index )
                 item.SetTextColour( wx.RED )
