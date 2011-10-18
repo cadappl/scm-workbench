@@ -222,35 +222,6 @@ def _status_format( file ):
 
     return state.strip()
 
-def populateMenu( menu, contents ):
-    for details in contents:
-        if len(details) == 3:
-            type, id, name = details
-            cond = True
-        else:
-            type, id, name, cond = details
-
-        if type == '-':
-            if cond:
-                menu.AppendSeparator()
-        elif type == 'x':
-            menu.AppendCheckItem( id, name )
-            menu.Enable( id, cond )
-        elif type == 'o':
-            menu.AppendRadioItem( id, name )
-            menu.Enable( id, cond )
-        elif type == '':
-            menu.Append( id, name )
-            menu.Enable( id, cond )
-        elif type == '>':
-            # sub menu in the list in id
-            menu.AppendMenu( id, name, populateMenu( wx.Menu(), cond ) )
-        else:
-            raise wb_exceptions.InternalError(
-                'Unknown populateMenu contents (%s,%s,%s,%s)' %
-                    (repr(type),repr(id),repr(name),repr(cond)) )
-    return menu
-
 def by_path( a, b ):
     return cmp( a.path, b.path )
 

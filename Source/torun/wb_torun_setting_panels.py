@@ -119,11 +119,33 @@ class RepoSettingPage(PagePanel):
         self.grid_sizer.Add( self.text_ctrl_editor, 1, wx.EXPAND|wx.ALL, 1 )
         self.grid_sizer.Add( self.browse_button, 0, wx.EXPAND )
 
-        self.static_text2 = wx.StaticText( self, -1, T_('Configspec Name: '), style=wx.ALIGN_RIGHT )
+        self.static_text2 = wx.StaticText( self, -1, T_('Default Manifest: '), style=wx.ALIGN_RIGHT )
         self.text_ctrl_configspec = wx.TextCtrl( self, -1, p.manifest_name, wx.DefaultPosition, wx.Size( 300, -1 ) )
 
         self.grid_sizer.Add( self.static_text2, 0, wx.EXPAND|wx.ALL, 1 )
         self.grid_sizer.Add( self.text_ctrl_configspec, 1, wx.EXPAND|wx.ALL, 1 )
+        self.grid_sizer.Add( ( 1, 1 ), 0, wx.EXPAND )
+
+        self.grid_sizer.Add( wx.StaticText( self, -1, T_(''), style=wx.ALIGN_RIGHT ), 0, wx.EXPAND )
+        self.grid_sizer.Add( ( 1, 1 ), 0, wx.EXPAND )
+        self.grid_sizer.Add( ( 1, 1 ), 0, wx.EXPAND )
+
+        self.static_text3 = wx.StaticText( self, -1, T_('Repo Trunk: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_trunk = wx.TextCtrl( self, -1, p.repo_trunk, wx.DefaultPosition, wx.Size( 300, -1 ) )
+        self.grid_sizer.Add( self.static_text3, 0, wx.EXPAND|wx.ALL, 1 )
+        self.grid_sizer.Add( self.text_ctrl_trunk, 1, wx.EXPAND|wx.ALL, 1 )
+        self.grid_sizer.Add( ( 1, 1 ), 0, wx.EXPAND )
+
+        self.static_text4 = wx.StaticText( self, -1, T_('Repo Tags: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_tags = wx.TextCtrl( self, -1, p.repo_tags, wx.DefaultPosition, wx.Size( 300, -1 ) )
+        self.grid_sizer.Add( self.static_text4, 0, wx.EXPAND|wx.ALL, 1 )
+        self.grid_sizer.Add( self.text_ctrl_tags, 1, wx.EXPAND|wx.ALL, 1 )
+        self.grid_sizer.Add( ( 1, 1 ), 0, wx.EXPAND )
+
+        self.static_text5 = wx.StaticText( self, -1, T_('Repo Braches: '), style=wx.ALIGN_RIGHT )
+        self.text_ctrl_branches = wx.TextCtrl( self, -1, p.repo_branches, wx.DefaultPosition, wx.Size( 300, -1 ) )
+        self.grid_sizer.Add( self.static_text5, 0, wx.EXPAND|wx.ALL, 1 )
+        self.grid_sizer.Add( self.text_ctrl_branches, 1, wx.EXPAND|wx.ALL, 1 )
         self.grid_sizer.Add( ( 1, 1 ), 0, wx.EXPAND )
 
         wx.EVT_BUTTON( self, self.browse_button.GetId(), self.OnBrowseExe )
@@ -135,6 +157,10 @@ class RepoSettingPage(PagePanel):
 
         p.repo_baseline = self.text_ctrl_editor.GetValue().strip()
         p.repo_configspec = self.text_ctrl_configspec.GetValue().strip()
+
+        p.repo_tags = self.text_ctrl_tags.GetValue().strip()
+        p.repo_trunk = self.text_ctrl_trunk.GetValue().strip()
+        p.repo_branches = self.text_ctrl_branches.GetValue().strip()
 
     def OnBrowseExe( self, event ):
         dir_dialog = wx.DirDialog(self, "Choose a directory:",
@@ -378,19 +404,21 @@ class RepoPatternPage(PagePanel):
         self.g_sizer_pattern_module.Add( self.text_ctrl_parent_module, 1, wx.EXPAND|wx.ALL, 1 )
         self.v_sizer_module.Add( self.g_sizer_pattern_module, 1, wx.EXPAND|wx.ALL, 3 )
 
-        self.g_sizer_component_module = wx.FlexGridSizer( 0, 2, 0, 0 )
+        self.g_sizer_component_module = wx.FlexGridSizer( 0, 3, 0, 0 )
         self.g_sizer_component_module.AddGrowableCol( 1 )
         self.text_component_module = wx.StaticText( self, -1, T_('Components: '), style=wx.ALIGN_RIGHT )
         self.text_ctrl_component_module = wx.TextCtrl( self, -1, p.info_module.get( 'component', '') )
+        self.chkbox_repo_mark_all = wx.CheckBox( self, -1, T_('Mark for repo root') )
+        self.chkbox_repo_mark_all.SetValue( p.repo_mark_root )
 
         self.g_sizer_component_module.Add( self.text_component_module, 0, wx.EXPAND|wx.ALL, 1 )
-        self.g_sizer_component_module.Add( self.text_ctrl_component_module, 1, wx.EXPAND|wx.ALL, 1 )
+        self.g_sizer_component_module.Add( self.text_ctrl_component_module, 0, wx.EXPAND|wx.ALL, 1 )
+        self.g_sizer_component_module.Add( self.chkbox_repo_mark_all, 0, wx.EXPAND|wx.ALL, 1 )
         self.v_sizer_module.Add( self.g_sizer_component_module, 1, wx.EXPAND|wx.ALL, 3 )
-
         self.v_sizer.Add( self.v_sizer_module, 1, wx.EXPAND|wx.ALL )
 
         # Add package info
-        self.v_sizer_package = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_('package') ), wx.VERTICAL )
+        self.v_sizer_package = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_('Package') ), wx.VERTICAL )
 
         self.g_sizer_pattern_package = wx.FlexGridSizer( 0, 4, 0, 0 )
         self.g_sizer_pattern_package.AddGrowableCol( 1 )
@@ -419,7 +447,7 @@ class RepoPatternPage(PagePanel):
         self.v_sizer.Add( self.v_sizer_package, 1, wx.EXPAND|wx.ALL )
 
         # Add project info
-        self.v_sizer_project = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_('project') ), wx.VERTICAL )
+        self.v_sizer_project = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_('Project') ), wx.VERTICAL )
 
         self.g_sizer_pattern_project = wx.FlexGridSizer( 0, 4, 0, 0 )
         self.g_sizer_pattern_project.AddGrowableCol( 1 )
@@ -452,6 +480,8 @@ class RepoPatternPage(PagePanel):
 
     def savePreferences( self ):
         p = self.app.prefs.getRepository()
+
+        p.repo_mark_root = self.chkbox_repo_mark_all.IsChecked()
 
         p.info_module['parent'] = self.text_ctrl_parent_module.GetValue().strip()
         p.info_module['pattern'] = self.text_ctrl_pattern_module.GetValue().strip()

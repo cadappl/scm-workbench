@@ -12,6 +12,8 @@
 '''
 
 import os
+import shutil
+
 import wb_utils
 import wb_repo_manifest
 
@@ -129,7 +131,8 @@ class ManifestProvider(wb_manifest_providers.Provider):
             while len( segments ) > 0:
                 ppath = '/'.join( segments )
                 ret.append( wb_manifest_providers.Rule( scipath,
-                            '%s/%s' % ( pa, joinUri( ppath, a ) ) ) )
+                            '%s/%s' % ( pa, joinUri( ppath, a ) ),
+                            remote=pa, checkout=a.get( 'checkout' ) ) )
         else:
             # tags
             tags = list()
@@ -186,3 +189,24 @@ class ManifestProvider(wb_manifest_providers.Provider):
             listp += self.__returnElement( rpath, e, repo_map_list )
 
         return listp
+
+    def handlePostAction( self, action, **kws ):
+        if action == wb_manifest_providers.Provider.CHECKOUT:
+            elements = list()
+            for e in self.inst.elements:
+                if e.name == 'copyfile' or e.name == 'mkdir':
+                    elements.append( e )
+
+            for e in elements:
+                try:
+                    if e.name == 'copyfile':
+                        src = e.attrs.get( 'src' )
+                        dest = e.attrs.get( 'dest' )
+                        if src != None and dest != None:
+                            shutil.copyfile( src, dest )
+                    elif e.name == 'mkdir':
+                        path = e.attrs.get( 'path' )
+                        if path != None:
+                            os.mkdir( path )
+                except:
+                    print 'Wrong with', e

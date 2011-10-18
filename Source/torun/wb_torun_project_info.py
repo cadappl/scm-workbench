@@ -429,14 +429,14 @@ class SubversionClient:
         self.client.callback_notify = wb_exceptions.TryWrapper( self.app.log, self.callback_notify )
 
     def checkout( self, *arg, **args ):
-        self.updateWithManifest( True )
+        self.updateWithManifest( wb_manifest_providers.Provider.ACTION_CHECKOUT )
         # should update the repository info
         self.project_info.initRepositoryInfo()
 
     def update( self, *arg, **args ):
-        self.updateWithManifest( False )
+        self.updateWithManifest( wb_manifest_providers.Provider.ACTION_UPDATE )
 
-    def updateWithManifest( self, checkout=False ):
+    def updateWithManifest( self, action ):
         pv = None
         repo_map_list = self.app.prefs.getRepository().repo_map_list
         # detect the manifest provider
@@ -444,6 +444,7 @@ class SubversionClient:
             pi = ProjectInfo( self.app, self.parent, None )
             pi.manifest = self.project_info.manifest
             if pv.require( pi ):
+                self.project_info.manifest_provider = pv.name
                 break
         else:
             print 'Error: cannot detect the format of configspec, make sure it\'s normal'
@@ -451,7 +452,11 @@ class SubversionClient:
 
         # it's assumed the stored configspec is always correct
         dirs = list()
-        # 1. find and check out all repositories
+
+        # 1. handle pre-action
+        pv.handlePreAction( action )
+
+        # 2. find and check out all repositories
         for repo in pv.getRepositories() or list():
             # ignore the unmapped repositories
             if not repo_map_list.has_key( repo ): continue
@@ -496,7 +501,7 @@ class SubversionClient:
                 self.app.foregroundProcess( self.app.setAction, ( ('Checkout %s...' % m.localp), ) )
                 self.client.checkout( url, wc_path, depth=pysvn.depth.infinity,
                                       revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
-            elif not checkout:
+            elif action == wb_manifest_providers.Provider.ACTION_UPDATE:
                 self.app.foregroundProcess( self.app.setAction, ( ('Update %s...' % m.localp), ) )
                 self.client.update( wc_path, depth=pysvn.depth.empty,
                                     revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
@@ -527,7 +532,7 @@ class SubversionClient:
                     self.app.foregroundProcess( self.app.setAction, ( ('Switch %s...' % wc_path), ) )
                     self.client.switch( wc_path, new_url, depth=pysvn.depth.infinity,
                                         revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
-                elif not checkout:
+                elif wb_manifest_providers.Provider.ACTION_UPDATE:
                     self.app.foregroundProcess( self.app.setAction, ( ('Update %s...' % wc_path), ) )
                     self.client.update( wc_path, depth=pysvn.depth.empty,
                                         revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
@@ -538,6 +543,9 @@ class SubversionClient:
                 path = os.path.join( wc_path, d )
                 if ( not d.startswith( '.' ) ) and os.path.isdir( path ):
                     dirs.append( path )
+
+        # 4. handle post-action
+        pv.handlePostAction( action )
 
     def exists( self, filename ):
         ret = True
@@ -981,10 +989,16 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         return ret, context
 
     def isDirToDevelop( self, project_info ):
-        # 1. it should be an identifier directory
-        ret, _ = self.isDirToDeleteIdent( project_info )
+        p = self.app.prefs.getRepository()
+
+        # 1. if repo_mark_root is enabled, check if it's the root of check-out
+        ret = p.repo_mark_root and self.__isRcsRoot( project_info.wc_path )
+        # 2. it should be an identifier directory
+        if not ret:
+            ret, _ = self.isDirToDeleteIdent( project_info )
+
+        # 3. check the file status
         if ret:
-            # 2. check the file status
             file_status = self.client_fg.status( project_info.wc_path, recurse=False, ignore=False )
             state = self.getFileStatus( file_status )
             ret = (not state.modified) \
@@ -996,18 +1010,25 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
                   and (not state.conflict) \
                   and state.file_exists
 
+        # 4. check the file status
         if ret:
-            # 3. check the file status
             props = self.readOrWriteSpecifiedProperties( project_info.wc_path )
             ret = props.get('status') != 'EXPERIMENTAL'
 
         return ret, 'kSVN Develop'
 
     def isDirToDeliver( self, project_info ):
-        # 1. it should be an identifier directory
-        ret, _ = self.isDirToDeleteIdent( project_info )
+        p = self.app.prefs.getRepository()
+
+        # 1. if repo_mark_root is enabled, check if it's the root of check-out
+        ret = p.repo_mark_root and self.__isRcsRoot( project_info.wc_path )
+
+        # 2. it should be an identifier directory
+        if not ret:
+            ret, _ = self.isDirToDeleteIdent( project_info )
+
+        # 3. check the file status
         if ret:
-            # 2. check the file status
             file_status = self.client_fg.status( project_info.wc_path, recurse=True, ignore=False )
             state = self.getFileStatus( file_status )
             ret = (not state.modified) \
@@ -1019,8 +1040,8 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
                   and (not state.conflict) \
                   and state.file_exists
 
+        # 4. check the file status
         if ret:
-            # 3. check the file status
             props = self.readOrWriteSpecifiedProperties( project_info.wc_path )
             ret = props.get('status') == 'EXPERIMENTAL'
 
@@ -1168,28 +1189,50 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         self.app.refreshFrame()
 
     def Cmd_Torun_ProcDevel( self, project_info ):
-        repo_info = self.findRepository( project_info.url )
-        if repo_info is None:
-            return
-
         wc_path = project_info.wc_path.replace( '\\', '/' )
-        ret, ident_type = self.isDirMatchPattern( wc_path )
+
+        ret, _ = self.isDirMatchPattern( wc_path )
         if not ret:
-            ret, ident_type = self.isDirMatchParent( wc_path[:wc_path.rfind( '/' )] )
+            ret, _ = self.isDirMatchParent( wc_path[:wc_path.rfind( '/' )] )
 
-        if not ret:
-            return
+        if ret:
+            repo_info = self.findRepository( project_info.url )
+            if repo_info is None:
+                return
 
-        dir_name = os.path.basename( project_info.wc_path )
-        ident_url, tailing_dir, local_ident = self.splitDirectory( repo_info, project_info )
+            dir_name = os.path.basename( project_info.wc_path )
+            ident_url, tailing_dir, local_ident = self.splitDirectory( repo_info, project_info )
+            # check the temporary directory for the process
+            temp_dir = self.temporaryDevelopBranch( repo_info, self.project_name, dir_name )
+        else:
+            ret = p.repo_mark_root and self.__isRcsRoot( project_info.wc_path )
+            pv = wb_manifest_providers.getProvider( self.project_info.manifest_provider )
+            if pv == None:
+                return
 
-        # check the temporary directory for the process
-        temp_dir = self.temporaryDevelopBranch( repo_info, self.project_name, dir_name )
+            elements = pv.match( project_info.wc_path )
+            if elements == None or len( elements ) == 0:
+                return
+
+            elem = elements[0]
+
+            if elem.checkout == None:
+                tailing_dir = ''
+            else:
+                tailing_dir = elem.checkout
+
+            dir_name = elem.remote
+            local_ident = project_info.wc_path
+            ident_url = self.headPath( self.client_bg.get_url_from_path( local_ident ), tailing_dir )
+
+            # check the temporary directory for the process
+            temp_dir = self.temporaryDevelopBranch( repo_info, self.project_name, dir_name )
+
         if self.client_bg.exists( temp_dir ):
             wx.MessageBox( T_('Temporary is existent: %s' % temp_dir), style=wx.OK|wx.ICON_ERROR )
             return
 
-        self.app.setAction( T_('Torun Developing process %s...') % project_info )
+        self.app.setAction( T_('Torun Developing process %s...') % project_info.wc_path )
 
         yield self.app.backgroundProcess
 
@@ -1200,8 +1243,13 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
             # 1 copy the contents to the temporary directory ...
             self.client_bg.copy2( self.__listCopy( ident_url ), temp_dir, make_parents=True )
             # 2 switch to the temp directory ...
-            self.client_bg.switch( local_ident, temp_dir, depth=pysvn.depth.infinity,
-                                   revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+            if tailing_dir != None and tailing_dir != '':
+                self.client_bg.switch( local_ident, os.path.join( temp_dir, tailing_dir ),
+                                       depth=pysvn.depth.infinity,
+                                       revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+            else:
+                self.client_bg.switch( local_ident, temp_dir, depth=pysvn.depth.infinity,
+                                       revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
             # 3. update the properties
             properties['status'] = 'EXPERIMENTAL'
             properties['vsnorigin'] = self.relativePath( project_info.url )
@@ -1217,56 +1265,84 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         self.app.refreshFrame()
 
     def Cmd_Torun_ProcDeliv( self, project_info ):
-        repo_info = self.findRepository( project_info.url )
-        if repo_info is None:
-            return
-
         wc_path = project_info.wc_path.replace( '\\', '/' )
         ret, ident_type = self.isDirMatchPattern( wc_path )
         if not ret:
             ret, ident_type = self.isDirMatchParent( wc_path[wc_path.rfind( '/' )] )
 
-        if not ret:
-            return
+        if ret:
+            repo_info = self.findRepository( project_info.url )
+            if repo_info is None:
+                return
 
-        ident_url, tailing_dir, local_ident = self.splitDirectory( repo_info, project_info )
-        properties = self.readOrWriteSpecifiedProperties( local_ident )
-        if properties['status'] != 'EXPERIMENTAL':
-            return
+            dir_name = os.path.basename( project_info.wc_path )
+            ident_url, tailing_dir, local_ident = self.splitDirectory( repo_info, project_info )
+            properties = self.readOrWriteSpecifiedProperties( local_ident )
+            if properties['status'] != 'EXPERIMENTAL':
+                return
+        else:
+            ret = p.repo_mark_root and self.__isRcsRoot( project_info.wc_path )
+            pv = wb_manifest_providers.getProvider( self.project_info.manifest_provider )
+            if pv == None:
+                return
 
-        self.app.setAction( T_('Torun delivering process %s...') % project_info )
+            elements = pv.match( project_info.wc_path )
+            if elements == None or len( elements ) == 0:
+                return
 
-        dir_name = os.path.basename( project_info.wc_path )
+            elem = elements[0]
+
+            if elem.checkout == None:
+                tailing_dir = ''
+            else:
+                tailing_dir = elem.checkout
+
+            dir_name = elem.remote
+            local_ident = project_info.wc_path
+            ident_url = self.headPath( self.client_bg.get_url_from_path( local_ident ), tailing_dir )
+
+            # check the temporary directory for the process
+            temp_dir = self.temporaryDevelopBranch( repo_info, self.project_name, dir_name )
+
+        self.app.setAction( T_('Torun delivering process %s...') % project_info.wc_path )
+
         tag_list = self.getLabesInTags( repo_info, dir_name )
         rc, tag = self.app.getIdent( T_('Make new %s' % ident_type), dir_name, tag_list, True )
-        if rc:
-            # 1. copy the SCIs to the new tag directory and make the new ident
-            tag_dir = '%s/%s/%s' % ( repo_info.tags_url, tag, dir_name )
-            # 2. update and submit the properties
-            properties['status'] = 'CONFIDENTIAL'
-            properties['vsnnumber'] = tag
-            properties['vsnorigin'] = self.relativePath( project_info.url )
+        if not rc:
+            return
 
-            yield self.app.backgroundProcess
-            try:
-                self.readOrWriteSpecifiedProperties( local_ident, properties )
+        # 1. copy the SCIs to the new tag directory and make the new ident
+        tag_dir = '%s/%s/%s' % ( repo_info.tags_url, tag, dir_name )
+        # 2. update and submit the properties
+        properties['status'] = 'CONFIDENTIAL'
+        properties['vsnnumber'] = tag
+        properties['vsnorigin'] = self.relativePath( project_info.url )
 
-                self.client_bg.checkin( local_ident, 'Torun Deliv', recurse=True )
-                # 3. copy and switch to the new tag location
-                self.client_bg.copy2( self.__listCopy( ident_url ), tag_dir, make_parents=True )
-                # 4. create the new identifier in the repository directly
+        yield self.app.backgroundProcess
+        try:
+            self.readOrWriteSpecifiedProperties( local_ident, properties )
+
+            self.client_bg.checkin( local_ident, 'Torun Deliv', recurse=True )
+            # 3. copy and switch to the new tag location
+            self.client_bg.copy2( self.__listCopy( ident_url ), tag_dir, make_parents=True )
+            # 4. create the new identifier in the repository directly
+            if tailing_dir != None and tailing_dir != '':
+                self.client_bg.switch( local_ident, os.path.join( tag_dir, tailing_dir ),
+                                       depth=pysvn.depth.infinity,
+                                       revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+            else:
                 self.client_bg.switch( local_ident, tag_dir, depth=pysvn.depth.infinity,
                                        revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
-                # 5. remove the temporary location
-                self.client_bg.remove( ident_url )
-            except pysvn.ClientError, e:
-                self.app.log_client_error( e )
 
-            yield self.app.foregroundProcess
+            # 5. remove the temporary location
+            self.client_bg.remove( ident_url )
+        except pysvn.ClientError, e:
+            self.app.log_client_error( e )
+
+        yield self.app.foregroundProcess
 
         self.app.clearProgress()
         self.app.setAction( T_('Ready') )
-
         self.app.refreshFrame()
 
     def Cmd_Torun_ProcRevert( self, project_info ):
@@ -1344,10 +1420,10 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
 
         return ret
 
-    def temporaryDevelopBranch( self, project_info, project_name, directory ):
+    def temporaryDevelopBranch( self, repo_info, project_name, directory ):
         dir_name = directory.split( '/' )[-1]
 
-        return '%s/SvnCM/%s/%s' % ( project_info.branches_url, project_name, dir_name )
+        return '%s/SvnCM/%s/%s' % ( repo_info.branches_url, project_name, dir_name )
 
     def relativePath( self, url ):
         try:
@@ -1357,6 +1433,19 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
             new_path = url
 
         return new_path
+
+    def headPath( self, url, tailing ):
+        url = wb_utils.formatPath( url )
+        tailing = wb_utils.formatPath( tailing )
+
+        slash_num = len( tailing.split( '/' ) )
+        slash_total = len( url.split( '/' ) )
+
+        ret = url
+        if slash_total > slash_num:
+            ret = '/'.join( ( url.split( '/' ) )[ slash_total - slash_num ] )
+
+        return ret
 
     def createScisOnLocal( self, repo_info, ident_type, new_dir ):
         p = self.app.prefs.getRepository()
@@ -1461,6 +1550,20 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
             state.revertable = state.conflict or state.modified or state.need_checkin or not state.file_exists
 
         return state
+
+    def __hasRcsDirectory( self, dirp ):
+        for d in [ '.svn', '_svn', '_CVS', '.git', '.hg' ]:
+            if os.path.exists( os.path.join( dirp, d ) ):
+                return True
+
+        return False
+
+    def __isRcsRoot( self, dirp, entry=True ):
+        parent = os.path.dirname( dirp )
+        if os.path.exists( parent ) and self.__hasRcsDirectory( parent ):
+                return False
+
+        return self.__hasRcsDirectory( dirp )
 
     def __listCopy( self, file_list ):
         if isinstance( file_list, ( list, tuple ) ):

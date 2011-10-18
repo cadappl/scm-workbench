@@ -85,7 +85,7 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
 
         menu_template += wb_utils.handleMenuInfo( self.project_info )
 
-        return wb_subversion_utils.populateMenu( wx.Menu(), menu_template )
+        return wb_utils.populateMenu( wx.Menu(), menu_template )
 
     def getAllGreyFilenames( self ):
         # show files on the clipboard in grey

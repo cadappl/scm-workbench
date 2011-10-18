@@ -36,10 +36,13 @@ def getProviderAboutStrings():
     return about_string
 
 class Rule:
-    def __init__( self, localp, remotep, repo=None, revision=None, checkout=None ):
+    def __init__( self, localp, remotep, remote=None,
+                  repo=None, revision=None, checkout=None ):
         self.repo = repo
         self.revision = revision
         self.localp = wb_utils.formatPath( localp )
+
+        self.remote = wb_utils.formatPath( remote )
         # the value of 'remotep' could contains starisk as the wildcard
         self.remotep = wb_utils.formatPath( remotep )
         self.checkout = checkout
@@ -69,6 +72,9 @@ class Editor:
         return ''
 
 class Provider:
+    ACTION_UPDATE = 1
+    ACTION_CHECKOUT = 2
+
     def __init__( self, name ):
         self.name = name
         self.prefix = '/vobs'
@@ -98,6 +104,12 @@ class Provider:
     # the result are the list with the class 'Rule'
     def getRepoExtras( self, rootdir, mappings=None ):
         return None
+
+    def handlePreAction( self, action, **kws ):
+        return True
+
+    def handlePostAction( self, action, **kws ):
+        return True
 
     # the result are the list with the class 'Rule'
     def match( self, scipath ):

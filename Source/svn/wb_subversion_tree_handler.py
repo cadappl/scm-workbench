@@ -209,7 +209,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
 
         menu_item += wb_utils.handleMenuInfo( self.project_info )
 
-        return wb_subversion_utils.populateMenu( wx.Menu(), menu_item )
+        return wb_utils.populateMenu( wx.Menu(), menu_item )
 
     def Cmd_Dir_CreateBranch( self ):
         # must return the generator

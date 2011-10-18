@@ -20,6 +20,7 @@ import wb_config
 import wb_ids
 import wb_images
 import wb_exceptions
+import wb_utils
 import wb_list_panel_common
 import wb_subversion_utils
 import wb_subversion_list_handler_common
@@ -227,7 +228,7 @@ class ReportUpdatesListHandler(wb_subversion_list_handler_common.SubversionListH
             ,('', wb_ids.id_SP_History, T_('Log history...') )
             ]
 
-        return wb_subversion_utils.populateMenu( wx.Menu(), menu_template )
+        return wb_utils.populateMenu( wx.Menu(), menu_template )
 
     def Cmd_ReportUpdates_ExcludeItem( self, all_rows ):
         for row in all_rows:

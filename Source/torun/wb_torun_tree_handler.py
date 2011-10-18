@@ -17,7 +17,7 @@ import pysvn
 
 import wb_ids
 import wb_config
-import wb_subversion_utils
+import wb_utils
 
 import wb_subversion_tree_handler
 import wb_subversion_project_info
@@ -36,7 +36,7 @@ class TorunProject(wb_subversion_tree_handler.SubversionProject):
         if self.project_info.need_update or (not self.project_info.need_checkout):
             menu_item += [('', wb_ids.id_SP_Update, T_('Update') )]
 
-        return wb_subversion_utils.populateMenu( wx.Menu(), menu_item )
+        return wb_utils.populateMenu( wx.Menu(), menu_item )
 
     def getExpansion( self ):
         project_info_list = []

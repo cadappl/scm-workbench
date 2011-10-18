@@ -21,6 +21,7 @@ import wb_ids
 import wb_images
 import wb_exceptions
 import wb_list_panel_common
+import wb_utils
 import wb_subversion_utils
 import wb_subversion_list_handler_common
 import wb_platform_specific
@@ -203,7 +204,7 @@ class ReportLockListHandler(wb_subversion_list_handler_common.SubversionListHand
             ,('', wb_ids.id_SP_Lock, T_('Lock...') )
             ,('', wb_ids.id_SP_Unlock, T_('Unlock...') )
             ]
-        return wb_subversion_utils.populateMenu( wx.Menu(), menu_template )
+        return wb_utils.populateMenu( wx.Menu(), menu_template )
 
     def getAllGreyFilenames( self ):
         # show all excluded files in grey

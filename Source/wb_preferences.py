@@ -266,7 +266,7 @@ class PreferenceData:
     def getfloat( self, section_name, option_name ):
         return float( self.get( section_name, option_name, 0.0 ).strip() )
 
-    def getboolean( self, section_name, option_name ):
+    def getbool( self, section_name, option_name ):
         return self.get( section_name, option_name, 'false' ).strip().lower() == 'true'
 
     def remove_section( self, section_name ):
@@ -344,7 +344,7 @@ class GetOption:
         return self.pref_data.getfloat( self.section_name, name )
 
     def getbool( self, name ):
-        return self.pref_data.getboolean( self.section_name, name )
+        return self.pref_data.getbool( self.section_name, name )
 
     def getstrlist( self, name, sep ):
         s = self.getstr( name )
@@ -918,6 +918,11 @@ class RepositoryPreferences(PreferenceSection):
         self.repo_prefix = '/vobs'
         self.repo_baseline = ''
         self.manifest_name = '.configspec'
+        self.repo_mark_root = False
+
+        self.repo_tags = 'tags'
+        self.repo_trunk = 'trunk'
+        self.repo_branches = 'branches'
 
         # parent -> indicate the parent of a module
         # pattern -> it's a module identifier file
@@ -949,12 +954,24 @@ class RepositoryPreferences(PreferenceSection):
         if get_option.has( 'manifest_name' ):
             self.manifest_name = get_option.getstr( 'manifest_name')
 
+        if get_option.has( 'repo_mark_root' ):
+            self.repo_mark_root = get_option.getbool( 'repo_mark_root' )
+
         if get_option.has( 'repo_prefix' ):
             prefix = get_option.getstr( 'repo_prefix' )
             if prefix[-1] == '/' or prefix[-1] == '\\':
                 prefix = prefix[:-1]
 
             self.repo_prefix = prefix
+
+        if get_option.has( 'repo_tags' ):
+            self.repo_tags = get_option.get( 'repo_tags' )
+
+        if get_option.has( 'repo_trunk' ):
+            self.repo_trunk = get_option.get( 'repo_trunk' )
+
+        if get_option.has(' repo_branches' ):
+            self.repo_branches = get_option.get( 'repo_branches' )
 
         if get_option.has( 'info_module' ):
             self.info_module = get_option.get( 'info_module' )
@@ -978,6 +995,11 @@ class RepositoryPreferences(PreferenceSection):
         set_option = SetOption( pref_data, self.section_name )
         set_option.set( 'repo_prefix', self.repo_prefix )
         set_option.set( 'repo_baseline', self.repo_baseline )
+        set_option.set( 'repo_tags', self.repo_tags )
+        set_option.set( 'repo_trunk', self.repo_trunk )
+        set_option.set( 'repo_branches', self.repo_branches )
+        set_option.set( 'repo_mark_root', self.repo_mark_root )
+
         set_option.set( 'manifest_name', self.manifest_name )
 
         listp = list()

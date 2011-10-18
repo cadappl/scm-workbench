@@ -15,6 +15,8 @@ import os
 import re
 import sys
 
+import wx
+
 def compare( x, y ):
     (ax, bx, ay, by) = (x, y, '0', '0')
     mx = re.match( '([^0-9]+)([0-9]+)', x )
@@ -31,6 +33,9 @@ def compare( x, y ):
         return cmp( ax, bx )
 
 def formatPath( path ):
+    if path == None:
+        return None
+
     schema = '://'
     path = path.replace( '\\', '/' )
 
@@ -108,3 +113,35 @@ def handleMenuInfo( project_info, start=0 ):
 
     return menu_context
 
+def populateMenu( menu, contents ):
+    separator = False
+    for details in contents:
+        if len(details) == 3:
+            type, id, name = details
+            cond = True
+        else:
+            type, id, name, cond = details
+
+        if type == '-':
+            if cond and ( not separator ):
+                separator = True
+                menu.AppendSeparator()
+        else:
+            separator = False
+            if type == 'x':
+                menu.AppendCheckItem( id, name )
+                menu.Enable( id, cond )
+            elif type == 'o':
+                menu.AppendRadioItem( id, name )
+                menu.Enable( id, cond )
+            elif type == '':
+                menu.Append( id, name )
+                menu.Enable( id, cond )
+            elif type == '>':
+                # sub menu in the list in id
+                menu.AppendMenu( id, name, populateMenu( wx.Menu(), cond ) )
+            else:
+                raise wb_exceptions.InternalError(
+                    'Unknown populateMenu contents (%s,%s,%s,%s)' %
+                        (repr(type),repr(id),repr(name),repr(cond)) )
+    return menu
