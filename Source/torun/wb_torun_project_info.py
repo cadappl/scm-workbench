@@ -442,7 +442,9 @@ class SubversionClient:
         # detect the manifest provider
         for pv in wb_manifest_providers.getProviders():
             pi = ProjectInfo( self.app, self.parent, None )
-            pi.manifest = self.project_info.manifest
+            pi.init( self.project_info.project_name,
+                     manifest=self.project_info.manifest,
+                     wc_path=self.project_info.wc_path )
             if pv.require( pi ):
                 self.project_info.manifest_provider = pv.name
                 break

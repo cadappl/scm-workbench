@@ -191,7 +191,8 @@ class ManifestProvider(wb_manifest_providers.Provider):
         return listp
 
     def handlePostAction( self, action, **kws ):
-        if action == wb_manifest_providers.Provider.CHECKOUT:
+        if action == wb_manifest_providers.Provider.ACTION_CHECKOUT \
+        or action == wb_manifest_providers.Provider.ACTION_UPDATE:
             elements = list()
             for e in self.inst.elements:
                 if e.name == 'copyfile' or e.name == 'mkdir':
@@ -202,11 +203,19 @@ class ManifestProvider(wb_manifest_providers.Provider):
                     if e.name == 'copyfile':
                         src = e.attrs.get( 'src' )
                         dest = e.attrs.get( 'dest' )
+                        path = e.parent.attrs.get( 'path' )
+
                         if src != None and dest != None:
-                            shutil.copyfile( src, dest )
+                            srcp = os.path.join( self.project_info.wc_path, path, src )
+                            destp = os.path.join( self.project_info.wc_path, dest )
+
+                            shutil.copyfile( srcp, destp )
                     elif e.name == 'mkdir':
-                        path = e.attrs.get( 'path' )
-                        if path != None:
-                            os.mkdir( path )
+                        where = e.attrs.get( 'path' )
+                        path = e.parent.attrs.get( 'path' )
+
+                        if where != None:
+                            ppath = os.path.join( self.project_info.wc_path, path, where )
+                            os.mkdir( ppath )
                 except:
-                    print 'Wrong with', e
+                    print 'Error: Wrong with ' + str( e )

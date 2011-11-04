@@ -19,6 +19,7 @@ import wx
 
 import wb_ids
 import wb_utils
+import wb_subversion_dialogs
 import wb_subversion_list_handler_common
 import wb_subversion_info_dialog
 import wb_subversion_properties_dialog

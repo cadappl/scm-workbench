@@ -108,12 +108,15 @@ class ProjectElement(ManifestElement):
             ( 'name', 'remote', 'revision', 'path', 'checkout', 'uri') )
 
         for n in node.childNodes:
+            node = None
             if n.nodeName == 'copyfile':
-                self.nodes.append(
-                    ManifestElement( self, n.nodeName, n, ( 'src', 'dest' ) ) )
+                node = ManifestElement( self, n.nodeName, n, ( 'src', 'dest' ) )
             elif n.nodeName == 'mkdir':
-                self.nodes.append(
-                    ManifestElement( self, n.nodeName, n, ( 'path' ) ) )
+                node = ManifestElement( self, n.nodeName, n, ( 'path' ) )
+
+            if node != None:
+                self.nodes.append( node )
+                parent.appendElement( node )
 
     def set( revision ):
         self.attrs[ 'revision' ] = revision
@@ -151,14 +154,17 @@ class Manifest:
     def __init__( self, manifest ):
         self.error = None
         self.default = None
+        self.elements = list()
         self.manifest = manifest
 
         try:
-            self.elements = self.parse( manifest )
+            elements = self.parse( manifest )
         except:
-            self.elements = list()
+            elements = list()
             if self.error == None:
                 self.error = 'Error of XML parsing'
+
+        self.elements += elements
 
     def parse( self, manifest ):
         elem = list()
@@ -196,9 +202,13 @@ class Manifest:
 
         return self.__buildManifest( elem )
 
-    def __buildManifest( self, elements ):
+    def appendElement( self, element ):
+        self.elements = self.__buildManifest( self.elements, element )
+
+    def __buildManifest( self, elements, element=None ):
         elem = elements[:]
 
+        if element != None: elem.append( element )
         for e in elements:
             if e.name == 'remove-project':
                 for x in elem[:]:
