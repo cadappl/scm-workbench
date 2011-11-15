@@ -50,20 +50,22 @@ def formatPath( path ):
     return path
 
 def __loadFile( path, module, interf ):
-    #try:
+    try:
+        print path, module, interf
         sys.path.append( path )
         mo = __import__( module, globals() )
         reload( mo )
 
         getattr( mo, interf )()
-    #except:
-    #    print "Error to load %s in %s" % ( module, path )
-    #    sys.path.pop( -1 )
+    except:
+        print "Error to load %s in %s" % ( module, path )
+        sys.path.pop( -1 )
 
 def loadExts( dirp ):
     listp = os.listdir( dirp )
 
     # re-order the directory 'manifest' to the beginning of the list
+    listp.sort()
     if 'manifest' in listp:
         listp.remove( 'manifest' )
         listp.insert( 0, 'manifest' )
