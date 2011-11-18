@@ -442,6 +442,7 @@ class ProjectSelectionPage(TitledPage):
                            style=wx.OK|wx.ICON_ERROR );
             return False
 
+        pvError = list()
         for pv in wb_manifest_providers.getProviders() or list():
             pi = wb_source_control_providers.ProjectInfo( self.parent.app, self.parent, None )
             pi.manifest = self.manifest
@@ -450,8 +451,11 @@ class ProjectSelectionPage(TitledPage):
                 state.manifest_provider = pv.name
                 break
             else:
-                print pv.getError()
+                pvError.append( '%s: %s' % (pv.name, pv.getError() ) )
         else:
+            if len( pvError ) > 0:
+                print os.linesp.join( pvError )
+
             wx.MessageBox( 'None of supported manifest provider knows the format',
                            style=wx.OK|wx.ICON_ERROR )
             return False

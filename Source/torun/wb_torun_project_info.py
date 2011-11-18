@@ -108,6 +108,7 @@ class ProjectDialog(wx.Dialog):
 
         pi.init( self.state.name,
             manifest=self.state.manifest,
+            manifest_provider=self.state.manifest_provider,
             wc_path=os.path.expanduser( self.state.wc_path ),
             menu_info=self.project_info.menu_info )
 
@@ -301,6 +302,7 @@ class ProjectPanel(PagePanel):
 class ManifestPanel(PagePanel):
     def __init__( self, parent, notebook, app, project_info ):
         self.app = app
+        self.parent = parent
         self.project_info = project_info
 
         PagePanel.__init__( self, notebook, T_('Manifest') )
@@ -329,6 +331,17 @@ class ManifestPanel(PagePanel):
             return False
 
         state.manifest = self.manifest_ctrl.GetValue().strip()
+        for pv in wb_manifest_providers.getProviders():
+            pi = ProjectInfo( self.app, self.parent, None )
+            pi.manifest = state.manifest
+            if pv.require( pi ):
+                state.manifest_provider = pv.name
+                break
+        else:
+            wx.MessageBox( 'Cannot detect the format of configspec, make sure it\'s normal',
+                           style=wx.OK|wx.ICON_ERROR );
+            return False
+
         return True
 
     def OnEditConfigspec( self, event ):
