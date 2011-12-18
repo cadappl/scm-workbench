@@ -915,9 +915,10 @@ class RepositoryPreferences(PreferenceSection):
         PreferenceSection.__init__( self, 'Repository' )
         self.app = app
 
-        self.repo_prefix = '/vobs'
+        self.repo_prefix = '/vobs/'
         self.repo_baseline = ''
         self.manifest_name = '.configspec'
+        self.repo_default_root = None
         self.repo_mark_root = False
 
         self.repo_tags = 'tags'
@@ -954,13 +955,17 @@ class RepositoryPreferences(PreferenceSection):
         if get_option.has( 'manifest_name' ):
             self.manifest_name = get_option.getstr( 'manifest_name')
 
+        if get_option.has( 'repo_default_root ' ):
+            self.repo_default_root = get_option.getstr( 'repo_default_root' )
+
         if get_option.has( 'repo_mark_root' ):
             self.repo_mark_root = get_option.getbool( 'repo_mark_root' )
 
         if get_option.has( 'repo_prefix' ):
             prefix = get_option.getstr( 'repo_prefix' )
-            if prefix[-1] == '/' or prefix[-1] == '\\':
-                prefix = prefix[:-1]
+            prefix = prefix.replace( '\\', '/' )
+            if prefix[-1] != '/':
+                prefix += '/'
 
             self.repo_prefix = prefix
 
@@ -998,6 +1003,7 @@ class RepositoryPreferences(PreferenceSection):
         set_option.set( 'repo_tags', self.repo_tags )
         set_option.set( 'repo_trunk', self.repo_trunk )
         set_option.set( 'repo_branches', self.repo_branches )
+        set_option.set( 'repo_default_root', self.repo_default_root )
         set_option.set( 'repo_mark_root', self.repo_mark_root )
 
         set_option.set( 'manifest_name', self.manifest_name )
@@ -1010,6 +1016,23 @@ class RepositoryPreferences(PreferenceSection):
            listp.append(d)
 
         set_option.set( 'repo_map_list', dict( { 'repository' : listp } ) )
+
+    def replaceWithRepositoryPath( self, path ):
+        if path == None:
+            return None
+
+        if path.startswith( self.repo_prefix ):
+            segaments = path.replace( self.repo_prefix, '' ).split( '/' )
+            if len( segaments ) > 0:
+                vob_name = segaments[0]
+                if self.repo_map_list.has_key( vob_name ):
+                    segaments[0] = self.repo_map_list[vob_name]
+                elif self.repo_default_root != None and len(self.repo_default_root) > 0:
+                    segaments.insert( 0, self.repo_default_root )
+
+                path = '/'.join(segaments)
+
+        return path
 
 if __name__ == '__main__':
     class FakeApp:

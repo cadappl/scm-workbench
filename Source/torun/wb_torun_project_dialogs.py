@@ -656,10 +656,15 @@ class ProjectSelectionPage(TitledPage):
             repo_url += '/'
 
         text = None
-        for suffix in ['trunk/' + ( repo_url.split( '/' ) )[-2] + '/repo.list',
+        # two solutions based on the old 'baseline' with "repo.list"
+        # and the newly 'manifest' with "repo.lst"
+        for suffix in ('',
+                       'trunk/' + ( repo_url.split( '/' ) )[-2] + '/repo.list',
                        'trunk/baseline/repo.list',
+                       'trunk/repo.lst',
                        'trunk/repo.list',
-                       'repo.list']:
+                       'repo.lst',
+                       'repo.list'):
             try:
                 text = self.client.cat( repo_url + suffix,
                         revision=pysvn.Revision( pysvn.opt_revision_kind.head ),
@@ -674,10 +679,14 @@ class ProjectSelectionPage(TitledPage):
             for li in text.split( '\n' ):
                 li = li.strip()
 
-                if li.startswith( '#' ): continue
+                if li.startswith( '#' ):
+                    continue
                 a = li.strip().split()
                 if len(a) > 1:
                     ret[ a[0] ] = a[1]
+        else:
+            print "Error: manifest repository isn't configured correctly.\n" \
+                  "       Adjust it in the application settings"
 
         return ret
 
