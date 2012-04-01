@@ -1,7 +1,7 @@
 '''
 
  ====================================================================
- Copyright (c) 2003-2006 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2010 Barry A Scott.  All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.

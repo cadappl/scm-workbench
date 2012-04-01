@@ -79,10 +79,6 @@ IMAGES = \
 wb_images.py: make_wb_images.py $(IMAGES)
 	$(PYTHON) -u make_wb_images.py wb_images.py $(IMAGES) 
 
-PYCHECKER_OPTIONS=--no-shadowbuiltin
-
-check: checkstop
-
 #
 #	Make the run script
 #
@@ -103,5 +99,4 @@ clean::
 	if exist locale rmdir /s /q locale
 	if exist I18N\pysvn_workbench.current.pot del I18N\pysvn_workbench.current.pot
 
-!include <pychecker.mak>
 !include <meinc_installer.mak>

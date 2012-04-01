@@ -28,6 +28,7 @@ import wb_subversion_checkin
 import wb_clipboard
 import wb_diff_frame
 import wb_dialogs
+import wb_platform_specific
 
 class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHandlerCommon):
     def __init__( self, app, list_panel, project_info ):
@@ -37,7 +38,11 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
         return '<SubversionListHandler %r>' % self.project_info
 
     def getContextMenu( self ):
-        if self.project_info.need_checkout:
+        if self.project_info.need_upgrade:
+            menu_template = \
+                [('', wb_ids.id_SP_Upgrade, T_('Upgrade') )]
+
+        elif self.project_info.need_checkout:
             menu_template = \
                 [('', wb_ids.id_SP_Checkout, T_('Checkout') )]
         else:
@@ -124,7 +129,7 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
         all_status = []
         try:
             for filename in paste_data.getAllFilenames():
-                if os.path.isdir( filename ):
+                if wb_platform_specific.uPathIsdir( filename ):
                     dir_status = self.project_info.client_bg.status( os.path.dirname( filename ), recurse=False )
                     all_status.extend( [s for s in dir_status if s.path == filename] )
                 else:
@@ -156,7 +161,7 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
             else:
                 rename_title = T_('Rename')
 
-            while os.path.exists( new_filename ):
+            while wb_platform_specific.uPathExists( new_filename ):
                 new_name, force = self.app.renameFile( rename_title, os.path.basename( old_filename ), None )
                 if new_name is None:
                     return
@@ -175,7 +180,7 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
 
             try:
                 if paste_data.isCopy():
-                    if os.path.isdir( old_filename ):
+                    if wb_platform_specific.uPathIsdir( old_filename ):
                         if is_controlled:
                             self.project_info.client_bg.copy( old_filename, new_filename )
                         else:
@@ -186,11 +191,11 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
 
                     ok = True
                 else:
-                    if os.path.isdir( old_filename ):
+                    if wb_platform_specific.uPathIsdir( old_filename ):
                         if is_controlled:
                             self.project_info.client_bg.move( old_filename, new_filename, force=force )
                         else:
-                            os.rename( old_filename, new_filename )
+                            wb_platform_specific.uRename( old_filename, new_filename )
                     else:
                         text_status = self.getTextStatus( status )
                         prop_status = self.getPropStatus( status )
@@ -256,7 +261,7 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
                 if is_controlled:
                     if text_status == pysvn.wc_status_kind.added:
                         self.project_info.client_fg.revert( filename )
-                        os.remove( filename )
+                        wb_platform_specific.uRemove( filename )
 
                     elif( text_status == pysvn.wc_status_kind.modified
                     or prop_status == pysvn.wc_status_kind.modified ):
@@ -267,7 +272,7 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
                         self.project_info.client_fg.remove( filename )
 
                 else:
-                    os.remove( filename )
+                    wb_platform_specific.uRemove( filename )
 
             except pysvn.ClientError, e:
                 self.app.log_client_error( e )
@@ -308,7 +313,7 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
     def __copyFile( self, old_filename, new_full_filename, is_controlled, text_status, prop_status ):
         if not is_controlled:
             raise EnvironmentError( 'TBD - copy file' )
-            os.rename( old_filename, new_full_filename )
+            wb_platform_specific.uRename( old_filename, new_full_filename )
             return
 
         if( text_status == pysvn.wc_status_kind.normal
@@ -319,7 +324,7 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
 
     def __moveFile( self, old_filename, new_full_filename, is_controlled, text_status, prop_status ):
         if not is_controlled:
-            os.rename( old_filename, new_full_filename )
+            wb_platform_specific.uRename( old_filename, new_full_filename )
             return
 
         if text_status == pysvn.wc_status_kind.added:
@@ -330,7 +335,7 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
             print( T_('Rename %(from)s %(to)s') %
                     {'from': old_filename
                     ,'to': new_full_filename} )
-            os.rename( old_filename, new_full_filename )
+            wb_platform_specific.uRename( old_filename, new_full_filename )
             self.project_info.client_fg.add( new_full_filename )
 
             # all_prop_lists is empty if there are no properties set
@@ -346,7 +351,7 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
             for tmp_name_index in range( 100 ):
                 tmp_filename = os.path.join( os.path.dirname( old_filename ),
                     '%s.%d.tmp' % (new_full_filename, tmp_name_index) )
-                if not os.path.exists( tmp_filename ):
+                if not wb_platform_specific.uPathExists( tmp_filename ):
                     new_full_tmp_filename = tmp_filename
                     break
 
@@ -360,15 +365,15 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
                 print( T_('Rename %(from)s %(to)s') %
                         {'from': old_filename
                         ,'to': new_full_tmp_filename} )
-                os.rename( old_filename, new_full_tmp_filename )
+                wb_platform_specific.uRename( old_filename, new_full_tmp_filename )
                 self.project_info.client_fg.revert( old_filename )
                 self.project_info.client_fg.move( old_filename, new_full_filename )
-                os.remove( new_full_filename )
+                wb_platform_specific.uRemove( new_full_filename )
 
                 print( T_('Rename %(from)s %(to)s') %
                             {'from': new_full_tmp_filename
                             ,'to': new_full_tmp_filename} )
-                os.rename( new_full_tmp_filename, new_full_filename )
+                wb_platform_specific.uRename( new_full_tmp_filename, new_full_filename )
 
                 if len(all_props) > 0:
                     _, prop_dict = all_props[0]
@@ -467,15 +472,18 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
 
         if self.project_info.notification_of_files_in_conflict > 0:
             wx.MessageBox( S_("%d file is in conflict",
-                              "%d files are in conflict", self.project_info.notification_of_files_in_conflict) % self.project_info.notification_of_files_in_conflict,
-                T_("Warning"), style=wx.OK|wx.ICON_EXCLAMATION )
+                              "%d files are in conflict",
+                              self.project_info.notification_of_files_in_conflict) %
+                                    self.project_info.notification_of_files_in_conflict,
+                        T_("Warning"),
+                        style=wx.OK|wx.ICON_EXCLAMATION )
 
         self.app.clearProgress()
         self.app.setAction( T_('Ready') )
         self.app.refreshFrame()
 
     def Cmd_File_UpdateTo( self, all_rows ):
-        dialog = wb_subversion_dialogs.UpdateTo( None, T_('Update to revision') )
+        dialog = wb_dialogs.UpdateTo( None, T_('Update to revision') )
         if dialog.ShowModal() != wx.ID_OK:
             return
 
@@ -520,8 +528,11 @@ class SubversionListHandler(wb_subversion_list_handler_common.SubversionListHand
 
         if self.project_info.notification_of_files_in_conflict > 0:
             wx.MessageBox( S_("%d file is in conflict",
-                              "%d files are in conflict", self.project_info.notification_of_files_in_conflict) % self.project_info.notification_of_files_in_conflict,
-                              T_("Warning"), style=wx.OK|wx.ICON_EXCLAMATION )
+                              "%d files are in conflict",
+                              self.project_info.notification_of_files_in_conflict) %
+                                    self.project_info.notification_of_files_in_conflict,
+                            T_("Warning"),
+                            style=wx.OK|wx.ICON_EXCLAMATION )
 
         self.app.clearProgress()
         self.app.setAction( T_('Ready') )

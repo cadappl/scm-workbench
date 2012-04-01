@@ -12,7 +12,7 @@ end;
 [Setup]
 AppName=WorkBench
 AppVerName=WorkBench UNCONTROLLED
-AppCopyright=Copyright (C) 2003-2007 Barry A. Scott
+AppCopyright=Copyright (C) 2003-2012 Barry A. Scott
 DefaultDirName={pf}\PySVN\WorkBench
 DefaultGroupName=WorkBench for Subversion
 UninstallDisplayIcon={app}\WorkBench.exe
@@ -32,5 +32,5 @@ Name: "{group}\Web Site"; Filename: "http://pysvn.tigris.org";
 
 Source: "workbench_LICENSE.txt"; DestDir: "{app}";
 Source: "..\..\..\Docs\WorkBench.html"; DestDir: "{app}";
-Source: "WorkBench.exe"; DestDir: "{app}";
-Source: "WorkBench.exe.manifest"; DestDir: "{app}";
+Source: "WorkBench.exe"; DestDir: "{app}"; Flags: ignoreversion;
+Source: "WorkBench.exe.manifest"; DestDir: "{app}"; Flags: ignoreversion;

@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2003-2006 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2010 Barry A Scott.  All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -23,6 +23,10 @@ class ShowDiffFrame(wx.Frame):
 
         # fix up line endings CRLF to LF and CR to LF
         text = raw_text.replace( '\r\n', '\n' ).replace( '\r', '\n' )
+        try:
+            text = text.decode( 'utf-8' )
+        except ValueError:
+            pass
 
         diff_prefs = app.prefs.getDiffWindow()
 

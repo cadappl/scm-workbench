@@ -9,7 +9,7 @@ fi
 
 PYTHON=${PYTHON:-python}
 BASENAME=$( basename ${PYTHON} )
-SUFFIX=${X#python*}
+SUFFIX=${BASENAME#python*}
 DIRNAME=$( dirname ${PYTHON} )
 
 if [ "${DIRNAME}" != "" ]
@@ -18,9 +18,14 @@ then
 fi
 PYTHONW=${DIRNAME}pythonw${SUFFIX}
 
+if [ -e /System/Library/CoreServices/SystemVersion.plist ]
+then
+    ARCH_CMD="arch -i386"
+fi
+
 if [ -e ${PYTHONW} ]
 then
-    ${PYTHONW} wb_main.py $*
+    ${ARCH_CMD} ${PYTHONW} wb_main.py $*
 else
-    ${PYTHON} wb_main.py $*
+    ${ARCH_CMD} ${PYTHON} wb_main.py $*
 fi

@@ -12,7 +12,7 @@ for py_file in all_py_files:
     f.write( '%s\n' % py_file )
 f.close()
 
-rc = os.system( 'xgettext '
+cmd = ('xgettext '
     '--files-from=wb_files.tmp '
     '--default-domain=pysvn_workbench '
     '--output=I18N/pysvn_workbench.current.pot '
@@ -25,5 +25,8 @@ rc = os.system( 'xgettext '
     '--no-wrap '
     '--width=2047 '
     '--add-comments=Translat '
-    '--language=Python' )
+    '--language=Python')
+
+print 'Info: %s' % (cmd,)
+rc = os.system( cmd )
 sys.exit( rc )

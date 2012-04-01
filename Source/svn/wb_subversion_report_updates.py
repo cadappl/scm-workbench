@@ -1,6 +1,7 @@
 '''
  ====================================================================
- Copyright (c) 2006-2007 Barry A Scott.  All rights reserved.
+ Copyright (c) 2006-2011 Barry A Scott.  All rights reserved.
+ Copyright (c) 2010-2012 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -255,6 +256,7 @@ class ReportUpdatesProjectInfo:
         self.url = project_info.url
         self.wc_path = project_info.wc_path
         self.need_checkout = False
+        self.need_upgrade = False
 
         self.client_fg = project_info.client_fg
         self.client_bg = project_info.client_bg

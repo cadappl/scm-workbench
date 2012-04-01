@@ -12,6 +12,7 @@ meinc_installer:
 	cd ../Import/MEINC_Installer/source/linux && $(PYTHON) Make.py && $(MAKE) && rm -f ../../config.dat
 
 clean:
+	find .. -name '*.pyc' -exec rm {} ';'
 	cd ../Source && $(MAKE) -f linux.mak clean
 	cd ../Kit/Linux && rm -rf tmp
 	cd ../Import/MEINC_Installer/source/linux && $(MAKE) clean

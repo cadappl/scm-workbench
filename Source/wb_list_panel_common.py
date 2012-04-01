@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2011 Barry A Scott.  All rights reserved.
  Copyright (c) 2010 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
@@ -22,6 +22,7 @@ import wb_exceptions
 import wb_ids
 import wb_shell_commands
 import wb_dialogs
+import wb_platform_specific
 
 class ListSortData:
     def __init__( self, order=1, field=0 ):
@@ -55,6 +56,7 @@ class ListItemState:
         self.unversioned = False
         self.need_checkin = False
         self.need_checkout = False
+        self.need_upgrade = False
         self.conflict = False
         self.file_exists = False
         self.is_folder = False
@@ -333,7 +335,7 @@ class WbListPanelCommon(wx.Panel):
             if self.list_handler.mayOpen( row ):
                 self.app.selectTreeNode( filename )
 
-            elif not os.path.isdir( filename ):
+            elif not wb_platform_specific.uPathIsdir( filename ):
                 wb_shell_commands.EditFile( self.app, self.list_handler.getProjectInfo(), filename )
 
     def isTreeHandler( self ):

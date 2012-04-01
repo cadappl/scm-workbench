@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2003-2007 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2012 Barry A Scott.  All rights reserved.
  Copyright (c) 2010 ccc. All right reserved.
 
  This software is licensed as described in the file LICENSE.txt,
@@ -30,6 +30,7 @@ import wb_exceptions
 import wb_subversion_tree_handler
 import wb_subversion_list_handler
 import wb_subversion_utils
+import wb_platform_specific
 
 _fast_proplist = True
 
@@ -350,6 +351,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
 
         self.all_tree_files_status = []
         self.need_checkout = True
+        self.need_upgrade = False
         self.need_properties = False
         self.files_properties = {}
 
@@ -482,8 +484,13 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
             self.notification_of_files_in_conflict += 1
 
         # print anything that gets through the filter
-        msg = '%s %s\n' % (action_letter, arg_dict['path'])
-        self.app.foregroundProcess( sys.stdout.write, (msg,) )
+        try:
+            path = arg_dict['path'].decode( 'utf-8' )
+        except ValueError:
+            path = arg_dict['path']
+
+        msg = u'%s %s\n' % (action_letter, path)
+        self.app.foregroundProcess( sys.stdout.write, (msg.encode( 'utf-8' ),) )
 
     def readPreferences( self, get_option ):
         wb_source_control_providers.ProjectInfo.readPreferences( self, get_option )
@@ -565,15 +572,26 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         self.dir_status = None
 
         self.need_checkout = True
-        if not os.path.exists( self.wc_path ):
+        if not wb_platform_specific.uPathExists( self.wc_path ):
             return
 
         p = self.app.prefs.getView()
+
         try:
+            self.need_upgrade = False
             entry = self.client_fg.info( self.wc_path )
+
         except pysvn.ClientError, e:
+            if wb_subversion_utils.version_info.has_upgrade:
+                # is it the  'Working copy XXX is too old' error?
+                if e.args[1][0][1] == pysvn.svn_err.wc_upgrade_required:
+                    self.need_checkout = False
+                    self.need_upgrade = True
+                    return
+
             # is it the  'is not a working copy' error?
             if e.args[1][0][1] == pysvn.svn_err.wc_not_directory:
+                # need_checkout
                 return
 
             print 'Error: %s' % e.args[0]
@@ -591,7 +609,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         # sort list
         self.all_files_status.sort( wb_subversion_utils.by_path )
         # remember dir_status before filtering
-        if len(self.all_files_status) > 0 and self.all_files_status[0].path == self.wc_path:
+        if len(self.all_files_status) > 0 and os.path.normcase( self.all_files_status[0].path ) == os.path.normcase( self.wc_path ):
             self.dir_status = self.all_files_status[0]
             del self.all_files_status[0]
 
@@ -676,7 +694,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         return self.dir_status
 
     def __proplist( self, path ):
-        if os.path.isdir( path ):
+        if wb_platform_specific.uPathIsdir( path ):
             prop_file = os.path.join( path, '.svn', 'dir-props' )
             base_prop_file = os.path.join( path, '.svn', 'dir-prop-base' )
         else:
@@ -686,10 +704,10 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
 
         result = {}
         try:
-            f = file( prop_file )
+            f = wb_platform_specific.uOpen( prop_file )
         except EnvironmentError:
             try:
-                f = file( base_prop_file )
+                f = wb_platform_specific.uOpen( base_prop_file )
             except EnvironmentError:
                 return result
 

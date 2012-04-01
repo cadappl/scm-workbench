@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2011 Barry A Scott.  All rights reserved.
  Copyright (c) 2010-2011 ccc.  All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
@@ -693,6 +693,8 @@ class StdoutLogHandler(logging.Handler):
     def emit( self, record ):
         try:
             msg = self.format(record) + '\n'
+            if type( msg ) == types.UnicodeType:
+                msg = msg.encode( 'utf-8' )
 
             sys.__stdout__.write( msg )
 

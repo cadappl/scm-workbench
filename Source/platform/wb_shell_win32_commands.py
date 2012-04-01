@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2003-2006 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2011 Barry A Scott.  All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -16,6 +16,8 @@ import win32api
 import os
 import string
 import subprocess
+import wb_platform_specific
+
 
 def getTerminalProgramList():
     return ['CMD']
@@ -28,13 +30,14 @@ def EditFile( app, project_info, filename ):
 
     if p.editor_image:
         if p.editor_options:
-            command_line = '"%s" %s "%s"' % \
-                (p.editor_image, p.editor_options, filename)
+            command_line = (u'"%s" %s "%s"' %
+                (p.editor_image, p.editor_options, filename))
         else:
-            command_line = '"%s" "%s"' % \
-                (p.editor_image, filename)
+            command_line = (u'"%s" "%s"' %
+                (p.editor_image, filename))
     else:
-        command_line = '"notepad.exe" "%s"' % filename
+        command_line = (u'"notepad.exe" "%s"' %
+                            (filename,))
 
     app.log.info( command_line )
     CreateProcess( app, command_line, project_info.getWorkingDir() )
@@ -45,7 +48,9 @@ def GuiDiffFiles( app, options ):
     CreateProcess( app, cmd_line, os.path.curdir )
 
 def ShellDiffFiles( app, options ):
-    cmd_line = '"%s" %s' % (app.prefs.getDiffTool().shell_diff_tool, options)
+    cmd_line = (u'"%s" %s' %
+                    (app.prefs.getDiffTool().shell_diff_tool
+                    ,options))
     app.log.info( cmd_line )
     return __run_command_with_output( cmd_line )
 
@@ -78,23 +83,28 @@ def CommandShell( app, project_info ):
         title.append( pi.project_name )
         pi = pi.parent
 
-    f  = open( shell_script_filename, 'w' )
-    f.write( "@title %s\n" % string.join( title, ' ' ) )
-    f.write( "@set PYTHONPATH=\n" )
-    f.write( '@cd %s\n' % working_dir )
-    f.write( '@echo on\n' )
-
+    cmd_lines = [
+        u"@title %s\n" % (' '.join( title ),),
+        u"@set PYTHONPATH=\n",
+        u'@cd %s\n' % (working_dir,),
+        u'@echo on\n',
+        ]
     if len( p.shell_init_command ) > 0:
-        f.write( 'call %s\n' % p.shell_init_command )
+        cmd_lines.append( u'call %s\n' % (p.shell_init_command,) )
+
+    f  = open( shell_script_filename, 'w' )
+    for line in cmd_lines:
+        f.write( line.encode( 'utf-8' ) )
     f.close()
 
-    command_line = '"%s" /k %s' % (os.environ['ComSpec'], shell_script_filename)
+    command_line = u'"%s" /k %s' % (os.environ['ComSpec'], shell_script_filename)
 
     app.log.info( command_line )
     CreateProcess( app, command_line, working_dir )
 
 def FileBrowser( app, project_info ):
-    command_line = 'explorer.exe /e,%s' % project_info.getWorkingDir()
+    command_line = (u'explorer.exe /e,%s' %
+                        (project_info.getWorkingDir(),))
 
     app.log.info( command_line )
     CreateProcess( app, command_line, project_info.getWorkingDir() )
@@ -125,7 +135,7 @@ def CreateProcess( app, command_line, current_dir ):
                             ,'reason': detail} )
 
 def ensureDirectory( app, current_dir ):
-    if not os.path.exists( current_dir ):
+    if not wb_platform_specific.uPathExists( current_dir ):
         try:
             os.makedirs( current_dir )
             app.log.info( T_('Created directory %s') % current_dir )
@@ -136,7 +146,7 @@ def ensureDirectory( app, current_dir ):
                             ,'error': e} )
             return 0
 
-    elif not os.path.isdir( current_dir ):
+    elif not wb_platform_specific.uPathIsdir( current_dir ):
         app.log.error( T_('%s is not a directory') % current_dir )
         return 0
 

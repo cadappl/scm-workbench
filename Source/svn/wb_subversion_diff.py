@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2003-2007 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2010 Barry A Scott.  All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -20,6 +20,7 @@ import wb_shell_commands
 import wb_show_diff_frame
 import wb_read_file
 import wb_diff_frame
+import wb_platform_specific
 
 debug_diff = False
 
@@ -93,18 +94,18 @@ def subversionDiffFiles(
     for path_info in (old_path_info, new_path_info):
         if( path_info.revision is None
         or path_info.revision.kind == pysvn.opt_revision_kind.working ):
-            if not os.path.exists( path_info.path ):
+            if not wb_platform_specific.uPathExists( path_info.path ):
                 app.log_error( '"%s" does not exist.' % path_info.path )
                 fd, path_info.path = tempfile.mkstemp( suffix=os.path.basename( path_info.path ) )
                 os.close( fd )
                 # keep track of the temp file
                 app.all_temp_files.append( path_info.path )
 
-            if os.path.isdir( path_info.path ):
+            if wb_platform_specific.uPathIsdir( path_info.path ):
                 app.log_error( '"%s" refers to a directory.' % path_info.path )
                 return
 
-            if not os.access( path_info.path, os.R_OK ):
+            if not wb_platform_specific.uAccess( path_info.path, os.R_OK ):
                 app.log_error( '"%s" cannot be read.' % path_info.path )
                 return
 

@@ -1,7 +1,7 @@
 '''
 
  ====================================================================
- Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2010 Barry A Scott.  All rights reserved.
  Copyright (c) 2010-2011 SiG Technologies. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
@@ -115,14 +115,14 @@ class Preferences:
             new_name = self.pref_filename + '.tmp'
             old_name = self.pref_filename + '.old'
 
-            f = file( new_name, 'w' )
+            f = wb_platform_specific.uOpen( new_name, 'w' )
             self.pref_data.write( f )
             f.close()
-            if os.path.exists( self.pref_filename ):
-                if os.path.exists( old_name ): # os.rename does not delete automatically on Windows.
-                    os.remove( old_name )
-                os.rename( self.pref_filename, old_name )
-            os.rename( new_name, self.pref_filename )
+            if wb_platform_specific.uPathExists( self.pref_filename ):
+                if wb_platform_specific.uPathExists( old_name ): # os.rename does not delete automatically on Windows.
+                    wb_platform_specific.uRemove( old_name )
+                wb_platform_specific.uRename( self.pref_filename, old_name )
+            wb_platform_specific.uRename( new_name, self.pref_filename )
 
             self.app.log.info( T_('Wrote preferences to %s') % self.pref_filename )
 
@@ -133,7 +133,7 @@ class PreferenceData:
     def __init__( self, log, xml_pref_filename, ini_pref_filename ):
         self.all_sections = {}
 
-        if os.path.exists( xml_pref_filename ):
+        if wb_platform_specific.uPathExists( xml_pref_filename ):
             log.info( T_('Reading preferences from %s') % xml_pref_filename )
             self.__readXml( xml_pref_filename )
         else:
@@ -142,7 +142,7 @@ class PreferenceData:
 
     def __readXml( self, xml_pref_filename ):
         try:
-            f = file( xml_pref_filename, 'r' )
+            f = wb_platform_specific.uOpen( xml_pref_filename, 'r' )
             text = f.read()
             f.close()
 

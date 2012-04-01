@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2011 Barry A Scott.  All rights reserved.
  Copyright (c) 2010 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
@@ -28,6 +28,8 @@ class svn_version_info:
         self.notify_action_has_failed_lock = hasattr( pysvn.wc_notify_action, 'failed_lock' )
         self.has_depth = hasattr( pysvn, 'depth' )
         self.notify_action_has_property_events = hasattr( pysvn.wc_notify_action, 'property_added' )
+        self.notify_action_has_upgrade_events = hasattr( pysvn.wc_notify_action, 'upgraded_path' )
+        self.has_upgrade = self.notify_action_has_upgrade_events
 
 version_info = svn_version_info()
 
@@ -153,6 +155,33 @@ if version_info.notify_action_has_property_events:
     wc_notify_action_map[ pysvn.wc_notify_action.tree_conflict ] = 'tree_conflict'
     wc_notify_action_map[ pysvn.wc_notify_action.failed_external ] = 'failed_external'
 
+if version_info.notify_action_has_upgrade_events:
+    wc_notify_action_map[ pysvn.wc_notify_action.upgraded_path ] = 'upgraded_path'
+    wc_notify_action_map[ pysvn.wc_notify_action.update_started ] = "update_started"
+    wc_notify_action_map[ pysvn.wc_notify_action.update_skip_obstruction ] = "update_skip_obstruction"
+    wc_notify_action_map[ pysvn.wc_notify_action.update_skip_working_only ] = "update_skip_working_only"
+    wc_notify_action_map[ pysvn.wc_notify_action.update_external_removed ] = "update_external_removed"
+    wc_notify_action_map[ pysvn.wc_notify_action.update_shadowed_add ] = "update_shadowed_add"
+    wc_notify_action_map[ pysvn.wc_notify_action.update_shadowed_update ] = "update_shadowed_update"
+    wc_notify_action_map[ pysvn.wc_notify_action.update_shadowed_delete ] = "update_shadowed_delete"
+    wc_notify_action_map[ pysvn.wc_notify_action.merge_record_info ] = "merge_record_info"
+    wc_notify_action_map[ pysvn.wc_notify_action.upgraded_path ] = "upgraded_path"
+    wc_notify_action_map[ pysvn.wc_notify_action.merge_record_info_begin ] = "merge_record_info_begin"
+    wc_notify_action_map[ pysvn.wc_notify_action.merge_elide_info ] = "merge_elide_info"
+    wc_notify_action_map[ pysvn.wc_notify_action.patch ] = "patch"
+    wc_notify_action_map[ pysvn.wc_notify_action.patch_applied_hunk ] = "patch_applied_hunk"
+    wc_notify_action_map[ pysvn.wc_notify_action.patch_rejected_hunk ] = "patch_rejected_hunk"
+    wc_notify_action_map[ pysvn.wc_notify_action.patch_hunk_already_applied ] = "patch_hunk_already_applied"
+    wc_notify_action_map[ pysvn.wc_notify_action.commit_copied ] = "commit_copied"
+    wc_notify_action_map[ pysvn.wc_notify_action.commit_copied_replaced ] = "commit_copied_replaced"
+    wc_notify_action_map[ pysvn.wc_notify_action.url_redirect ] = "url_redirect"
+    wc_notify_action_map[ pysvn.wc_notify_action.path_nonexistent ] = "path_nonexistent"
+    wc_notify_action_map[ pysvn.wc_notify_action.exclude ] = "exclude"
+    wc_notify_action_map[ pysvn.wc_notify_action.failed_conflict ] = "failed_conflict"
+    wc_notify_action_map[ pysvn.wc_notify_action.failed_missing ] = "failed_missing"
+    wc_notify_action_map[ pysvn.wc_notify_action.failed_out_of_date ] = "failed_out_of_date"
+    wc_notify_action_map[ pysvn.wc_notify_action.failed_no_parent ] = "failed_no_parent"
+
 wc_notify_type_map = {
     pysvn.wc_notify_action.add: 'A',
     pysvn.wc_notify_action.commit_added: 'C',
@@ -194,6 +223,32 @@ if version_info.notify_action_has_property_events:
     wc_notify_type_map[ pysvn.wc_notify_action.tree_conflict ] = None
     wc_notify_type_map[ pysvn.wc_notify_action.failed_external ] = None
 
+if version_info.notify_action_has_upgrade_events:
+    wc_notify_type_map[ pysvn.wc_notify_action.upgraded_path ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.update_started ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.update_skip_obstruction ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.update_skip_working_only ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.update_external_removed ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.update_shadowed_add ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.update_shadowed_update ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.update_shadowed_delete ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.merge_record_info ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.upgraded_path ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.merge_record_info_begin ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.merge_elide_info ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.patch ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.patch_applied_hunk ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.patch_rejected_hunk ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.patch_hunk_already_applied ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.commit_copied ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.commit_copied_replaced ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.url_redirect ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.path_nonexistent ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.exclude ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.failed_conflict ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.failed_missing ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.failed_out_of_date ] = None
+    wc_notify_type_map[ pysvn.wc_notify_action.failed_no_parent ] = None
 
 #
 #    format the concise status from file
@@ -221,6 +276,35 @@ def _status_format( file ):
             lock_state)
 
     return state.strip()
+
+def populateMenu( menu, contents ):
+    for details in contents:
+        if len(details) == 3:
+            type, id, name = details
+            cond = True
+        else:
+            type, id, name, cond = details
+
+        if type == '-':
+            if cond:
+                menu.AppendSeparator()
+        elif type == 'x':
+            menu.AppendCheckItem( id, name )
+            menu.Enable( id, cond )
+        elif type == 'o':
+            menu.AppendRadioItem( id, name )
+            menu.Enable( id, cond )
+        elif type == '':
+            menu.Append( id, name )
+            menu.Enable( id, cond )
+        elif type == '>':
+            # sub menu in the list in id
+            menu.AppendMenu( id, name, populateMenu( wx.Menu(), cond ) )
+        else:
+            raise wb_exceptions.InternalError(
+                'Unknown populateMenu contents (%s,%s,%s,%s)' %
+                    (repr(type),repr(id),repr(name),repr(cond)) )
+    return menu
 
 def by_path( a, b ):
     return cmp( a.path, b.path )

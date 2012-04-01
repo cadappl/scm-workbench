@@ -1,7 +1,7 @@
 '''
 
  ====================================================================
- Copyright (c) 2003-2006 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2011 Barry A Scott.  All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -13,6 +13,7 @@
 
 '''
 import os
+import types
 
 def getApplicationDir():
     return os.path.join( os.environ['HOME'], '.WorkBench' )
@@ -22,3 +23,48 @@ def getLocalePath( app ):
 
 def getNullDevice():
     return '/dev/null'
+
+def uPathExists( path ):
+    if type(path) == types.UnicodeType:
+        path = path.encode( 'utf-8' )
+
+    return os.path.exists( path )
+
+def uPathIsdir( path ):
+    if type(path) == types.UnicodeType:
+        path = path.encode( 'utf-8' )
+
+    return os.path.isdir( path )
+
+def uAccess( path, mode ):
+    if type(path) == types.UnicodeType:
+        path = path.encode( 'utf-8' )
+
+    return os.access( path, mode )
+
+def uRemove( path ):
+    if type(path) == types.UnicodeType:
+        path = path.encode( 'utf-8' )
+
+    return os.remove( path )
+
+def uRename( path1, path2 ):
+    if type(path1) == types.UnicodeType:
+        path1 = path1.encode( 'utf-8' )
+
+    if type(path2) == types.UnicodeType:
+        path2 = path2.encode( 'utf-8' )
+
+    return os.rename( path1, path2 )
+
+def uOpen( path, mode ):
+    if type(path) == types.UnicodeType:
+        path = path.encode( 'utf-8' )
+
+    return open( path, mode )
+
+def uChdir( path ):
+    if type(path) == types.UnicodeType:
+        path = path.encode( 'utf-8' )
+
+    return os.chdir( path )

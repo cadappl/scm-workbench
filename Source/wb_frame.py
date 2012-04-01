@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2011 Barry A Scott.  All rights reserved.
  Copyright (c) 2010-2011 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
@@ -25,9 +25,12 @@ import wb_version
 import wb_images
 import wb_preferences_dialog
 import wb_source_control_providers
+import wb_manifest_providers
 import wb_platform_specific
 import wb_bookmarks_dialogs
 import wb_toolbars
+#FIXME: remove subversion import
+import svn.wb_subversion_utils as wb_subversion_utils
 
 import wb_config
 
@@ -119,6 +122,9 @@ class WbFrame(wx.Frame):
         self.menu_actions.Append( wb_ids.id_SP_Revert, T_('Revert...'), T_('Revert') )
         self.menu_actions.AppendSeparator()
         self.menu_actions.Append( wb_ids.id_SP_Cleanup, T_('Clean up'), T_('Clean up working copy') )
+        if wb_subversion_utils.version_info.has_upgrade:
+            self.menu_actions.AppendSeparator()
+            self.menu_actions.Append( wb_ids.id_SP_Upgrade, T_('Upgrade'), T_('Upgrade working copy') )
         self.menu_actions.AppendSeparator()
         self.menu_actions.Append( wb_ids.id_SP_CreateTag, T_('Create Tag...'), T_('Create Tag') )
         self.menu_actions.Append( wb_ids.id_SP_CreateBranch, T_('Create Branch...'), T_('Create Branch') )
@@ -346,6 +352,9 @@ class WbFrame(wx.Frame):
         wx.EVT_UPDATE_UI( self, wb_ids.id_SP_UpdateTo, self.app.eventWrapper( self.OnUpdateUiSpUpdateTo ) )
         wx.EVT_MENU( self, wb_ids.id_SP_Switch, self.app.eventWrapper( self.OnSpSwitch ) )
         wx.EVT_UPDATE_UI( self, wb_ids.id_SP_Switch, self.app.eventWrapper( self.OnUpdateUiSpSwitch ) )
+        if wb_subversion_utils.version_info.has_upgrade:
+            wx.EVT_MENU( self, wb_ids.id_SP_Upgrade, self.app.eventWrapper( self.OnSpUpgrade ) )
+            wx.EVT_UPDATE_UI( self, wb_ids.id_SP_Upgrade, self.app.eventWrapper( self.OnUpdateUiSpUpgrade ) )
 
         wx.EVT_MENU( self, wb_ids.id_SP_Report_Updates, self.app.eventWrapper( self.OnSpReportUpdates ) )
         wx.EVT_UPDATE_UI( self, wb_ids.id_SP_Report_Updates, self.app.eventWrapper( self.OnUpdateUiSpReportUpdates ) )
@@ -481,7 +490,7 @@ class WbFrame(wx.Frame):
                 '\n' + pv_str +
                 'wxPython %d.%d.%d.%d %s' % wx.VERSION +
                 '\nPython %d.%d.%d %s %d\n' % sys.version_info +
-                T_('\nCopyright Barry Scott (c) 2003-2009. All rights reserved') +
+                T_('\nCopyright Barry Scott (c) 2003-2011. All rights reserved') +
                 T_('\nCopyright ccc (c) 2010. All rights reserved')
                 )
         wx.LogMessage( str_message )
@@ -798,7 +807,8 @@ class WbFrame(wx.Frame):
 
     def OnUpdateUiSpCheckin( self, event ):
         self.getUpdateUiState()
-        if self.ui_state_focus.need_checkout:
+        if( self.ui_state_focus.need_checkout
+        or self.ui_state_focus.need_upgrade ):
             event.Enable( False )
         else:
             event.Enable( self.ui_state_focus.need_checkin
@@ -890,7 +900,8 @@ class WbFrame(wx.Frame):
 
     def OnUpdateUiSpDiffWorkHead( self, event ):
         self.getUpdateUiState()
-        if self.ui_state_focus.need_checkout:
+        if( self.ui_state_focus.need_checkout
+        or self.ui_state_focus.need_upgrade ):
             event.Enable( False )
         else:
             if self.ui_state_list is self.ui_state_focus:
@@ -906,14 +917,16 @@ class WbFrame(wx.Frame):
 
     def OnUpdateUiSpDiffWorkBranchOriginBase( self, event ):
         self.getUpdateUiState()
-        if self.ui_state_focus.need_checkout:
+        if( self.ui_state_focus.need_checkout
+        or self.ui_state_focus.need_upgrade ):
             event.Enable( False )
         else:
             event.Enable( self.ui_state_list.versioned and not self.ui_state_list.new_versioned )
 
     def OnUpdateUiSpDiffWorkBranchOriginHead( self, event ):
         self.getUpdateUiState()
-        if self.ui_state_focus.need_checkout:
+        if( self.ui_state_focus.need_checkout
+        or self.ui_state_focus.need_upgrade ):
             event.Enable( False )
         else:
             event.Enable( self.ui_state_list.versioned and not self.ui_state_list.new_versioned )
@@ -925,7 +938,8 @@ class WbFrame(wx.Frame):
         self.getUpdateUiState()
         if wb_config.debug_selection_update: print 'ZF: OnUpdateUiSpHistory versioned %r handler %r' % (
                                                 self.ui_state_focus.versioned, self.event_handler)
-        if self.ui_state_focus.need_checkout:
+        if( self.ui_state_focus.need_checkout
+        or self.ui_state_focus.need_upgrade ):
             event.Enable( False )
         else:
             event.Enable( self.ui_state_focus.versioned and not self.ui_state_focus.new_versioned )
@@ -935,7 +949,8 @@ class WbFrame(wx.Frame):
 
     def OnUpdateUiSpInfo( self, event ):
         self.getUpdateUiState()
-        if self.ui_state_focus.need_checkout:
+        if( self.ui_state_focus.need_checkout
+        or self.ui_state_focus.need_upgrade ):
             event.Enable( False )
         else:
             event.Enable( self.ui_state_focus.versioned )
@@ -967,7 +982,8 @@ class WbFrame(wx.Frame):
 
     def OnUpdateUiSpProperties( self, event ):
         self.getUpdateUiState()
-        if self.ui_state_focus.need_checkout:
+        if( self.ui_state_focus.need_checkout
+        or self.ui_state_focus.need_upgrade ):
             event.Enable( False )
         else:
             event.Enable( self.ui_state_focus.versioned )
@@ -1019,7 +1035,8 @@ class WbFrame(wx.Frame):
 
     def OnUpdateUiSpRevert( self, event ):
         self.getUpdateUiState()
-        if self.ui_state_focus.need_checkout:
+        if( self.ui_state_focus.need_checkout
+        or self.ui_state_focus.need_upgrade ):
             event.Enable( False )
         else:
             event.Enable( self.ui_state_focus.revertable )
@@ -1037,7 +1054,8 @@ class WbFrame(wx.Frame):
     def OnUpdateUiSpUpdate( self, event ):
         self.getUpdateUiState()
 
-        if self.ui_state_focus.need_checkout:
+        if( self.ui_state_focus.need_checkout
+        or self.ui_state_focus.need_upgrade ):
             import wb_subversion_tree_handler
             handler = self.tree_panel.getSelectionProjectHandler()
             if isinstance(handler, wb_subversion_tree_handler.SubversionProject):
@@ -1062,6 +1080,16 @@ class WbFrame(wx.Frame):
 
     def OnUpdateUiSpUpdateTo( self, event ):
         self.OnUpdateUiSpUpdate(event)
+
+    def OnSpUpgrade( self, event ):
+        self.clearUpdateUiState()
+        return self.tree_panel.OnSpUpgrade()
+
+    def OnUpdateUiSpUpgrade( self, event ):
+        self.getUpdateUiState()
+
+        # this is a tree only command
+        event.Enable( self.list_panel.list_handler.project_info.need_upgrade )
 
     def OnSpSwitch( self, event ):
         return self.Sp_Dispatch( 'OnSpSwitch' )
@@ -1145,7 +1173,7 @@ class LogCtrlPanel(wx.Panel):
         self.text_ctrl = StyledLogCtrl( self.app, self )
 
         # Redirect the console IO to this panel
-        sys.stdin = file( wb_platform_specific.getNullDevice(), 'r' )
+        sys.stdin = wb_platform_specific.uOpen( wb_platform_specific.getNullDevice(), 'r' )
         if self.app.isStdIoRedirect():
             sys.stdout = self
             sys.stderr = self

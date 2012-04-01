@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2011 Barry A Scott.  All rights reserved.
  Copyright (c) 2010-2011 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
@@ -34,6 +34,7 @@ import wb_subversion_properties_dialog
 import wb_clipboard
 import wb_dialogs
 import wb_config
+import wb_platform_specific
 import wb_utils
 
 class SubversionProject(wb_tree_panel.TreeProjectItem):
@@ -54,7 +55,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
         dir_status = self.project_info.getDirStatus()
         if dir_status is None:
             # no status available - make a guess
-            if not os.path.exists( self.project_info.wc_path ):
+            if not wb_platform_specific.uPathExists( self.project_info.wc_path ):
                 # nothing there
                 return False
             else:
@@ -63,7 +64,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
 
         for file in self.project_info.getTreeFilesStatus():
             if( (file.entry is not None and file.entry.kind == pysvn.node_kind.dir)
-            or (file.entry is None and os.path.isdir( file.path )) ):
+            or (file.entry is None and wb_platform_specific.uPathIsdir( file.path )) ):
                 return True
 
         return False
@@ -73,7 +74,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
 
         for file in self.project_info.getTreeFilesStatus():
 
-            if( (file.entry is None and os.path.isdir( file.path ))
+            if( (file.entry is None and wb_platform_specific.uPathIsdir( file.path ))
             or (file.entry is not None and file.entry.kind == pysvn.node_kind.dir) ):
                 pi = wb_subversion_project_info.ProjectInfo( self.app, self.project_info )
                 name = os.path.basename( file.path )
@@ -95,17 +96,17 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
         dir_status = self.project_info.getDirStatus()
         if dir_status is None:
             # no status available - make a guess
-            if not os.path.exists( self.project_info.wc_path ):
+            if not wb_platform_specific.uPathExists( self.project_info.wc_path ):
                 # nothing there
                 return wb_config.colour_status_need_checkout
-            elif not os.path.exists( os.path.join( self.project_info.wc_path, '.svn' ) ):
+            elif not wb_platform_specific.uPathExists( os.path.join( self.project_info.wc_path, '.svn' ) ):
                 # not versioned
                 return wb_config.colour_status_unversioned
             else:
                 # versioned and present
                 return wb_config.colour_status_normal
 
-        elif not os.path.exists( dir_status.path ):
+        elif not wb_platform_specific.uPathExists( dir_status.path ):
             # nothing there
             return wb_config.colour_status_need_checkout
         elif dir_status.text_status in [pysvn.wc_status_kind.unversioned, pysvn.wc_status_kind.ignored]:
@@ -129,6 +130,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
             state.unversioned = False
             state.need_checkin = False
             state.need_checkout = True
+            state.need_upgrade = False
             state.conflict = False
             state.file_exists = False
             state.revertable = False
@@ -140,10 +142,11 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
             state.unversioned = True
             state.need_checkin = True
             state.need_checkout = False
+            state.need_upgrade = False
             state.conflict = True
             state.file_exists = True
 
-            if not os.path.exists( dir_status.path ):
+            if not wb_platform_specific.uPathExists( dir_status.path ):
                 state.file_exists = False
 
             text_status = dir_status.text_status
@@ -551,7 +554,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
             and dialog.getTemplateFilename() is not None ):
                 try:
                     template_filename = os.path.join( template_dir, dialog.getTemplateFilename() )
-                    t = file( template_filename, 'r' )
+                    t = wb_platform_specific.uOpen( template_filename, 'r' )
                     template_contents = t.read()
                     t.close()
 
@@ -563,7 +566,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
 
             try:
                 new_filename = os.path.join( self.project_info.wc_path, dialog.getNewFilename() )
-                f = file( new_filename, 'w' )
+                f = wb_platform_specific.uOpen( new_filename, 'w' )
                 f.write( template_contents )
                 f.close()
 
@@ -811,7 +814,7 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
                     self.app.log_client_error( e )
             else:
                 try:
-                    os.rename( old_filename, new_full_filename )
+                    wb_platform_specific.uRename( old_filename, new_full_filename )
                 except (OSError,IOError), e:
                     self.app.log.error( str(e) )
 
@@ -898,9 +901,24 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
                     self.app.log.warning( T_('Already up to date') )
 
             if self.project_info.notification_of_files_in_conflict > 0:
-                wx.MessageBox( S_("%d file is in conflict",
-                                  "%d files are in conflict", self.project_info.notification_of_files_in_conflict) % self.project_info.notification_of_files_in_conflict,
+                wx.MessageBox( S_("%d file is in conflict", 
+                                  "%d files are in conflict",
+                                  self.project_info.notification_of_files_in_conflict) %
+                                        self.project_info.notification_of_files_in_conflict,
                                T_("Warning"), style=wx.OK|wx.ICON_EXCLAMATION )
+
+        self.app.clearProgress()
+        self.app.setAction( T_('Ready') )
+        self.app.refreshFrame()
+
+    def Cmd_Dir_Upgrade( self ):
+        self.app.setAction( T_('Upgrade %s...') % self.project_info.wc_path )
+
+        try:
+            self.project_info.client_fg.upgrade( self.project_info.wc_path )
+
+        except pysvn.ClientError, e:
+            self.app.log_client_error( e )
 
         self.app.clearProgress()
         self.app.setAction( T_('Ready') )

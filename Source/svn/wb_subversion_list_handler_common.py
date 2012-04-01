@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2011 Barry A Scott.  All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -26,6 +26,7 @@ import wb_subversion_info_dialog
 import wb_subversion_properties_dialog
 import wb_subversion_diff
 import wb_config
+import wb_platform_specific
 
 col_labels = [
         ('Name',            U_('Name'),        25, 10, 100, wx.LIST_FORMAT_LEFT),
@@ -105,6 +106,15 @@ class ViewColumnInfo:
         self.column_order = column_order[:]
         for index, name in enumerate( self.column_order ):
             self.column_info_by_name[ name ].column = index
+
+    def getColumnWidth( self, column_name ):
+        return self.column_info_by_name[ column_name ].width
+
+    def setColumnWidth( self, column_name, width ):
+        info = self.column_info_by_name[ column_name ]
+        width = max( info.min_width, width )
+        width = min( info.max_width, width )
+        info.width = width
 
     def getColumnOrder( self ):
         return self.column_order
@@ -200,6 +210,10 @@ class SubversionListHandlerCommon(wb_list_panel_common.ListHandler):
 
     def setupColumnInfo( self ):
         self.column_info.setFromPreferenceData( self.app.prefs.getView() )
+        self.overrideColumnInfo()
+
+    def overrideColumnInfo( self ):
+        pass
 
     def setupColumns( self ):
         self.setupColumnInfo()
@@ -228,8 +242,9 @@ class SubversionListHandlerCommon(wb_list_panel_common.ListHandler):
 
         self.list_panel.updateHeader( self.project_info.url, self.project_info.wc_path )
 
-        # nothing doing if the wc does not exist
-        if self.project_info.need_checkout:
+        # nothing doing if the wc does not exist or needs upgrade
+        if( self.project_info.need_checkout
+        or self.project_info.need_upgrade ):
             # empty the list
             g.DeleteAllItems()
 
@@ -283,7 +298,8 @@ class SubversionListHandlerCommon(wb_list_panel_common.ListHandler):
     def sortList( self, sort_data ):
         self.app.log.debug('sortList' )
 
-        if self.project_info.need_checkout:
+        if( self.project_info.need_checkout
+        or self.project_info.need_upgrade ):
             # nothing to sort
             return
 
@@ -354,6 +370,12 @@ class SubversionListHandlerCommon(wb_list_panel_common.ListHandler):
     def OnGetItemText( self, index, col ):
         column = self.column_info.getNameByColumn( col )
 
+        if self.project_info.need_upgrade:
+            if column == self.col_name:
+                return T_('Use the Upgrade command to convert the working copy to the required format')
+            else:
+                return ''
+
         if self.project_info.need_checkout:
             if column == self.col_name:
                 if self.isProjectParent():
@@ -403,7 +425,8 @@ class SubversionListHandlerCommon(wb_list_panel_common.ListHandler):
         return value
 
     def OnGetItemAttr( self, index ):
-        if self.project_info.need_checkout:
+        if( self.project_info.need_checkout
+        or self.project_info.need_upgrade ):
             colour = wb_config.colour_status_need_checkout
         else:
             colour = self.statusColour( self.all_files[ index ] )
@@ -416,7 +439,8 @@ class SubversionListHandlerCommon(wb_list_panel_common.ListHandler):
         return self.all_item_attr[ colour ]
 
     def isItemImageFolder(self, item):
-        if self.project_info.need_checkout:
+        if( self.project_info.need_checkout
+        or self.project_info.need_upgrade ):
             return True
 
         elif self.GetItemIsDir( item ):
@@ -428,14 +452,14 @@ class SubversionListHandlerCommon(wb_list_panel_common.ListHandler):
     def GetItemIsDir(self, item):
         status = self.all_files[ item ]
         if status.entry is None:
-            is_dir = os.path.isdir( status.path )
+            is_dir = wb_platform_specific.uPathIsdir( status.path )
         else:
             is_dir = status.entry.kind == pysvn.node_kind.dir
         return is_dir
-
+    
     def __get_NameColumn( self, status, prefix_len ):
         if status.entry is None:
-            is_dir = os.path.isdir( status.path )
+            is_dir = wb_platform_specific.uPathIsdir( status.path )
         else:
             is_dir = status.entry.kind == pysvn.node_kind.dir
         if is_dir:
@@ -515,6 +539,10 @@ class SubversionListHandlerCommon(wb_list_panel_common.ListHandler):
 
         state = wb_list_panel_common.ListItemState()
 
+        if self.project_info.need_upgrade:
+            state.need_upgrade = True
+            return state
+
         if self.project_info.need_checkout:
             state.need_checkout = True
             state.ui_project_parent = True
@@ -534,10 +562,10 @@ class SubversionListHandlerCommon(wb_list_panel_common.ListHandler):
         for row in all_rows:
             filename = self.all_files[ row ].path
 
-            if not os.path.exists( filename ):
+            if not wb_platform_specific.uPathExists( filename ):
                 state.file_exists = False
 
-            if os.path.isdir( filename ):
+            if wb_platform_specific.uPathIsdir( filename ):
                 state.modified = False
                 state.conflict = False
                 state.file_exists = False
@@ -602,7 +630,7 @@ class SubversionListHandlerCommon(wb_list_panel_common.ListHandler):
     def mayOpen( self, row_or_status ):
         status = self.getStatusFromRowOrStatus( row_or_status )
         if status.entry is None:
-            return not os.path.isdir( self.getFilename( row_or_status ) )
+            return not wb_platform_specific.uPathIsdir( self.getFilename( row_or_status ) )
         else:
             return status.entry.kind == pysvn.node_kind.dir
 
@@ -973,7 +1001,7 @@ class SubversionListHandlerCommon(wb_list_panel_common.ListHandler):
                     prop_dict = {}
                 else:
                     _, prop_dict = prop_list[0]
-                if os.path.isdir( filename ):
+                if wb_platform_specific.uPathIsdir( filename ):
                     dialog = wb_subversion_properties_dialog.DirPropertiesDialog( self.app,
                             self.list_panel.list_ctrl,
                             filename,

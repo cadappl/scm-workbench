@@ -9,12 +9,12 @@ else
     if [ "$(uname)" = "Darwin" ]
     then
         # default to 2.3 on Mac OS X
-        PREF_VER=2.6
+        PREF_VER=2.7
     else
         PREF_VER=
     fi
 fi
-for PY_VER in ${PREF_VER} 2.6 2.5
+for PY_VER in ${PREF_VER} 2.7 2.6 2.5
 do
     # used in pick python to use in Builder driver makefile
     export PYTHON=$( which python${PY_VER} )
@@ -31,11 +31,8 @@ then
     export WC_SVNVERSION=svnversion
 fi
 
-export PYCXX=${WORKDIR}/Import/pycxx_${PYCXXVER}
-
 export MEINC_INSTALLER_DIR=${WORKDIR}/Import/MEINC_Installer
-export PYCHECKER_DIR=${WORKDIR}/Import/PyChecker
-for _DIR in ${WORKDIR}/../Extension/Source ${WORKDIR}/../py${PYSVN_PY_VER}_pysvn/Source
+for _DIR in ${WORKDIR}/../Extension/Source ${WORKDIR}/../py${PYSVN_PY_VER}_pysvn_python_org//Source
 do
     if [ -e "${_DIR}" ]
     then

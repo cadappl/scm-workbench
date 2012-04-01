@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2011 Barry A Scott.  All rights reserved.
  Copyright (c) 2010 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
@@ -36,6 +36,7 @@ class TreeState:
         self.unversioned = False
         self.need_checkin = False
         self.need_checkout = False
+        self.need_upgrade = False
         self.conflict = False
         self.file_exists = False
         self.is_folder = True
@@ -128,13 +129,11 @@ class WbTreePanel(wx.Panel):
         dc.Clear()
         w, h = self.GetSize()
         if self.FindFocus() == self.tree_ctrl:
-            print 'tree focus'
             dc.SetPen( wx.Pen( "red", 1 ) )
             dc.DrawRectangle( 0, 0, w, h )
         else:
             dc.SetPen( wx.Pen( "green", 1 ) )
             dc.DrawRectangle( 0, 0, w, h )
-            print 'tree unfocus'
         event.Skip()
 
     def initFrame( self ):
@@ -315,6 +314,7 @@ class WbTreePanel(wx.Panel):
         child_item, cookie = self.tree_ctrl.GetFirstChild( this_item )
         while child_item:
             child_handler = self.tree_ctrl.GetPyData( child_item )
+            child_handler.updateStatus()
             self.tree_ctrl.SetItemHasChildren( child_item, child_handler.mayExpand() )
             self.tree_ctrl.SetItemTextColour( child_item, child_handler.getTreeNodeColour() )
 
@@ -787,6 +787,9 @@ class WbTreePanel(wx.Panel):
 
     def OnSpUpdateTo( self ):
         return self.Sp_Dispatch( 'Cmd_Dir_UpdateTo' )
+
+    def OnSpUpgrade( self ):
+        return self.Sp_Dispatch( 'Cmd_Dir_Upgrade' )
 
     def OnSpSwitch( self ):
         return self.Sp_Dispatch( 'Cmd_Dir_Switch' )

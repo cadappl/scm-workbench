@@ -113,7 +113,7 @@ class RepoBrowserPanel( wx.Panel ):
                           style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
 
         if dir_dialog.ShowModal() == wx.ID_OK:
-            self.text_ctrl_url.SetValue( 'file://%s' % dir_dialog.GetPath() )
+            self.text_ctrl_url.SetValue( 'file:///%s' % dir_dialog.GetPath().replace( '\\', '/' ) )
             self.updateControls()
 
     def OnEventTextCtrlUrlEnter( self, event ):

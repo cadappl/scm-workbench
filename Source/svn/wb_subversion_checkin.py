@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2006-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2006-2011 Barry A Scott.  All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -31,7 +31,7 @@ id_include = wx.NewId()
 
 class CheckinFrame(wx.Frame):
     def __init__( self, app, project_info, all_files ):
-        wx.Frame.__init__( self, None, -1, T_('Check in for %s') % project_info.wc_path, size=(700,500) )
+        wx.Frame.__init__( self, None, -1, T_('Check in for %s') % project_info.wc_path, size=(1000,500) )
 
         self.app = app
 
@@ -111,7 +111,7 @@ class CheckinFrame(wx.Frame):
         self.last_log_message_text = None
 
         try:
-            f = file( self.message_filename, 'r' )
+            f = wb_platform_specific.uOpen( self.message_filename, 'r' )
             self.last_log_message_text = f.read().decode('utf-8').strip()
             f.close()
         except EnvironmentError:
@@ -233,7 +233,7 @@ class CheckinFrame(wx.Frame):
 
         message = self.log_message_ctrl.GetValue().encode('utf-8')
         try:
-            f = file( self.message_filename, 'w' )
+            f = wb_platform_specific.uOpen( self.message_filename, 'w' )
             f.write( message )
             f.close()
         except EnvironmentError:
@@ -331,6 +331,9 @@ class CheckinListHandler(wb_subversion_list_handler_common.SubversionListHandler
         self.all_excluded_files = {}
         self.__parent = parent
 
+    def overrideColumnInfo( self ):
+        self.column_info.setColumnWidth( 'Name', self.column_info.getColumnWidth( 'Name' ) + 20 )
+
     def getContextMenu( self ):
         menu_template = [
             ('', wb_ids.id_File_Edit, T_('Edit') )
@@ -408,6 +411,7 @@ class CheckinProjectInfo:
         self.url = project_info.url
         self.wc_path = project_info.wc_path
         self.need_checkout = False
+        self.need_upgrade = False
 
         self.client_fg = project_info.client_fg
         self.client_bg = project_info.client_bg

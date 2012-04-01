@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2012 Barry A Scott.  All rights reserved.
  Copyright (c) 2010-2011 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
@@ -28,7 +28,7 @@ if( os.environ.get( 'PYSVN_WORKBENCH_STDOUT_LOG', None ) is not None
 or (sys.platform == 'darwin' and '--noredirect' not in sys.argv) ):
     stdout_filename = os.environ.get( 'PYSVN_WORKBENCH_STDOUT_LOG', '/tmp/workbench.tmp' )
 
-elif sys.platform.startswith( 'win' ):
+elif sys.platform.startswith( 'win' ) and '--noredirect' not in sys.argv:
     stdout_filename = os.path.join( os.environ[ 'TEMP' ], 'workbench.tmp' )
 
 if stdout_filename is not None:

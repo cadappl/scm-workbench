@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2010 Barry A Scott.  All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -17,6 +17,7 @@ import wx.calendar
 import os
 import time
 import types
+import urllib
 
 import pysvn
 
@@ -53,7 +54,10 @@ class LogEntry:
         self.author = author
         self.date = date
         self.label = label
-        self.message = message
+        try:
+            self.message = message.decode( 'utf-8' )
+        except ValueError:
+            self.message = message
         self.changed_paths = changed_paths
 
         self.changed_paths.sort( self.by_changed_path )
@@ -70,14 +74,22 @@ class LogEntry:
 
         if filter_field == T_('Author'):
             return filter_text.lower() in self.author.lower()
+
         elif filter_field == T_('Comment'):
             return filter_text.lower() in self.message.lower()
+
         elif filter_field == T_('Path'):
             for changed_path in self.changed_paths:
-                if filter_text.lower() in changed_path.path.lower():
+                try:
+                    c_p_p = changed_path.path.decode('utf-8')
+                except ValueError:
+                    c_p_p = changed_path.path
+
+                if filter_text.lower() in c_p_p.lower():
                     return True
 
             return False
+
         else:
             assert( False )
             return False
@@ -101,7 +113,8 @@ def getHistoryEntries( project_info, filename, limit, revision_end, include_tags
     if len( all_log_entries ) == 0:
         return info.URL, all_history_entries
 
-    repos_path = info.URL[len(info.repos_root_URL):]
+    repos_path = urllib.unquote( info.URL[len(info.repos_root_URL):].encode( 'utf-8' ) )
+
     for log in all_log_entries:
         # author is optional
         if 'author' not in log:
@@ -110,7 +123,7 @@ def getHistoryEntries( project_info, filename, limit, revision_end, include_tags
         all_history_entries.append(
             LogEntry(
                 log.revision.number,
-                info.repos_root_URL+repos_path,
+                info.URL,
                 log.author,
                 log.date,
                 '',
@@ -119,7 +132,11 @@ def getHistoryEntries( project_info, filename, limit, revision_end, include_tags
 
         for changed_path in log.changed_paths:
             if changed_path.action in ['A','M']:
-                if repos_path == changed_path.path:
+                if changed_path.path is not None:
+                    c_p_p = changed_path.path.decode( 'utf-8' )
+                else:
+                    c_p_p = None
+                if repos_path == c_p_p:
                     if changed_path.copyfrom_path is not None:
                         repos_path = changed_path.copyfrom_path
                     break
@@ -484,7 +501,7 @@ class LogHistoryPanel:
         # Arrange the panels with the splitter windows
         self.splitter.AppendWindow( self.panel_history, 250 )
         self.splitter.AppendWindow( self.panel_comment, 100 )
-        self.splitter.AppendWindow( self.panel_changed_paths, 150 )
+        self.splitter.AppendWindow( self.panel_changed_paths, 200 )
 
         self.selected_revisions = {}
 
@@ -508,7 +525,7 @@ class LogHistoryPanel:
         char_width = 9
         self.list_ctrl.SetColumnWidth( self.col_revision, 7*char_width )
         self.list_ctrl.SetColumnWidth( self.col_author, 14*char_width )
-        self.list_ctrl.SetColumnWidth( self.col_date, 15*char_width )
+        self.list_ctrl.SetColumnWidth( self.col_date, 18*char_width )
         self.list_ctrl.SetColumnWidth( self.col_label, 12*char_width )
         self.list_ctrl.SetColumnWidth( self.col_message, 40*char_width )
 
@@ -525,9 +542,9 @@ class LogHistoryPanel:
 
         char_width = 9
         self.paths_ctrl.SetColumnWidth( self.col_action, 7*char_width )
-        self.paths_ctrl.SetColumnWidth( self.col_path, 40*char_width )
+        self.paths_ctrl.SetColumnWidth( self.col_path, 60*char_width )
         self.paths_ctrl.SetColumnWidth( self.col_copyfrom_revision, 6*char_width )
-        self.paths_ctrl.SetColumnWidth( self.col_copyfrom_path, 40*char_width )
+        self.paths_ctrl.SetColumnWidth( self.col_copyfrom_path, 60*char_width )
 
         self.initButtons( self.v_sizer_history )
 
@@ -686,7 +703,7 @@ class LogHistoryPanel:
             self.paths_ctrl.InsertStringItem( index,
                 action_map.get( info.action, info.action ) )
             self.paths_ctrl.SetStringItem( index, self.col_path,
-                info.path )
+                info.path.decode( 'utf-8' ) )
             if info.copyfrom_path is not None:
                 self.paths_ctrl.SetStringItem( index, self.col_copyfrom_revision,
                     str( info.copyfrom_revision.number ) )

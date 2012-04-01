@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2005-2006 Barry A Scott.  All rights reserved.
+ Copyright (c) 2005-2010 Barry A Scott.  All rights reserved.
  Copyright (c) 2010 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
@@ -14,6 +14,8 @@
 import locale
 import codecs
 
+import wb_platform_specific
+
 def readFile( filename ):
     f = file( filename, 'r' )
     contents = f.read()
@@ -23,7 +25,7 @@ def readFile( filename ):
 
 def writeFileByLine( filename, content ):
     try:
-        f = open( filename, 'w' )
+        f = wb_platform_specific.uOpen( filename, 'w' )
 
         for li in content.split('\n'):
             f.write('%s\n' % li.strip())
@@ -35,7 +37,7 @@ def writeFileByLine( filename, content ):
     return True
 
 def readFileContentsAsUnicode( filename ):
-    f = file( filename, 'r' )
+    f = wb_platform_specific.uOpen( filename, 'r' )
     contents = f.read()
     f.close()
 
@@ -66,6 +68,10 @@ def encodingFromContents( contents ):
         encoding = 'utf-32'
     else:
         encoding = locale.getdefaultlocale()[1]
+
+        # Mac says mac-roman when utf-8 is what is required
+        if encoding == 'mac-roman':
+            encoding = 'utf-8'
 
     if encoding is None:
         encoding = 'iso8859-1'

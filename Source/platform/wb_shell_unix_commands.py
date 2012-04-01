@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2010 Barry A Scott.  All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -13,6 +13,9 @@
 import os
 import signal
 import subprocess
+import types
+
+import wb_platform_specific
 
 __sigchld_handler_installed = False
 
@@ -41,20 +44,20 @@ def EditFile( app, project_info, filename ):
 
     cur_dir = os.getcwd()
     try:
-        os.chdir( project_info.getWorkingDir() )
+        wb_platform_specific.uChdir( project_info.getWorkingDir() )
         __run_command( app, editor_image, editor_args )
 
     finally:
-        os.chdir( cur_dir )
+        wb_platform_specific.uChdir( cur_dir )
 
 def ShellOpen( app, project_info, filename ):
     app.log.info( T_('Open %s') % filename )
     cur_dir = os.getcwd()
     try:
-        os.chdir( project_info.getWorkingDir() )
+        wb_platform_specific.uChdir( project_info.getWorkingDir() )
         os.system( "xdg-open '%s'" % filename )
     finally:
-        os.chdir( cur_dir )
+        wb_platform_specific.uChdir( cur_dir )
 
 def GuiDiffFiles( app, options ):
     cmd_line = "'%s' %s &" % (app.prefs.getDiffTool().gui_diff_tool, options)
@@ -79,7 +82,7 @@ def CommandShell( app, project_info ):
         title.append( pi.project_name )
         pi = pi.parent
 
-    f  = open( shell_script_filename, 'w' )
+    f  = wb_platform_specific.uOpen( shell_script_filename, 'w' )
     f.write( 'export WB_WD="%s"\n' % working_dir )
     f.write( 'cd "%s"\n' % working_dir )
 
@@ -161,7 +164,16 @@ def __run_command( app, cmd, args ):
         signal.signal( signal.SIGCHLD, __sigchld_handler )
         __sigchld_handler_installed = True
 
+    cmd = asUtf8( cmd )
+    args = [asUtf8( arg ) for arg in args]
+
     os.spawnvpe( os.P_NOWAIT, cmd, [cmd]+args, env )
+
+def asUtf8( s ):
+    if type( s ) == types.UnicodeType:
+        return s.encode( 'utf-8' )
+    else:
+        return s
 
 def __sigchld_handler( signum, frame ):
     try:

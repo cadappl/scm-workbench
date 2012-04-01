@@ -1,6 +1,6 @@
 '''
  ====================================================================
- Copyright (c) 2003-2009 Barry A Scott.  All rights reserved.
+ Copyright (c) 2003-2011 Barry A Scott.  All rights reserved.
  Copyright (c) 2010-2011 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
@@ -79,6 +79,7 @@ id_SP_Switch = wx.NewId()
 id_SP_Unlock = wx.NewId()
 id_SP_Update = wx.NewId()
 id_SP_UpdateTo = wx.NewId()
+id_SP_Upgrade = wx.NewId()
 id_SP_CreateTag = wx.NewId()
 id_SP_CreateBranch = wx.NewId()
 
