@@ -1202,7 +1202,7 @@ class LogCtrlPanel(wx.Panel):
             self.text_ctrl.WriteError(string)
         elif string[:5] == 'Info:':
             self.text_ctrl.WriteInfo(string)
-        elif string[:8] == 'Warning:':
+        elif string[:8] == 'Warning:' or string[:5] == 'Warn:':
             self.text_ctrl.WriteWarning(string)
         elif string[:5] == 'Crit:':
             self.text_ctrl.WriteCritical(string)

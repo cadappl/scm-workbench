@@ -96,6 +96,8 @@ class ManifestProvider(wb_manifest_providers.Provider):
         uri = a['uri']
         if uri.startswith( self.prefix ):
             uri = uri[ len( self.prefix ): ]
+        if uri.endswith( '/' ):
+            uri = uri[ :len( uri ) - 1 ]
 
         # remove leading /vobs/package
         segments = list()
@@ -151,6 +153,11 @@ class ManifestProvider(wb_manifest_providers.Provider):
                     tags.append( '%s/tags/%s/%s' % ( repodir, name, revision ) )
                     tags.append( '%s/tags/%s' % (repodir, revision) )
 
+            # build the path in order
+            for t in tags:
+                ppath = segments[-1]
+                ret.append( wb_manifest_providers.Rule( scipath,
+                            '%s/%s' % ( t, joinUri( ppath, a ) ) ) )
             for t in tags:
                 ppath = '/'.join( segments )
                 ret.append( wb_manifest_providers.Rule( scipath,

@@ -499,8 +499,8 @@ class SubversionClient:
             if not lastp.has_key( wc_path ):
                 if len( lastp.keys() ) > 0:
                     for p in lastp.keys():
-                        print 'Warn: %s cannot match any of proposed urls: %s' % (
-                              p, ','.join( lastp[p] ) )
+                        print 'Warn: %s cannot match any of proposed urls:\n\t%s' % (
+                              p, ',\n\t'.join( lastp[p] ) )
 
                 lastp[wc_path] = [ url ]
             else:
@@ -651,6 +651,7 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
         self.parent = self.parent
         # TODO: check the usage of need_checkout
         self.need_update = False
+        self.need_upgrade = False
         self.need_checkout = True
         self.need_properties = False
         self.project_infos = dict()
