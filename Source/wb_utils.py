@@ -51,7 +51,7 @@ def formatPath( path ):
 
 def __loadFile( path, module, interf ):
     try:
-        print path, module, interf
+        # print path, module, interf
         sys.path.append( path )
         mo = __import__( module, globals() )
         reload( mo )

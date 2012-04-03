@@ -10,10 +10,13 @@
     wb_torun_project_dialogs.py
 
 '''
+
 import wx
 import wx.wizard
 import wb_source_control_providers
 import wb_manifest_providers
+import wb_format_manifest
+import wb_dialogs
 
 import pysvn
 import os
@@ -383,7 +386,8 @@ class ProjectSelectionPage(TitledPage):
         TitledPage.__init__( self, parent, T_("Select Manifest") )
 
         self.manifest = ''
-        self.repo_list = None
+        self.project_list = None
+        self.id_list = None
 
         self.client = pysvn.Client()
         self.client.exception_style = 1
@@ -398,16 +402,18 @@ class ProjectSelectionPage(TitledPage):
 
         text_proj_id = wx.StaticText( self, -1, T_("Project ID") )
         self.project_id = wx.ComboBox( self, -1, style=wx.CB_READONLY )
+        self.project_picker = wx.Button( self, -1, T_('...'), size=( 20, 20 ) )
         text_proj_label = wx.StaticText( self, -1, T_("Project Label") )
         self.project_label = wx.ComboBox( self, -1, style=wx.CB_READONLY )
-        self.extend_proj = wx.CheckBox( self, -1, T_("Include Extended Projects") )
+        self.extend_proj = wx.CheckBox( self, -1, T_("Include Deprecated Projects") )
 
-        info_sizer = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_( "Baseline Info" ) ), wx.VERTICAL )
-        prj_sizer = wx.FlexGridSizer( 0, 4, 0, 0 )
+        info_sizer = wx.StaticBoxSizer( wx.StaticBox( self, -1, T_("Baseline Info") ), wx.VERTICAL )
+        prj_sizer = wx.FlexGridSizer( 0, 5, 0, 0 )
         prj_sizer.AddGrowableCol( 1 )
-        prj_sizer.AddGrowableCol( 3 )
+        prj_sizer.AddGrowableCol( 4 )
         prj_sizer.Add( text_proj_id, 0, wx.EXPAND|wx.ALL, 1 )
         prj_sizer.Add( self.project_id, 0, wx.EXPAND|wx.ALL, 1 )
+        prj_sizer.Add( self.project_picker, 0, wx.ALL, 1 )
         prj_sizer.Add( text_proj_label, 0, wx.EXPAND|wx.ALL, 1 )
         prj_sizer.Add( self.project_label, 0, wx.EXPAND|wx.ALL, 1 )
 
@@ -417,7 +423,7 @@ class ProjectSelectionPage(TitledPage):
 
         spec = wx.StaticBox( self, -1, T_("Manifest") )
         spec_sizer = wx.StaticBoxSizer( spec, wx.HORIZONTAL )
-        spec_text = wx.StaticText( self, -1, T_("The manifest format must obey SIG definitions") )
+        spec_text = wx.StaticText( self, -1, T_("The manifest format must follow the definitions") )
         self.spec_button = wx.Button( self, -1, T_("Manifest") )
 
         spec_sizer.Add( spec_text, 0, wx.EXPAND|wx.ALL, 5 )
@@ -428,9 +434,11 @@ class ProjectSelectionPage(TitledPage):
         self.project_id.Bind( wx.EVT_COMBOBOX, self.OnProjectIdChange )
         self.project_label.Bind( wx.EVT_COMBOBOX, self.OnProjectLabelChange )
         self.spec_button.Bind( wx.EVT_BUTTON, self.OnConfigspecClick )
+        self.project_picker.Bind( wx.EVT_BUTTON, self.OnProjectPickerClick )
 
     def loadState( self, state ):
         self.manifest = state.manifest
+
         # delay to load the project info in remote
         self.updateControls(0)
 
@@ -474,16 +482,17 @@ class ProjectSelectionPage(TitledPage):
         self.updateControls( self.choice, True )
 
     def OnProjectIdChange( self, event ):
-        project = self.project_id.GetClientData( self.project_id.GetSelection() )
-        if project == None:
+        if self.project_id.GetSelection() == -1:
             return
 
-        uproject = project.upper()
-        project_location = self.repo_list.get( project )
-        if not project_location:
+        project = self.project_id.GetClientData( self.project_id.GetSelection() )
+
+        project_values = self.project_list.get( project )
+        if project_values is None:
             return
 
         dir_maps = dict()
+        project_location = project_values.get( wb_format_manifest.PACKAGE_LOCATION )
         prefix = self.parent.app.prefs.getRepository().repo_prefix
         if prefix[-1] != '/':
             prefix += '/'
@@ -495,6 +504,8 @@ class ProjectSelectionPage(TitledPage):
 
         if not repo_location.endswith( '/' ):
             repo_location += '/'
+
+        uproject = project.upper()
 
         # try to read all project tags. compatible with Torun - two
         # types of path could be formed:
@@ -583,7 +594,8 @@ class ProjectSelectionPage(TitledPage):
                     # add the project
                     editor.append( '')
                     editor.append( '#===+PROJECT' )
-                    editor.append( '%s/%s/...' % (self.repo_list[project], project ),
+                    location = self.project_list[project][wb_format_manifest.PACKAGE_LOCATION]
+                    editor.append( '%s/%s/...' % ( location, project ),
                                    self.project_label.GetValue() )
 
                     self.manifest = editor.getManifest()
@@ -599,22 +611,36 @@ class ProjectSelectionPage(TitledPage):
             self.manifest = editor.GetValue()
             editor.Destroy()
 
-    def updateControls( self, choice, force=False ):
+    def OnProjectPickerClick( self, event ):
+        dialog = wb_dialogs.ManifestDialog( self, 'Choose the Project',
+                            self.project_list, self.extend_proj.IsChecked() )
+        if dialog.ShowModal() == wx.ID_OK:
+            project = dialog.GetValue()
+            if project is None: return
+
+            for id, value in enumerate( self.id_list or list() ):
+                if value == project:
+                    self.project_id.SetSelection( id )
+                    self.OnProjectIdChange( None )
+
+
+    def updateControls(self, choice, force=False):
         self.choice = choice
 
-        if self.repo_list is None:
+        if self.project_list is None:
             p = self.parent.app.prefs.getRepository()
             self.repo_map = p.repo_map_list
-            self.repo_list = self._readRepoList( p.repo_baseline )
+            self.project_list = self._readRepoList( p.repo_baseline )
 
         # don't re-create the combox if it's inited and not required
         if not force:
             force = len( self.project_id.GetValue() ) == 0
 
-        is_torun_p = choice == 1 and len( self.repo_list ) > 0
+        is_torun_p = choice == 1 and len( self.project_list.keys() ) > 0
 
         self.project_id.Enable( is_torun_p )
         self.project_label.Enable( is_torun_p )
+        self.project_picker.Enable( is_torun_p )
         self.extend_proj.Enable( is_torun_p )
 
         if is_torun_p and force:
@@ -625,7 +651,7 @@ class ProjectSelectionPage(TitledPage):
                 return cmp( a[0], b[0] )
 
             item_list = list()
-            for item in self.repo_list.keys():
+            for item in self.project_list.keys():
                 if item.startswith( 'vy' ):
                     value = item.replace( 'vy', 'VY' )
                 else:
@@ -634,12 +660,15 @@ class ProjectSelectionPage(TitledPage):
                 item_list.append( ( value, item ) )
 
             item_list.sort( cmp_by_name )
+            self.id_list = list()
+            deprecated = self.extend_proj.IsChecked()
             for value, item in item_list:
-                if self.extend_proj.IsChecked():
-                    self.project_id.Append( value, item )
-                # only the project leading with VY are standard SiG project
-                elif value.startswith( 'VY' ):
-                    self.project_id.Append( value, item )
+                is_deprecated = self.project_list[item].get(wb_format_manifest.PACKAGE_STATUS) == 'deprecated'
+                if is_deprecated and not deprecated:
+                    continue
+
+                self.id_list.append( value )
+                self.project_id.Append( value, item )
 
             self.project_id.SetSelection( 0 )
             self.OnProjectIdChange( None )
@@ -651,39 +680,35 @@ class ProjectSelectionPage(TitledPage):
     def _readRepoList( self, repo_url ):
         ret = dict()
 
-        repo_url = repo_url.replace( '\\', '/' )
-        if not repo_url.endswith( '/' ):
-            repo_url += '/'
-
         text = None
-        # two solutions based on the old 'baseline' with "repo.list"
-        # and the newly 'manifest' with "repo.lst"
-        for suffix in ('',
-                       'trunk/' + ( repo_url.split( '/' ) )[-2] + '/repo.list',
-                       'trunk/baseline/repo.list',
-                       'trunk/repo.lst',
-                       'trunk/repo.list',
-                       'repo.lst',
-                       'repo.list'):
-            try:
-                text = self.client.cat( repo_url + suffix,
-                        revision=pysvn.Revision( pysvn.opt_revision_kind.head ),
-                        peg_revision=pysvn.Revision( pysvn.opt_revision_kind.unspecified) )
-            except:
-                # don't handle any exception
-                pass
-            finally:
-                if text != None: break
+        if os.path.exists( repo_url ):
+            text = wb_read_file.readFile( repo_url )
+        else:
+            repo_url = repo_url.replace( '\\', '/' )
+            if not repo_url.endswith( '/' ):
+                repo_url += '/'
+
+            # two solutions based on the old 'baseline' with "repo.list"
+            # and the newly 'manifest' with "repo.lst"
+            for suffix in ('',
+                           'trunk/' + ( repo_url.split( '/' ) )[-2] + '/repo.list',
+                           'trunk/baseline/repo.list',
+                           'trunk/repo.lst',
+                           'trunk/repo.list',
+                           'repo.lst',
+                           'repo.list'):
+                try:
+                    text = self.client.cat( repo_url + suffix,
+                             revision=pysvn.Revision( pysvn.opt_revision_kind.head ),
+                             peg_revision=pysvn.Revision( pysvn.opt_revision_kind.unspecified) )
+                except:
+                    # don't handle any exception
+                    pass
+                finally:
+                    if text != None: break
 
         if text:
-            for li in text.split( '\n' ):
-                li = li.strip()
-
-                if li.startswith( '#' ):
-                    continue
-                a = li.strip().split()
-                if len(a) > 1:
-                    ret[ a[0] ] = a[1]
+            ret = wb_format_manifest.parse(text)
         else:
             print "Error: manifest repository isn't configured correctly.\n" \
                   "       Adjust it in the application settings"

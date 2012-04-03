@@ -1,7 +1,7 @@
 '''
  ====================================================================
  Copyright (c) 2003-2010 Barry A Scott.  All rights reserved.
- Copyright (c) 2010 ccc. All rights reserved.
+ Copyright (c) 2010-2012 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -15,6 +15,7 @@ import wx
 import re
 import os
 import wb_platform_specific
+import wb_format_manifest
 
 id_log_message_text = wx.NewId()
 id_last_log_message = wx.NewId()
@@ -911,3 +912,55 @@ class NewIdent(wx.Dialog):
             return '%s-%d.%d' % ( uname, major, minor + 1 )
         else:
             return '%s-%d.%d.%d' % ( uname, major, minor, subver + 1 )
+
+class ManifestDialog(wx.Dialog):
+    def __init__( self, parent, title, listp, deprecated=True ):
+        wx.Dialog.__init__( self, parent, -1, title,
+          style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER|wx.FIXED_MINSIZE )
+
+        self.ret = None
+
+        self.listp = listp
+        sizer = wx.BoxSizer( wx.VERTICAL )
+        self.listctrl = wx.ListCtrl( self, -1, size=( 500, 400 ), style=wx.LC_REPORT )
+        self.listctrl.InsertColumn(0, 'Project')
+        self.listctrl.InsertColumn(1, 'Location')
+        self.listctrl.SetColumnWidth( 1, 100 )
+        self.listctrl.InsertColumn(2, 'Description')
+        self.listctrl.SetColumnWidth( 2, 250 )
+        self.listctrl.InsertColumn(4, 'Deprecated')
+
+        k = 0
+        lp = listp.keys(); lp.sort()
+        for name in lp:
+            p = listp[name]
+            if name.startswith('vy'):
+                name = 'VY' + name[2:]
+
+            if not deprecated \
+            and p.get(wb_format_manifest.PACKAGE_STATUS) == 'deprecated':
+                continue
+
+            self.listctrl.InsertStringItem(k, name)
+            self.listctrl.SetStringItem(k, 1, p[wb_format_manifest.PACKAGE_LOCATION])
+            self.listctrl.SetStringItem(k, 2, p.get(wb_format_manifest.PACKAGE_DESCRIPTION, ''))
+            if p.get(wb_format_manifest.PACKAGE_STATUS) == 'deprecated':
+                self.listctrl.SetStringItem(k, 3, 'true')
+            k += 1
+
+        sizer.Add( self.listctrl, 1, wx.ALL|wx.EXPAND, 5 )
+        sizer.Add( wx.StaticLine( self, -1, size=( 20,-1 ), style=wx.LI_HORIZONTAL ),
+                   0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_BOTTOM|wx.ALL, 5 )
+        sizer.Add( self.CreateStdDialogButtonSizer( wx.OK | wx.CANCEL ),
+                   0, wx.ALIGN_RIGHT|wx.ALIGN_BOTTOM|wx.ALL, 5 )
+
+        self.SetSizer( sizer )
+        self.Fit()
+
+    def GetValue( self ):
+        index = self.listctrl.GetFirstSelected()
+        if index != -1:
+            self.ret = self.listctrl.GetItemText(index)
+
+        return self.ret
+
