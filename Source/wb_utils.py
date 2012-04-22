@@ -32,6 +32,40 @@ def compare( x, y ):
     else:
         return cmp( ax, bx )
 
+def _getSplitVersionNumber( version ):
+    # skip the package nanme if it has
+    if version.find( '-' ):
+        version = ( version.split( '-' ) )[1]
+
+    return version.split( '.' )
+
+def _getInteger( value ):
+    val = 0
+    handled = False
+    for v in value:
+        if '0' <= v <= '9':
+            handled = True
+            val = val * 10 + int(v)
+    
+    if handled:
+        return val
+    else:
+        return value
+    
+def compareVersion( x, y ):
+    vx = _getSplitVersionNumber( x )
+    vy = _getSplitVersionNumber( y )
+    
+    length = len( vx )
+    if len( vy ) < length: length = len( vy )    
+
+    for k in range(length):
+        z = cmp( _getInteger( vx[k] ), _getInteger( vy[k] ) )
+        if z != 0:
+            return z
+    
+    return cmp( len( vx ), len( vy ) )
+
 def formatPath( path ):
     if path == None:
         return None

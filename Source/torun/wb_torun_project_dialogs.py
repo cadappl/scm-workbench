@@ -545,7 +545,7 @@ class ProjectSelectionPage(TitledPage):
             dir_list = dir_maps.keys()
 
             # sort without CB_LIST
-            dir_list.sort()
+            dir_list.sort( wb_utils.compareVersion )
             for item in dir_list:
                 self.project_label.Append( item, dir_maps[item] )
 
