@@ -66,6 +66,20 @@ def compareVersion( x, y ):
     
     return cmp( len( vx ), len( vy ) )
 
+def getRepoPath( repo_maps, name ):
+    if repo_maps.has_key( name ):
+        return repo_maps[name]
+
+    for pattern in repo_maps:
+        m = re.match( pattern, name )
+        if m:
+            ret = repo_maps[pattern]
+            for k, v in enumerate( m.groups() ):
+                ret = ret.replace( '\\%d' % ( k + 1 ), v )
+            return ret
+
+    return ''
+
 def formatPath( path ):
     if path == None:
         return None

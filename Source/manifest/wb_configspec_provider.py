@@ -227,7 +227,7 @@ class ConfigspecProvider(wb_manifest_providers.Provider):
         segments = scipath.replace( rootdir, '' ).split( '/' )
         repo = segments[1]
 
-        repodir = repo_map_list.get( repo, '' )
+        repodir = wb_utils.getRepoPath( repo_map_list, repo )
         rules = self.inst.match( rpath )
 
         # filter out CHECKEDOUT

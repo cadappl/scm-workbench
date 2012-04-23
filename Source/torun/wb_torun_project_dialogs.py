@@ -23,6 +23,7 @@ import os
 import sys
 import traceback
 
+import wb_utils
 import wb_config
 import wb_read_file
 
@@ -498,8 +499,8 @@ class ProjectSelectionPage(TitledPage):
             prefix += '/'
 
         repo_name = ( project_location.replace( prefix, '' ).split( '/' ) )[0]
-        repo_location = self.repo_map.get( repo_name )
-        if not repo_location:
+        repo_location = wb_utils.getRepoPath( self.repo_map, repo_name )
+        if repo_location == '':
             return
 
         if not repo_location.endswith( '/' ):

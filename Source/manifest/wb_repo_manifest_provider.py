@@ -109,7 +109,7 @@ class ManifestProvider(wb_manifest_providers.Provider):
                 segments.pop( 0 )
 
         if repom != None:
-            repodir = repom[ segments[0] ]
+            repodir = wb_utils.getRepoPath( repom, segments[0] )
             segments.pop( 0 )
 
         revision = a['revision']

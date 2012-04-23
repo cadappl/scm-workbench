@@ -1,7 +1,7 @@
 '''
  ====================================================================
  Copyright (c) 2003-2011 Barry A Scott.  All rights reserved.
- Copyright (c) 2010-2011 ccc. All rights reserved.
+ Copyright (c) 2010-2012 ccc. All rights reserved.
 
  This software is licensed as described in the file LICENSE.txt,
  which you should have received as part of this distribution.
@@ -489,7 +489,9 @@ class WbFrame(wx.Frame):
         str_message =    ((T_('kSVN version: %s') % ver_str) +
                 '\n' + pv_str +
                 'wxPython %d.%d.%d.%d %s' % wx.VERSION +
-                '\nPython %d.%d.%d %s %d\n' % sys.version_info +
+                '\nPython %d.%d.%d %s %d\n' % ( sys.version_info[0], sys.version_info[1],
+                                                sys.version_info[2], sys.version_info[3], 
+                                                sys.version_info[4] ) +
                 T_('\nCopyright Barry Scott (c) 2003-2011. All rights reserved') +
                 T_('\nCopyright ccc (c) 2010. All rights reserved')
                 )

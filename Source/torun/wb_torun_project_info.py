@@ -380,8 +380,9 @@ class RepositoryPanel(PagePanel):
             index = self.list_box.GetItemCount()
             self.list_box.InsertStringItem( index, itemp )
             pi = self.project_info.project_infos[item]
-            if repo_map_list.has_key( item ):
-                self.list_box.SetStringItem( index, 1, repo_map_list[item] )
+            repo = wb_utils.getRepoPath( repo_map_list, item )
+            if repo != '':
+                self.list_box.SetStringItem( index, 1, repo )
             elif hasattr( self.project_info.project_infos[item], 'url' ):
                 # covert the link back to constraint ones
                 url = self.project_info.project_infos[item].url
@@ -747,11 +748,13 @@ class ProjectInfo(wb_source_control_providers.ProjectInfo):
     def getTagsUrl( self, rel_url ):
         if self.parent is not None:
             return self.parent.getTagsUrl( rel_url )
+
         return self.expandedLabelUrl( True, rel_url )
 
     def getBranchesUrl( self, rel_url ):
         if self.parent is not None:
             return self.parent.getBranchesUrl( rel_url )
+
         return self.expandedLabelUrl( False, rel_url )
 
     def expandedLabelUrl( self, is_label, rel_url ):
