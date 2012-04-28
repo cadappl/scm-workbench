@@ -205,7 +205,7 @@ class ConfigspecProvider(wb_manifest_providers.Provider):
         repo = list()
         listp = self.inst.getRepositories()
 
-        prefix = self.prefix + '/'
+        prefix = self.prefix
         prefix_len = len( prefix )
         # filter out all repositories with the prefix
         for p in listp:
@@ -223,7 +223,7 @@ class ConfigspecProvider(wb_manifest_providers.Provider):
         scipath = wb_utils.formatPath( scipath )
         rootdir = wb_utils.formatPath( rootdir )
 
-        rpath = scipath.replace( rootdir, self.prefix )
+        rpath = scipath.replace( rootdir + '/', self.prefix )
         segments = scipath.replace( rootdir, '' ).split( '/' )
         repo = segments[1]
 
@@ -243,7 +243,7 @@ class ConfigspecProvider(wb_manifest_providers.Provider):
             # remove the leading /vobs/package
             if patterns[0] == '':
                 patterns.pop( 0 )
-            if patterns[0] == self.prefix:
+            if patterns[0] == self.prefix.replace('/', ''):
                 patterns.pop( 0 )
             if patterns[0] == repo:
                 patterns.pop( 0 )

@@ -448,9 +448,9 @@ class SubversionClient:
         self.project_info.initRepositoryInfo()
 
     def update( self, *arg, **args ):
-        self.updateWithManifest( wb_manifest_providers.Provider.ACTION_UPDATE )
+        self.updateWithManifest( wb_manifest_providers.Provider.ACTION_UPDATE, *arg, **args )
 
-    def updateWithManifest( self, action ):
+    def updateWithManifest( self, action, *arg, **args ):
         pv = None
         repo_map_list = self.app.prefs.getRepository().repo_map_list
         # detect the manifest provider
@@ -469,61 +469,66 @@ class SubversionClient:
         # it's assumed the stored configspec is always correct
         dirs = list()
 
-        # 1. handle pre-action
-        pv.handlePreAction( action )
+        # the first argument is the filename
+        if len(arg) > 0:
+            dirs.append(arg[0])
+        else:
+            # 1. handle pre-action
+            pv.handlePreAction( action )
 
-        # 2. find and check out all repositories
-        for repo in pv.getRepositories() or list():
-            # ignore the unmapped repositories
-            if not repo_map_list.has_key( repo ): continue
+            # 2. find and check out all repositories
+            for repo in pv.getRepositories() or list():
+                # ignore the unmapped repositories
+                repodir = wb_utils.getRepoPath( repo_map_list, repo )
+                if not repodir: continue
 
-            url = '%s/trunk' % repo_map_list[repo]
-            wc_path = os.path.join( self.project_info.wc_path, repo )
-            # build up the repository location with /trunk
-            if not os.path.exists( wc_path ):
-                self.app.foregroundProcess( self.app.setAction, ( ('Checkout %s...' % wc_path), ) )
-                self.client.checkout( url, wc_path, depth=pysvn.depth.infinity,
-                                      revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
-            dirs.append( wc_path )
+                url = '%s/trunk' % repodir
+                wc_path = os.path.join( self.project_info.wc_path, repo )
+                # build up the repository location with /trunk
+                if not os.path.exists( wc_path ):
+                    self.app.foregroundProcess( self.app.setAction, ( ('Checkout %s...' % wc_path), ) )
+                    self.client.checkout( url, wc_path, depth=pysvn.depth.infinity,
+                                          revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+                dirs.append( wc_path )
 
-        # 2. read extra repository-relative materials
-        lastp = dict()
-        extras = pv.getRepoExtras( self.project_info.wc_path, repo_map_list )
-        for m in extras or list():
-            url, wc_path = m.remotep, m.localp
-
-            # avoid to add duplicated url
-            if wc_path in dirs:
-                continue
-
-            # record the urls to inform the user
-            if not lastp.has_key( wc_path ):
-                if len( lastp.keys() ) > 0:
-                    for p in lastp.keys():
-                        print 'Warn: %s cannot match any of proposed urls:\n\t%s' % (
-                              p, ',\n\t'.join( lastp[p] ) )
-
-                lastp[wc_path] = [ url ]
-            else:
-                lastp[wc_path].append( url )
-
-            if not self.exists( url ):
-                # print 'Error: URL %s is not existent' % url
-                continue
-
-            if not os.path.exists( wc_path ):
-                os.makedirs( wc_path )
-
-                self.app.foregroundProcess( self.app.setAction, ( ('Checkout %s...' % m.localp), ) )
-                self.client.checkout( url, wc_path, depth=pysvn.depth.infinity,
-                                      revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
-            elif action == wb_manifest_providers.Provider.ACTION_UPDATE:
-                self.app.foregroundProcess( self.app.setAction, ( ('Update %s...' % m.localp), ) )
-                self.client.update( wc_path, depth=pysvn.depth.empty,
-                                    revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
-
+            # 3. read extra repository-relative materials
             lastp = dict()
-            dirs.append( wc_path )
+            extras = pv.getRepoExtras( self.project_info.wc_path, repo_map_list )
+            for m in extras or list():
+                url, wc_path = m.remotep, m.localp
+
+                # avoid to add duplicated url
+                if wc_path in dirs:
+                    continue
+
+                # record the urls to inform the user
+                if not lastp.has_key( wc_path ):
+                    if len( lastp.keys() ) > 0:
+                        for p in lastp.keys():
+                            print 'Warn: %s cannot match any of proposed urls:\n\t%s' % (
+                                  p, ',\n\t'.join( lastp[p] ) )
+
+                    lastp[wc_path] = [ url ]
+                else:
+                    lastp[wc_path].append( url )
+
+                if not self.exists( url ):
+                    # print 'Error: URL %s is not existent' % url
+                    continue
+
+                if not os.path.exists( wc_path ):
+                    os.makedirs( wc_path )
+
+                    self.app.foregroundProcess( self.app.setAction, ( ('Checkout %s...' % m.localp), ) )
+                    self.client.checkout( url, wc_path, depth=pysvn.depth.infinity,
+                                          revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+                elif action == wb_manifest_providers.Provider.ACTION_UPDATE:
+                    self.app.foregroundProcess( self.app.setAction, ( ('Update %s...' % m.localp), ) )
+                    self.client.update( wc_path, depth=pysvn.depth.empty,
+                                        revision=pysvn.Revision( pysvn.opt_revision_kind.head ) )
+
+                lastp = dict()
+                dirs.append( wc_path )
 
         # 3. update or switch directory according to the configspec
         while len( dirs ) > 0:

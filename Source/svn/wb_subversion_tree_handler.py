@@ -24,6 +24,7 @@ import wb_subversion_utils
 import wb_subversion_project_info
 import wb_subversion_utils
 import wb_subversion_diff
+import wb_subversion_dialogs
 import wb_subversion_info_dialog
 import wb_subversion_history
 import wb_subversion_checkin
@@ -869,10 +870,16 @@ class SubversionProject(wb_tree_panel.TreeProjectItem):
         try:
             self.project_info.initNotify()
 
-            if recursive:
-                rev_list = self.project_info.client_bg.update( filename, recurse=True, revision=rev )
+            # use the parent project_info to handle the correct update
+            if self.project_info.parent:
+                project_info = self.project_info.parent
             else:
-                rev_list = self.project_info.client_bg.update( filename, depth=svndepth, revision=rev )
+                project_info = self.project_info
+
+            if recursive:
+                rev_list = project_info.client_bg.update( filename, recurse=True, revision=rev )
+            else:
+                rev_list = project_info.client_bg.update( filename, depth=svndepth, revision=rev )
 
             return rev_list
 
